@@ -8,6 +8,7 @@ uses
   System.SysUtils,
   Horse,
   Horse.Jhonson,
+  Cosmetika.Utils in 'src\Utils\Cosmetika.Utils.pas',
   Cosmetika.Dao.Generic in 'src\DAO\Cosmetika.Dao.Generic.pas' {DmGeneric: TDataModule},
   Cosmetika.Dao.Product in 'src\DAO\Cosmetika.Dao.Product.pas' {DmProduct: TDataModule},
   Cosmetika.Controller.Product in 'src\Controller\Cosmetika.Controller.Product.pas',

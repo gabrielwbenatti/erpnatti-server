@@ -88,21 +88,19 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="src\Utils\Cosmetika.Utils.pas"/>
         <DCCReference Include="src\DAO\Cosmetika.Dao.Generic.pas">
             <Form>DmGeneric</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <DCCReference Include="src\DAO\Cosmetika.Dao.Product.pas">
             <Form>DmProduct</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <DCCReference Include="src\Controller\Cosmetika.Controller.Product.pas"/>
         <DCCReference Include="src\Model\Cosmetika.Model.Product.pas"/>
         <DCCReference Include="src\DAO\Cosmetika.Dao.Thirdy.pas">
             <Form>DmThirdy</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <DCCReference Include="src\Controller\Cosmetika.Controller.Thirdy.pas"/>
