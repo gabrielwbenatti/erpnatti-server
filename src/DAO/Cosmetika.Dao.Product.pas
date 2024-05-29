@@ -130,10 +130,13 @@ begin
   begin
     Product := TProduct.Create;
     try
-      Product.RowId := FDQuery.FieldByName('rowid').AsInteger;
-      Product.Name := FDQuery.FieldByName('name').AsString;
-      Product.NameAlias := FDQuery.FieldByName('name_alias').AsString;
-      Product.Reference := FDQuery.FieldByName('reference').AsString;
+      Product.RowId := FDQuery.FieldByName('ROWID').AsInteger;
+      Product.Name := FDQuery.FieldByName('NAME').AsString;
+      Product.NameAlias := FDQuery.FieldByName('NAME_ALIAS').AsString;
+      Product.Reference := FDQuery.FieldByName('REFERENCE').AsString;
+      Product.Status := FDQuery.FieldByName('STATUS').AsBoolean;
+      Product.ToSell := FDQuery.FieldByName('TO_SELL').AsBoolean;
+      Product.ToBuy := FDQuery.FieldByName('TO_BUY').AsBoolean;
 
       Result := Product.ToJSON;
     finally
@@ -150,50 +153,46 @@ var
 begin
   Product := TProduct.FromJSON(JSON);
 
-  try
-    with FDQuery do
-    begin
-      if not Transaction.Active then
-        Transaction.StartTransaction;
+  with FDQuery do
+  begin
+    if not Transaction.Active then
+      Transaction.StartTransaction;
 
-      Close;
-      SQL.Clear;
+    Close;
+    SQL.Clear;
 
-      SQL.Add('insert into');
-      SQL.Add('    PRODUCTS (');
-      SQL.Add('        REFERENCE,');
-      SQL.Add('        NAME,');
-      SQL.Add('        NAME_ALIAS,');
-      SQL.Add('        STATUS,');
-      SQL.Add('        TO_SELL,');
-      SQL.Add('        TO_BUY');
-      SQL.Add('    )');
-      SQL.Add('values');
-      SQL.Add('    (');
-      SQL.Add('        :REFERENCE,');
-      SQL.Add('        :NAME,');
-      SQL.Add('        :NAME_ALIAS,');
-      SQL.Add('        :STATUS,');
-      SQL.Add('        :TO_SELL,');
-      SQL.Add('        :TO_BUY');
-      SQL.Add('    )');
+    SQL.Add('insert into');
+    SQL.Add('    PRODUCTS (');
+    SQL.Add('        REFERENCE,');
+    SQL.Add('        NAME,');
+    SQL.Add('        NAME_ALIAS,');
+    SQL.Add('        STATUS,');
+    SQL.Add('        TO_SELL,');
+    SQL.Add('        TO_BUY');
+    SQL.Add('    )');
+    SQL.Add('values');
+    SQL.Add('    (');
+    SQL.Add('        :REFERENCE,');
+    SQL.Add('        :NAME,');
+    SQL.Add('        :NAME_ALIAS,');
+    SQL.Add('        :STATUS,');
+    SQL.Add('        :TO_SELL,');
+    SQL.Add('        :TO_BUY');
+    SQL.Add('    )');
 
-      ParamByName('REFERENCE').AsString := Product.Reference;
-      ParamByName('NAME').AsString := Product.Name;
-      ParamByName('NAME_ALIAS').AsString := Product.NameAlias;
-      ParamByName('STATUS').AsBoolean := Product.Status;
-      ParamByName('TO_SELL').AsBoolean := Product.ToSell;
-      ParamByName('TO_BUY').AsBoolean := Product.ToBuy;
+    ParamByName('REFERENCE').AsString := Product.Reference;
+    ParamByName('NAME').AsString := Product.Name;
+    ParamByName('NAME_ALIAS').AsString := Product.NameAlias;
+    ParamByName('STATUS').AsBoolean := Product.Status;
+    ParamByName('TO_SELL').AsBoolean := Product.ToSell;
+    ParamByName('TO_BUY').AsBoolean := Product.ToBuy;
 
-      ExecSQL;
-
-      FDQuery.Transaction.Commit;
-      Result := True;
-    end;
-  except
-    FDQuery.Transaction.Rollback;
-    Result := False;
+    ExecSQL;
   end;
+
+  Result := (FDQuery.RowsAffected > 0);
+
+  FDQuery.Transaction.Commit;
 end;
 
 end.

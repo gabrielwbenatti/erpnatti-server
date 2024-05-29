@@ -23,9 +23,9 @@ type
     property Reference: string read FReference write FReference;
     property Name: string read FName write FName;
     property NameAlias: string read FNameAlias write FNameAlias;
-    property Status: Boolean read FStatus write FStatus default True;
-    property ToSell: Boolean read FToSell write FToSell default True;
-    property ToBuy: Boolean read FToBuy write FToBuy default True;
+    property Status: Boolean read FStatus write FStatus;
+    property ToSell: Boolean read FToSell write FToSell;
+    property ToBuy: Boolean read FToBuy write FToBuy;
   end;
 
 implementation
@@ -36,12 +36,12 @@ class function TProduct.FromJSON(Product: TJSONObject): TProduct;
 begin
   Result := TProduct.Create;
 
-  if Assigned(Product.FindValue('reference')) then Result.Reference := Product.GetValue<string>('reference');
-  if Assigned(Product.FindValue('name'))      then Result.Name      := Product.GetValue<string>('name');
-  if Assigned(Product.FindValue('nameAlias')) then Result.NameAlias := Product.GetValue<string>('nameAlias');
-  if Assigned(Product.FindValue('status'))    then Result.Status    := Product.GetValue<Boolean>('status');
-  if Assigned(Product.FindValue('toSell'))    then Result.ToSell    := Product.GetValue<Boolean>('toSell');
-  if Assigned(Product.FindValue('toBuy'))     then Result.ToBuy     := Product.GetValue<Boolean>('toBuy');
+  Result.Reference := Product.GetValue<string>('reference', '');
+  Result.Name := Product.GetValue<string>('name', '');
+  Result.NameAlias := Product.GetValue<string>('nameAlias', '');
+  Result.Status := Product.GetValue<Boolean>('status', True);
+  Result.ToSell := Product.GetValue<Boolean>('toSell', True);
+  Result.ToBuy := Product.GetValue<Boolean>('toBuy', True);
 end;
 
 function TProduct.ToJSON: TJSONObject;
@@ -58,4 +58,3 @@ begin
 end;
 
 end.
-
