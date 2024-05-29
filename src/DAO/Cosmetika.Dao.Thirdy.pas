@@ -1,0 +1,124 @@
+unit Cosmetika.Dao.Thirdy;
+
+interface
+
+uses
+  System.SysUtils, System.Classes, Cosmetika.Dao.Generic, FireDAC.Stan.Intf,
+  FireDAC.Stan.Option, FireDAC.Stan.Error, FireDAC.UI.Intf, FireDAC.Phys.Intf,
+  FireDAC.Stan.Def, FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys,
+  FireDAC.Phys.FB, FireDAC.Phys.FBDef, FireDAC.ConsoleUI.Wait,
+  FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, Data.DB,
+  FireDAC.Comp.DataSet, FireDAC.Comp.Client, System.JSON,
+  System.Generics.Collections, FireDAC.VCLUI.Wait;
+
+type
+  TDmThirdy = class(TDmGeneric)
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    function Destroy(Params: TDictionary<string, string>): Boolean;
+    function Index(Query: TDictionary<string, string>): TJSONArray;
+    function Show(Params: TDictionary<string, string>): TJSONObject;
+    function Store(JSON: TJSONObject): Boolean;
+  end;
+
+var
+  DmThirdy: TDmThirdy;
+
+implementation
+
+uses
+  Cosmetika.Model.Thirdy;
+
+{%CLASSGROUP 'System.Classes.TPersistent'}
+{$R *.dfm}
+{ TDmThirdy }
+
+function TDmThirdy.Destroy(Params: TDictionary<string, string>): Boolean;
+begin
+
+end;
+
+function TDmThirdy.Index(Query: TDictionary<string, string>): TJSONArray;
+var
+  Thirdy: TThirdy;
+begin
+  Result := TJSONArray.Create;
+
+  with FDQuery do
+  begin
+    if not Transaction.Active then
+      Transaction.StartTransaction;
+
+    Close;
+    SQL.Clear;
+    SQL.Add(' select * from THIRDIES ');
+    Open();
+  end;
+
+  if not FDQuery.IsEmpty then
+  begin
+    FDQuery.FetchAll;
+    FDQuery.First;
+    while not FDQuery.Eof do
+    begin
+      Thirdy := TThirdy.Create;
+      try
+        Thirdy.RowId := FDQuery.FieldByName('ROWID').AsInteger;
+        Thirdy.Name := FDQuery.FieldByName('NAME').AsString;
+        Thirdy.NameAlias := FDQuery.FieldByName('NAME_ALIAS').AsString;
+        Thirdy.Document := FDQuery.FieldByName('DOCUMENT').AsString;
+
+        Result.Add(Thirdy.ToJSON);
+      finally
+        Thirdy.Free;
+      end;
+      FDQuery.Next;
+    end;
+  end;
+end;
+
+function TDmThirdy.Show(Params: TDictionary<string, string>): TJSONObject;
+begin
+
+end;
+
+function TDmThirdy.Store(JSON: TJSONObject): Boolean;
+var
+  Thirdy: TThirdy;
+begin
+  Thirdy := TThirdy.FromJSON(JSON);
+
+  with FDQuery do
+  begin
+    if not Transaction.Active then
+      Transaction.StartTransaction;
+
+    Close;
+    SQL.Clear;
+    SQL.Add('insert into ');
+    SQL.Add('    THIRDIES ( ');
+    SQL.Add('        NAME, ');
+    SQL.Add('        DOCUMENT, ');
+    SQL.Add('        IS_SUPPLIER ');
+    SQL.Add('    ) ');
+    SQL.Add('values');
+    SQL.Add('   (');
+    SQL.Add('        :NAME, ');
+    SQL.Add('        :DOCUMENT, ');
+    SQL.Add('        :IS_SUPPLIER ');
+    SQL.Add('    )');
+    ParamByName('NAME').AsString := Thirdy.Name;
+    ParamByName('DOCUMENT').AsString := Thirdy.Document;
+    ParamByName('IS_SUPPLIER').AsBoolean := Thirdy.IsSupplier;
+
+    ExecSQL;
+
+    Transaction.Commit;
+
+    Result := (RowsAffected > 0);
+  end;
+end;
+
+end.
