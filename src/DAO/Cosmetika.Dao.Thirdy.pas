@@ -29,7 +29,7 @@ var
 implementation
 
 uses
-  Cosmetika.Model.Thirdy;
+  Cosmetika.Model.Thirdy, Cosmetika.Utils;
 
 {%CLASSGROUP 'System.Classes.TPersistent'}
 {$R *.dfm}
@@ -77,11 +77,48 @@ begin
       FDQuery.Next;
     end;
   end;
+
+  FDQuery.Transaction.Commit;
 end;
 
 function TDmThirdy.Show(Params: TDictionary<string, string>): TJSONObject;
+var
+  Id: string;
+  Thirdy: TThirdy;
 begin
+  Result := nil;
+  Params.TryGetValue('id', Id);
 
+  with FDQuery do
+  begin
+    if not Transaction.Active then
+      Transaction.StartTransaction;
+
+    Close;
+    SQL.Clear;
+    SQL.Add(' select * from THIRDIES ');
+    SQL.Add(' where ROWID = :ROWID ');
+    ParamByName('ROWID').AsString := Id;
+    Open();
+  end;
+
+  if not FDQuery.IsEmpty then
+  begin
+    Thirdy := TThirdy.Create;
+    try
+      Thirdy.RowId := FDQuery.FieldByName('ROWID').AsInteger;
+      Thirdy.Name := FDQuery.FieldByName('NAME').AsString;
+      Thirdy.NameAlias := FDQuery.FieldByName('NAME_ALIAS').AsString;
+      Thirdy.Document := FDQuery.FieldByName('DOCUMENT').AsString;
+      Thirdy.IsSupplier := FDQuery.FieldByName('IS_SUPPLIER').AsBoolean;
+
+      Result := Thirdy.ToJSON;
+    finally
+      Thirdy.Free;
+    end;
+  end;
+
+  FDQuery.Transaction.Commit;
 end;
 
 function TDmThirdy.Store(JSON: TJSONObject): Boolean;
@@ -109,16 +146,17 @@ begin
     SQL.Add('        :DOCUMENT, ');
     SQL.Add('        :IS_SUPPLIER ');
     SQL.Add('    )');
+
     ParamByName('NAME').AsString := Thirdy.Name;
-    ParamByName('DOCUMENT').AsString := Thirdy.Document;
+    ParamByName('DOCUMENT').AsString := NumbersOnly(Thirdy.Document);
     ParamByName('IS_SUPPLIER').AsBoolean := Thirdy.IsSupplier;
 
     ExecSQL;
-
-    Transaction.Commit;
-
-    Result := (RowsAffected > 0);
   end;
+
+  Result := (FDQuery.RowsAffected > 0);
+
+  FDQuery.Transaction.Commit;
 end;
 
 end.
