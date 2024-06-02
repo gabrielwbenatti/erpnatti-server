@@ -105,6 +105,19 @@
         </DCCReference>
         <DCCReference Include="src\Controller\Cosmetika.Controller.Thirdy.pas"/>
         <DCCReference Include="src\Model\Cosmetika.Model.Thirdy.pas"/>
+        <DCCReference Include="src\Model\Cosmetika.Model.PurchaseInvoice.pas"/>
+        <DCCReference Include="src\Controller\Cosmetika.Controller.PurchaseInvoice.pas"/>
+        <DCCReference Include="src\DAO\Cosmetika.Dao.PurchaseInvoice.pas">
+            <Form>DmPurchaseInvoice</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="src\Model\Cosmetika.Model.PurchInvDet.pas"/>
+        <DCCReference Include="src\DAO\Cosmetika.Dao.PurchInvDet.pas">
+            <Form>DmPurchInvDet</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

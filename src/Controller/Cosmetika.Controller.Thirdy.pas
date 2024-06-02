@@ -9,7 +9,7 @@ type
   private
     class procedure DoDestroy(Req: THorseRequest; Res: THorseResponse);
     class procedure DoIndex(Req: THorseRequest; Res: THorseResponse);
-    class procedure DoPost(Req: THorseRequest; Res: THorseResponse);
+    class procedure DoStore(Req: THorseRequest; Res: THorseResponse);
     class procedure DoShow(Req: THorseRequest; Res: THorseResponse);
   public
     class procedure Registry;
@@ -43,7 +43,7 @@ begin
   end;
 end;
 
-class procedure TControllerThirdy.DoPost(Req: THorseRequest;
+class procedure TControllerThirdy.DoStore(Req: THorseRequest;
   Res: THorseResponse);
 var
   ThirdyDao: TDmThirdy;
@@ -80,7 +80,7 @@ end;
 class procedure TControllerThirdy.Registry;
 begin
   THorse.Get('/thirdies', DoIndex);
-  THorse.Post('/thirdies', DoPost);
+  THorse.Post('/thirdies', DoStore);
   THorse.Get('/thirdies/:id', DoShow);
   THorse.Delete('/thirdies/:id', DoDestroy);
 end;

@@ -9,7 +9,8 @@ uses
   FireDAC.Phys.FB, FireDAC.Phys.FBDef, FireDAC.ConsoleUI.Wait,
   FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, Data.DB,
   FireDAC.Comp.DataSet, FireDAC.Comp.Client, System.JSON,
-  System.Generics.Collections, FireDAC.VCLUI.Wait;
+  System.Generics.Collections, FireDAC.VCLUI.Wait,
+  Cosmetika.Model.Thirdy;
 
 type
   TDmThirdy = class(TDmGeneric)
@@ -18,6 +19,7 @@ type
   public
     { Public declarations }
     function Destroy(Params: TDictionary<string, string>): Boolean;
+    function GetById(Id: Integer): TThirdy;
     function Index(Query: TDictionary<string, string>): TJSONArray;
     function Show(Params: TDictionary<string, string>): TJSONObject;
     function Store(JSON: TJSONObject): Boolean;
@@ -29,7 +31,7 @@ var
 implementation
 
 uses
-  Cosmetika.Model.Thirdy, Cosmetika.Utils;
+  Cosmetika.Utils;
 
 {%CLASSGROUP 'System.Classes.TPersistent'}
 {$R *.dfm}
@@ -38,6 +40,37 @@ uses
 function TDmThirdy.Destroy(Params: TDictionary<string, string>): Boolean;
 begin
 
+end;
+
+function TDmThirdy.GetById(Id: Integer): TThirdy;
+begin
+  Result := nil;
+
+  with FDQuery do
+  begin
+    if not Transaction.Active then
+      Transaction.StartTransaction;
+
+    Close;
+    SQL.Clear;
+    SQL.Add(' select * from THIRDIES ');
+    SQL.Add(' where ROWID = :ROWID ');
+    ParamByName('ROWID').AsInteger := Id;
+    Open();
+  end;
+
+  if not FDQuery.IsEmpty then
+  begin
+    Result := TThirdy.Create;
+
+    Result.RowId := FDQuery.FieldByName('ROWID').AsInteger;
+    Result.Name := FDQuery.FieldByName('NAME').AsString;
+    Result.NameAlias := FDQuery.FieldByName('NAME_ALIAS').AsString;
+    Result.Document := FDQuery.FieldByName('DOCUMENT').AsString;
+    Result.IsSupplier := FDQuery.FieldByName('IS_SUPPLIER').AsBoolean;
+  end;
+
+  FDQuery.Transaction.Commit;
 end;
 
 function TDmThirdy.Index(Query: TDictionary<string, string>): TJSONArray;
@@ -88,37 +121,10 @@ var
 begin
   Result := nil;
   Params.TryGetValue('id', Id);
+  Thirdy := Self.GetById(StrToInt(Id));
 
-  with FDQuery do
-  begin
-    if not Transaction.Active then
-      Transaction.StartTransaction;
-
-    Close;
-    SQL.Clear;
-    SQL.Add(' select * from THIRDIES ');
-    SQL.Add(' where ROWID = :ROWID ');
-    ParamByName('ROWID').AsString := Id;
-    Open();
-  end;
-
-  if not FDQuery.IsEmpty then
-  begin
-    Thirdy := TThirdy.Create;
-    try
-      Thirdy.RowId := FDQuery.FieldByName('ROWID').AsInteger;
-      Thirdy.Name := FDQuery.FieldByName('NAME').AsString;
-      Thirdy.NameAlias := FDQuery.FieldByName('NAME_ALIAS').AsString;
-      Thirdy.Document := FDQuery.FieldByName('DOCUMENT').AsString;
-      Thirdy.IsSupplier := FDQuery.FieldByName('IS_SUPPLIER').AsBoolean;
-
-      Result := Thirdy.ToJSON;
-    finally
-      Thirdy.Free;
-    end;
-  end;
-
-  FDQuery.Transaction.Commit;
+  if Assigned(Thirdy) then
+    Result := Thirdy.ToJSON;
 end;
 
 function TDmThirdy.Store(JSON: TJSONObject): Boolean;

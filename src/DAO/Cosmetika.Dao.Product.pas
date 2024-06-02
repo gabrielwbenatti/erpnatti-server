@@ -9,7 +9,7 @@ uses
   FireDAC.ConsoleUI.Wait, FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf,
   FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
   FireDAC.Phys.FB, FireDAC.Phys.FBDef, System.JSON, FireDAC.VCLUI.Wait,
-  System.Generics.Collections;
+  System.Generics.Collections, Cosmetika.Model.Product;
 
 type
   TDmProduct = class(TDmGeneric)
@@ -18,6 +18,7 @@ type
   public
     { Public declarations }
     function Destroy(Params: TDictionary<string, string>): Boolean;
+    function GetById(Id: Integer): TProduct;
     function Index(Query: TDictionary<string, string>): TJSONArray;
     function Show(Params: TDictionary<string, string>): TJSONObject;
     function Store(JSON: TJSONObject): Boolean;
@@ -27,9 +28,6 @@ var
   DmProduct: TDmProduct;
 
 implementation
-
-uses
-  Cosmetika.Model.Product;
 
 {%CLASSGROUP 'System.Classes.TPersistent'}
 {$R *.dfm}
@@ -57,6 +55,39 @@ begin
   end;
 
   Result := (FDQuery.RowsAffected > 0);
+
+  FDQuery.Transaction.Commit;
+end;
+
+function TDmProduct.GetById(Id: Integer): TProduct;
+begin
+  Result := nil;
+
+  with FDQuery do
+  begin
+    if not Transaction.Active then
+      Transaction.StartTransaction;
+
+    Close;
+    SQL.Clear;
+    SQL.Add(' select * from PRODUCTS ');
+    SQL.Add(' where ROWID = :ROWID ');
+    ParamByName('ROWID').AsInteger := Id;
+    Open();
+  end;
+
+  if not FDQuery.IsEmpty then
+  begin
+    Result := TProduct.Create;
+
+    Result.RowId := FDQuery.FieldByName('ROWID').AsInteger;
+    Result.Name := FDQuery.FieldByName('NAME').AsString;
+    Result.NameAlias := FDQuery.FieldByName('NAME_ALIAS').AsString;
+    Result.Reference := FDQuery.FieldByName('REFERENCE').AsString;
+    Result.Status := FDQuery.FieldByName('STATUS').AsBoolean;
+    Result.ToSell := FDQuery.FieldByName('TO_SELL').AsBoolean;
+    Result.ToBuy := FDQuery.FieldByName('TO_BUY').AsBoolean;
+  end;
 
   FDQuery.Transaction.Commit;
 end;
@@ -110,41 +141,10 @@ var
 begin
   Result := nil;
   Params.TryGetValue('id', Id);
+  Product := Self.GetById(StrToInt(Id));
 
-  with FDQuery do
-  begin
-    if not Transaction.Active then
-      Transaction.StartTransaction;
-
-    Close;
-    SQL.Clear;
-
-    SQL.Add(' select * from PRODUCTS ');
-    SQL.Add(' where ROWID = :ROWID ');
-    ParamByName('ROWID').AsString := Id;
-
-    Open();
-  end;
-
-  if not FDQuery.IsEmpty then
-  begin
-    Product := TProduct.Create;
-    try
-      Product.RowId := FDQuery.FieldByName('ROWID').AsInteger;
-      Product.Name := FDQuery.FieldByName('NAME').AsString;
-      Product.NameAlias := FDQuery.FieldByName('NAME_ALIAS').AsString;
-      Product.Reference := FDQuery.FieldByName('REFERENCE').AsString;
-      Product.Status := FDQuery.FieldByName('STATUS').AsBoolean;
-      Product.ToSell := FDQuery.FieldByName('TO_SELL').AsBoolean;
-      Product.ToBuy := FDQuery.FieldByName('TO_BUY').AsBoolean;
-
-      Result := Product.ToJSON;
-    finally
-      Product.Free;
-    end;
-  end;
-
-  FDQuery.Transaction.Commit;
+  if Assigned(Product) then
+    Result := Product.ToJSON;
 end;
 
 function TDmProduct.Store(JSON: TJSONObject): Boolean;
@@ -160,7 +160,6 @@ begin
 
     Close;
     SQL.Clear;
-
     SQL.Add('insert into');
     SQL.Add('    PRODUCTS (');
     SQL.Add('        REFERENCE,');

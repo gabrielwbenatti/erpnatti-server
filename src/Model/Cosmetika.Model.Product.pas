@@ -16,7 +16,7 @@ type
     FToSell: Boolean;
     FToBuy: Boolean;
   public
-    class function FromJSON(Product: TJSONObject): TProduct;
+    class function FromJSON(JSON: TJSONObject): TProduct;
     function ToJSON: TJSONObject;
   published
     property RowId: Integer read FRowId write FRowId;
@@ -32,16 +32,16 @@ implementation
 
 { TProduct }
 
-class function TProduct.FromJSON(Product: TJSONObject): TProduct;
+class function TProduct.FromJSON(JSON: TJSONObject): TProduct;
 begin
   Result := TProduct.Create;
 
-  Result.Reference := Product.GetValue<string>('reference', '');
-  Result.Name := Product.GetValue<string>('name', '');
-  Result.NameAlias := Product.GetValue<string>('nameAlias', '');
-  Result.Status := Product.GetValue<Boolean>('status', True);
-  Result.ToSell := Product.GetValue<Boolean>('toSell', True);
-  Result.ToBuy := Product.GetValue<Boolean>('toBuy', True);
+  Result.Reference := JSON.GetValue<string>('reference', '');
+  Result.Name := JSON.GetValue<string>('name', '');
+  Result.NameAlias := JSON.GetValue<string>('nameAlias', '');
+  Result.Status := JSON.GetValue<Boolean>('status', True);
+  Result.ToSell := JSON.GetValue<Boolean>('toSell', True);
+  Result.ToBuy := JSON.GetValue<Boolean>('toBuy', True);
 end;
 
 function TProduct.ToJSON: TJSONObject;
