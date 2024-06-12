@@ -95,8 +95,14 @@ end;
 function TDmProduct.Index(Query: TDictionary<string, string>): TJSONArray;
 var
   Product: TProduct;
+  SearchTerm, Reference: string;
 begin
   Result := TJSONArray.Create;
+
+  if Query.ContainsKey('searchTerm') then
+    Query.TryGetValue('searchTerm', SearchTerm);
+  if Query.ContainsKey('reference') then
+    Query.TryGetValue('reference', Reference);
 
   with FDQuery do
   begin
@@ -106,6 +112,21 @@ begin
     Close;
     SQL.Clear;
     SQL.Add(' select * from PRODUCTS ');
+
+    if not (Reference.Trim.IsEmpty) then
+    begin
+      SQL.Add(' where ');
+      SQL.Add('     REFERENCE = :REFERENCE ');
+      ParamByName('REFERENCE').AsString := Reference;
+    end else    if not (SearchTerm.Trim.IsEmpty) then
+    begin
+      SQL.Add(' where ');
+      SQL.Add('     (NAME containing(:SEARCH_TERM)) or ');
+      SQL.Add('     (NAME_ALIAS containing(:SEARCH_TERM)) or ');
+      SQL.Add('     (REFERENCE containing(:SEARCH_TERM)) ');
+      ParamByName('SEARCH_TERM').AsString := SearchTerm;
+    end;
+
     Open();
   end;
 
