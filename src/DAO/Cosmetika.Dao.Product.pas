@@ -118,7 +118,8 @@ begin
       SQL.Add(' where ');
       SQL.Add('     REFERENCE = :REFERENCE ');
       ParamByName('REFERENCE').AsString := Reference;
-    end else    if not (SearchTerm.Trim.IsEmpty) then
+    end
+    else if not (SearchTerm.Trim.IsEmpty) then
     begin
       SQL.Add(' where ');
       SQL.Add('     (NAME containing(:SEARCH_TERM)) or ');
