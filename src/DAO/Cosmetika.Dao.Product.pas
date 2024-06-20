@@ -99,10 +99,8 @@ var
 begin
   Result := TJSONArray.Create;
 
-  if Query.ContainsKey('searchTerm') then
-    Query.TryGetValue('searchTerm', SearchTerm);
-  if Query.ContainsKey('reference') then
-    Query.TryGetValue('reference', Reference);
+  Query.TryGetValue('searchTerm', SearchTerm);
+  Query.TryGetValue('reference', Reference);
 
   with FDQuery do
   begin

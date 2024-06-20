@@ -76,8 +76,11 @@ end;
 function TDmThirdy.Index(Query: TDictionary<string, string>): TJSONArray;
 var
   Thirdy: TThirdy;
+  IsSupplier: string;
 begin
   Result := TJSONArray.Create;
+
+  Query.TryGetValue('isSupplier', IsSupplier);
 
   with FDQuery do
   begin
@@ -87,6 +90,14 @@ begin
     Close;
     SQL.Clear;
     SQL.Add(' select * from THIRDIES ');
+
+    if not IsSupplier.Trim.IsEmpty then
+    begin
+      SQL.Add(' where ');
+      SQL.Add('     (IS_SUPPLIER = :IS_SUPPLIER) ');
+      ParamByName('IS_SUPPLIER').AsString := IsSupplier;
+    end;
+
     Open();
   end;
 
