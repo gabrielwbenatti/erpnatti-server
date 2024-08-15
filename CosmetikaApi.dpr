@@ -9,6 +9,7 @@ uses
   Horse,
   Horse.Jhonson,
   Horse.CORS,
+  Horse.HandleException,
   Cosmetika.Utils in 'src\Utils\Cosmetika.Utils.pas',
   Cosmetika.Dao.Generic in 'src\DAO\Cosmetika.Dao.Generic.pas' {DmGeneric: TDataModule},
   Cosmetika.Dao.Product in 'src\DAO\Cosmetika.Dao.Product.pas' {DmProduct: TDataModule},
@@ -29,12 +30,13 @@ begin
   Write('Press return to stop...');
   Readln;
   THorse.StopListen;
-end;
+end;                    
 
 begin
   try
     THorse.Use(Jhonson);
     THorse.Use(CORS);
+    THorse.Use(HandleException);
 
     TControllerProduct.Registry;
     TControllerThirdy.Registry;
