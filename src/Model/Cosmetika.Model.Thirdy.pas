@@ -13,13 +13,14 @@ type
     FNameAlias: string;
     FDocument: string;
     FIsSupplier: Boolean;
-    procedure SetDocument(const Value: string);
+    function GetDocument: string; 
   published
     property RowId: Integer read FRowId write FRowId;
     property Name: string read FName write FName;
     property NameAlias: string read FNameAlias write FNameAlias;
-    property Document: string read FDocument write SetDocument;
-    property IsSupplier: Boolean read FIsSupplier write FIsSupplier;
+    property Document: string read GetDocument write FDocument;
+    property IsSupplier: Boolean read FIsSupplier write FIsSupplier; 
+    
   public
     class function FromJSON(JSON: TJSONObject): TThirdy;
     function ToJSON: TJSONObject;
@@ -42,19 +43,19 @@ begin
   Result.IsSupplier := JSON.GetValue<Boolean>('is_supplier', False);
 end;
 
-procedure TThirdy.SetDocument(const Value: string);
+function TThirdy.GetDocument: string;
 begin
-  FDocument := FormatDocument(Value);
-end;
+  Result := FormatDocument(FDocument);
+end; 
 
 function TThirdy.ToJSON: TJSONObject;
 begin
   Result := TJSONObject.Create;
 
-  Result.AddPair('rowid', TJSONNumber.Create(FRowId));
-  Result.AddPair('name', TJSONString.Create(FName));
-  Result.AddPair('nameAlias', TJSONString.Create(FNameAlias));
-  Result.AddPair('document', TJSONString.Create(FDocument));
+  Result.AddPair('rowid', TJSONNumber.Create(RowId));
+  Result.AddPair('name', TJSONString.Create(Name));
+  Result.AddPair('nameAlias', TJSONString.Create(NameAlias));
+  Result.AddPair('document', TJSONString.Create(Document));
 end;
 
 end.

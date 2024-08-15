@@ -2,7 +2,8 @@ unit Cosmetika.Controller.Thirdy;
 
 interface
 
-uses Horse;
+uses
+  Horse;
 
 type
   TControllerThirdy = class
@@ -25,7 +26,7 @@ uses
 class procedure TControllerThirdy.DoDestroy(Req: THorseRequest;
   Res: THorseResponse);
 begin
-  Res.Send('<h1>em desenvolvimento</h1>');
+  raise EHorseException.New.Error('Em desenvolvimento').Status(THTTPStatus.NotImplemented)
 end;
 
 class procedure TControllerThirdy.DoIndex(Req: THorseRequest;

@@ -165,7 +165,7 @@ begin
     SQL.Add('    )');
 
     ParamByName('NAME').AsString := Thirdy.Name;
-    ParamByName('DOCUMENT').AsString := NumbersOnly(Thirdy.Document);
+    ParamByName('DOCUMENT').AsString := Trim(NumbersOnly(Thirdy.Document));
     ParamByName('IS_SUPPLIER').AsBoolean := Thirdy.IsSupplier;
 
     ExecSQL;

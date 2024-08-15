@@ -17,21 +17,25 @@ begin
 end;
 
 function FormatDocument(const Text: string): string;
+var
+  LText: string;
 begin
-  case Length(Text) of
+  LText := Trim(NumbersOnly(Text));
+
+  case Length(LText) of
     11:
       begin
-        Result := Text.Substring(0, 3) + '.' + Text.Substring(3, 3) + '.' +
-          Text.Substring(6, 3) + '-' + Text.Substring(9, 2);
+        Result := LText.Substring(0, 3) + '.' + LText.Substring(3, 3) + '.' +
+          LText.Substring(6, 3) + '-' + LText.Substring(9, 2);
       end;
     14:
       begin
-        Result := Text.Substring(0, 2) + '.' + Text.Substring(2, 3) + '.' +
-          Text.Substring(5, 3) + '/' + Text.Substring(8, 4) + '-' +
-          Text.Substring(12, 2);
+        Result := LText.Substring(0, 2) + '.' + LText.Substring(2, 3) + '.' +
+          LText.Substring(5, 3) + '/' + LText.Substring(8, 4) + '-' +
+          LText.Substring(12, 2);
       end;
   else
-    Result := Text;
+    Result := LText;
   end;
 end;
 
