@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model products {
+  rowid      Int     @id @default(autoincrement())
+  reference  String
+  name       String
+  name_alias String?
+  status     Boolean @default(true)
+  to_sell    Boolean @default(true)
+  to_buy     Boolean @default(true)
+}
+
+model thirdies {
+  rowid       Int     @id @default(autoincrement())
+  name        String
+  name_alias  String?
+  document    String
+  is_supplier Boolean @default(false)
+
+  PurchaseInvoice purchase_invoices[]
+}
+
+model purchase_invoices {
+  rowid          Int      @id @default(autoincrement())
+  fk_supplier_id Int
+  entry_date     DateTime
+  issuance_date  DateTime
+  total_amount   Decimal  @default(0.00)
+
+  Supplier thirdies @relation(fields: [fk_supplier_id], references: [rowid])
+}
+
+model purch_inv_det {
+  rowid           Int     @id @default(autoincrement())
+  fk_purch_inv_id Int
+  fk_product_id   Int
+  unitary         Decimal
+  quantity        Decimal
+  total           Decimal
+}
