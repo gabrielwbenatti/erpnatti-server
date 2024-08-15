@@ -10,7 +10,7 @@ uses
   FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, Data.DB,
   FireDAC.Comp.DataSet, FireDAC.Comp.Client, System.JSON,
   System.Generics.Collections, FireDAC.VCLUI.Wait,
-  Cosmetika.Model.Thirdy;
+  Cosmetika.Model.Thirdy, FireDAC.Phys.PG, FireDAC.Phys.PGDef;
 
 type
   TDmThirdy = class(TDmGeneric)
@@ -19,7 +19,7 @@ type
   public
     { Public declarations }
     function Destroy(Params: TDictionary<string, string>): Boolean;
-    function GetById(Id: Integer): TThirdy;
+    function GetBy(FieldName: string; Value: Variant): TThirdy;
     function Index(Query: TDictionary<string, string>): TJSONArray;
     function Show(Params: TDictionary<string, string>): TJSONObject;
     function Store(JSON: TJSONObject): Boolean;
@@ -42,7 +42,7 @@ begin
 
 end;
 
-function TDmThirdy.GetById(Id: Integer): TThirdy;
+function TDmThirdy.GetBy(FieldName: string; Value: Variant): TThirdy;
 begin
   Result := nil;
 
@@ -54,8 +54,8 @@ begin
     Close;
     SQL.Clear;
     SQL.Add(' select * from THIRDIES ');
-    SQL.Add(' where ROWID = :ROWID ');
-    ParamByName('ROWID').AsInteger := Id;
+    SQL.Add(' where ' + FieldName + ' = :FIELD_PARAM ');
+    ParamByName('FIELD_PARAM').Value := Value;
     Open();
   end;
 
@@ -132,7 +132,7 @@ var
 begin
   Result := nil;
   Params.TryGetValue('id', Id);
-  Thirdy := Self.GetById(StrToInt(Id));
+  Thirdy := Self.GetBy('rowid', StrToInt(Id));
 
   if Assigned(Thirdy) then
     Result := Thirdy.ToJSON;

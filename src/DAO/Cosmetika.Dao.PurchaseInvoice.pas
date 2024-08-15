@@ -10,7 +10,7 @@ uses
   FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, Data.DB,
   FireDAC.Comp.DataSet, FireDAC.Comp.Client, System.JSON, FireDAC.VCLUI.Wait,
   Cosmetika.Model.PurchaseInvoice, System.Generics.Collections,
-  Cosmetika.Model.PurchInvDet;
+  Cosmetika.Model.PurchInvDet, FireDAC.Phys.PG, FireDAC.Phys.PGDef;
 
 type
   TDmPurchaseInvoice = class(TDmGeneric)
@@ -18,7 +18,7 @@ type
     { Private declarations }
   public
     { Public declarations }
-    function GetById(Id: Integer): TPurchaseInvoice;
+    function GetBy(FieldName: string; Value: Variant): TPurchaseInvoice;
     function Show(Params: TDictionary<string, string>): TJSONObject;
     function Store(JSON: TJSONObject): Boolean;
   end;
@@ -35,7 +35,8 @@ uses
 {$R *.dfm}
 { TDmPurchaseInvoice }
 
-function TDmPurchaseInvoice.GetById(Id: Integer): TPurchaseInvoice;
+function TDmPurchaseInvoice.GetBy(FieldName: string;
+  Value: Variant): TPurchaseInvoice;
 var
   ThirdyDao: TDmThirdy;
   PurchInvDet: TDmPurchInvDet;
@@ -50,8 +51,8 @@ begin
     Close;
     SQL.Clear;
     SQL.Add(' select * from PURCHASE_INVOICE ');
-    SQL.Add(' where ROWID = :ROWID ');
-    ParamByName('ROWID').AsInteger := Id;
+    SQL.Add(' where ' + FieldName + ' = :FIELD_PARAM ');
+    ParamByName('ROWID').Value := Value;
     Open();
   end;
 
@@ -63,8 +64,8 @@ begin
       Result := TPurchaseInvoice.Create;
 
       Result.RowId := FDQuery.FieldByName('ROWID').AsInteger;
-      Result.Supplier := ThirdyDao.GetById(FDQuery.FieldByName('FK_SUPPLIER_ID')
-        .AsInteger);
+      Result.Supplier := ThirdyDao.GetBy('rowid',
+        FDQuery.FieldByName('FK_SUPPLIER_ID').AsInteger);
       Result.IssuanceDate := FDQuery.FieldByName('ISSUANCE_DATE').AsDateTime;
       Result.EntryDate := FDQuery.FieldByName('ENTRY_DATE').AsDateTime;
       Result.TotalAmount := FDQuery.FieldByName('TOTAL_AMOUNT').AsFloat;
@@ -85,7 +86,7 @@ var
 begin
   Result := nil;
   Params.TryGetValue('id', Id);
-  Invoice := Self.GetById(StrToInt(Id));
+  Invoice := Self.GetBy('rowid', StrToInt(Id));
 
   if Assigned(Invoice) then
     try

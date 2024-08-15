@@ -58,8 +58,8 @@ begin
   ThirdyDao := TDmThirdy.Create;
 
   try
-    Result.Supplier := ThirdyDao.GetById
-      (JSON.GetValue<Integer>('fkSupplierId'));
+    Result.Supplier := ThirdyDao.GetBy('rowid',
+      JSON.GetValue<Integer>('fkSupplierId'));
 
     Result.IssuanceDate :=
       JSONToDate(JSON.GetValue<string>('issuanceDate', ''));
