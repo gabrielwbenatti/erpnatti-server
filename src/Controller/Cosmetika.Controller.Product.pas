@@ -19,7 +19,7 @@ type
 implementation
 
 uses
-  Cosmetika.Dao.Product, Cosmetika.Model.Product, System.JSON;
+  Cosmetika.Dao.Product, Cosmetika.Model.Product, System.JSON, System.SysUtils;
 
 { TControllerProduct }
 
@@ -47,8 +47,13 @@ var
 begin
   ProductDao := TDmProduct.Create;
   try
-    JsonArray := ProductDao.Index(Req.Query.Dictionary);
-    Res.Send<TJSONArray>(JsonArray);
+    try
+      JsonArray := ProductDao.Index(Req.Query.Dictionary);
+      Res.Send<TJSONArray>(JsonArray);
+    except
+      on E: Exception do
+        Res.Send(E.Message)
+    end;
   finally
     ProductDao.Free;
   end;

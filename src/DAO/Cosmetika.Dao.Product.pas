@@ -9,7 +9,8 @@ uses
   FireDAC.ConsoleUI.Wait, FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf,
   FireDAC.DApt, Data.DB, FireDAC.Comp.DataSet, FireDAC.Comp.Client,
   FireDAC.Phys.FB, FireDAC.Phys.FBDef, System.JSON, FireDAC.VCLUI.Wait,
-  System.Generics.Collections, Cosmetika.Model.Product;
+  System.Generics.Collections, Cosmetika.Model.Product, FireDAC.Phys.PG,
+  FireDAC.Phys.PGDef, System.Variants, Horse.Commons;
 
 type
   TDmProduct = class(TDmGeneric)
@@ -18,7 +19,7 @@ type
   public
     { Public declarations }
     function Destroy(Params: TDictionary<string, string>): Boolean;
-    function GetById(Id: Integer): TProduct;
+    function GetBy(FieldName: string; Value: Variant): TProduct;
     function Index(Query: TDictionary<string, string>): TJSONArray;
     function Show(Params: TDictionary<string, string>): TJSONObject;
     function Store(JSON: TJSONObject): Boolean;
@@ -28,6 +29,9 @@ var
   DmProduct: TDmProduct;
 
 implementation
+
+uses
+  Horse.Exception;
 
 {%CLASSGROUP 'System.Classes.TPersistent'}
 {$R *.dfm}
@@ -49,7 +53,7 @@ begin
 
     SQL.Add(' delete from PRODUCTS ');
     SQL.Add(' where ROWID = :ROWID ');
-    ParamByName('ROWID').AsString := Id;
+    ParamByName('ROWID').AsInteger := StrToIntDef(Id, 0);
 
     ExecSQL;
   end;
@@ -59,7 +63,7 @@ begin
   FDQuery.Transaction.Commit;
 end;
 
-function TDmProduct.GetById(Id: Integer): TProduct;
+function TDmProduct.GetBy(FieldName: string; Value: Variant): TProduct;
 begin
   Result := nil;
 
@@ -71,8 +75,9 @@ begin
     Close;
     SQL.Clear;
     SQL.Add(' select * from PRODUCTS ');
-    SQL.Add(' where ROWID = :ROWID ');
-    ParamByName('ROWID').AsInteger := Id;
+    SQL.Add(' where ' + FieldName + ' = :FIELD_PARAM ');
+    ParamByName('FIELD_PARAM').Value := Value;
+
     Open();
   end;
 
@@ -161,7 +166,7 @@ var
 begin
   Result := nil;
   Params.TryGetValue('id', Id);
-  Product := Self.GetById(StrToInt(Id));
+  Product := Self.GetBy('rowid', StrToInt(Id));
 
   if Assigned(Product) then
     Result := Product.ToJSON;
@@ -172,6 +177,14 @@ var
   Product: TProduct;
 begin
   Product := TProduct.FromJSON(JSON);
+
+  if Self.GetBy('reference', Product.Reference) <> nil then
+  begin
+    raise EHorseException
+      .New
+      .Error('Reference already exists')
+      .Status(THTTPStatus.BadRequest);
+  end;
 
   with FDQuery do
   begin

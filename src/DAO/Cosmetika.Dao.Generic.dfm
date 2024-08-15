@@ -1,24 +1,24 @@
 object DmGeneric: TDmGeneric
-  Height = 371
-  Width = 519
-  PixelsPerInch = 120
+  OldCreateOrder = True
+  Height = 298
+  Width = 347
   object FDConnection: TFDConnection
     Params.Strings = (
-      'Database=D:\projetos\Cosmetika\Database\COSMETIKA.FDB'
-      'User_Name=SYSDBA'
-      'Password=masterkey'
-      'Port=3050'
+      'Database=cosmetikadb'
+      'User_Name=postgres'
+      'Password=postgres'
       'CharacterSet=UTF8'
-      'DriverID=FB')
+      'DriverID=PG')
     LoginPrompt = False
     Transaction = FDTransaction
+    BeforeConnect = FDConnectionBeforeConnect
     Left = 80
     Top = 50
   end
   object FDTransaction: TFDTransaction
     Connection = FDConnection
-    Left = 220
-    Top = 40
+    Left = 92
+    Top = 160
   end
   object FDQuery: TFDQuery
     Connection = FDConnection
@@ -26,7 +26,14 @@ object DmGeneric: TDmGeneric
     FormatOptions.AssignedValues = [fvSE2Null, fvStrsTrim2Len]
     FormatOptions.StrsEmpty2Null = True
     FormatOptions.StrsTrim2Len = True
-    Left = 90
-    Top = 220
+    Left = 50
+    Top = 156
+  end
+  object FDPhysPgDriverLink1: TFDPhysPgDriverLink
+    VendorLib = 
+      'D:\gabri\Documents\GitHub\gabrielwbenatti\cosmetika-server\Win64' +
+      '\Debug\libpq.dll'
+    Left = 144
+    Top = 48
   end
 end

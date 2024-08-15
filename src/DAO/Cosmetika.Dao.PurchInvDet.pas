@@ -9,7 +9,8 @@ uses
   FireDAC.Phys.FB, FireDAC.Phys.FBDef, FireDAC.ConsoleUI.Wait,
   FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, Data.DB,
   FireDAC.Comp.DataSet, FireDAC.Comp.Client, Cosmetika.Model.PurchInvDet,
-  System.Generics.Collections, FireDAC.VCLUI.Wait;
+  System.Generics.Collections, FireDAC.VCLUI.Wait, FireDAC.Phys.PG,
+  FireDAC.Phys.PGDef;
 
 type
   TDmPurchInvDet = class(TDmGeneric)
@@ -71,8 +72,8 @@ begin
         PurchInvItem.Quantity := FDQuery.FieldByName('QUANTITY').AsFloat;
         PurchInvItem.Total := FDQuery.FieldByName('TOTAL').AsFloat;
 
-        PurchInvItem.Product := ProductDao.GetById
-          (FDQuery.FieldByName('FK_PRODUCT_ID').AsInteger);
+        PurchInvItem.Product := ProductDao.GetBy('rowid',
+          FDQuery.FieldByName('FK_PRODUCT_ID').AsInteger);
 
         Result.Add(PurchInvItem);
 

@@ -51,7 +51,7 @@ begin
 
   try
     Result.RowId := JSON.GetValue<Integer>('rowid', 0);
-    Result.Product := ProductDao.GetById(JSON.GetValue<Integer>('fkProductId', 0));
+    Result.Product := ProductDao.GetBy('rowid', JSON.GetValue<Integer>('fkProductId', 0));
     Result.Unitary := JSON.GetValue<Double>('unitary', 0);
     Result.Quantity := JSON.GetValue<Double>('quantity', 0);
     Result.Total := JSON.GetValue<Double>('total', 0);

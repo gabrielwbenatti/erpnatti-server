@@ -8,13 +8,15 @@ uses
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.ConsoleUI.Wait,
   FireDAC.Comp.Client, Data.DB, FireDAC.Stan.Param, FireDAC.DatS,
   FireDAC.DApt.Intf, FireDAC.DApt, FireDAC.Comp.DataSet, FireDAC.VCLUI.Wait,
-  FireDAC.Phys.FB, FireDAC.Phys.FBDef;
+  FireDAC.Phys.FB, FireDAC.Phys.FBDef, FireDAC.Phys.PG, FireDAC.Phys.PGDef;
 
 type
   TDmGeneric = class(TDataModule)
     FDConnection: TFDConnection;
     FDTransaction: TFDTransaction;
     FDQuery: TFDQuery;
+    FDPhysPgDriverLink1: TFDPhysPgDriverLink;
+    procedure FDConnectionBeforeConnect(Sender: TObject);
   protected
     procedure VerifyTable(Name: string);
     procedure VerifyColumnInTable(Table, Column, FieldType: string);
