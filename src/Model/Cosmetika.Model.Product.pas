@@ -8,24 +8,22 @@ uses
 type
   TProduct = class
   private
-    FRowId: Integer;
-    FReference: string;
-    FName: string;
-    FNameAlias: string;
-    FStatus: Boolean;
-    FToSell: Boolean;
-    FToBuy: Boolean;
+    FId: Integer;
+    FNome: string;
+    FCodigoBarras: string;
+    FMovimentaEstoque: Boolean;
+    FEstoqueMinimo: Double;
+    FEstoqueMaximo: Double;
   public
     class function FromJSON(JSON: TJSONObject): TProduct;
     function ToJSON: TJSONObject;
-  published
-    property RowId: Integer read FRowId write FRowId;
-    property Reference: string read FReference write FReference;
-    property Name: string read FName write FName;
-    property NameAlias: string read FNameAlias write FNameAlias;
-    property Status: Boolean read FStatus write FStatus;
-    property ToSell: Boolean read FToSell write FToSell;
-    property ToBuy: Boolean read FToBuy write FToBuy;
+
+    property Id: Integer read FId write FId;
+    property Nome: string read FNome write FNome;
+    property CodigoBarras: string read FCodigoBarras write FCodigoBarras;
+    property MovimentaEstoque: Boolean read FMovimentaEstoque write FMovimentaEstoque;
+    property EstoqueMinimo: Double read FEstoqueMinimo write FEstoqueMinimo;
+    property EstoqueMaximo: Double read FEstoqueMaximo write FEstoqueMaximo;
   end;
 
 implementation
@@ -36,25 +34,24 @@ class function TProduct.FromJSON(JSON: TJSONObject): TProduct;
 begin
   Result := TProduct.Create;
 
-  Result.Reference := JSON.GetValue<string>('reference', '');
-  Result.Name := JSON.GetValue<string>('name', '');
-  Result.NameAlias := JSON.GetValue<string>('nameAlias', '');
-  Result.Status := JSON.GetValue<Boolean>('status', True);
-  Result.ToSell := JSON.GetValue<Boolean>('toSell', True);
-  Result.ToBuy := JSON.GetValue<Boolean>('toBuy', True);
+  Result.Id := JSON.GetValue('id', 0);
+  Result.Nome := JSON.GetValue('nome', '');
+  Result.CodigoBarras := JSON.GetValue('codigo_barra', '');
+  Result.MovimentaEstoque := JSON.GetValue('movimenta_estoque', True);
+  Result.EstoqueMinimo := JSON.GetValue('estoque_minimo', 0.00);
+  Result.EstoqueMaximo := JSON.GetValue('estoque_maximo', 0.00);
 end;
 
 function TProduct.ToJSON: TJSONObject;
 begin
   Result := TJSONObject.Create;
 
-  Result.AddPair('rowid', TJSONNumber.Create(FRowId));
-  Result.AddPair('reference', TJSONString.Create(FReference));
-  Result.AddPair('name', TJSONString.Create(FName));
-  Result.AddPair('nameAlias', TJSONString.Create(FNameAlias));
-  Result.AddPair('status', TJSONBool.Create(FStatus));
-  Result.AddPair('toSell', TJSONBool.Create(FToSell));
-  Result.AddPair('toBuy', TJSONBool.Create(FToBuy));
+  Result.AddPair('id', TJSONNumber.Create(FId));
+  Result.AddPair('nome', TJSONString.Create(FNome));
+  Result.AddPair('codigo_barra', TJSONString.Create(FCodigoBarras));
+  Result.AddPair('movimenta_estoque', TJSONBool.Create(FMovimentaEstoque));
+  Result.AddPair('estoque_minimo', TJSONNumber.Create(FEstoqueMinimo));
+  Result.AddPair('estoque_maximo', TJSONNumber.Create(FEstoqueMaximo));
 end;
 
 end.

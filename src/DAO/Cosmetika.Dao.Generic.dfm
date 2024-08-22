@@ -11,7 +11,6 @@ object DmGeneric: TDmGeneric
       'DriverID=PG')
     LoginPrompt = False
     Transaction = FDTransaction
-    BeforeConnect = FDConnectionBeforeConnect
     Left = 80
     Top = 50
   end

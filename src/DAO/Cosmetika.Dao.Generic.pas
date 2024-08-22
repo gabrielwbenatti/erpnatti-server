@@ -16,7 +16,6 @@ type
     FDTransaction: TFDTransaction;
     FDQuery: TFDQuery;
     FDPhysPgDriverLink1: TFDPhysPgDriverLink;
-    procedure FDConnectionBeforeConnect(Sender: TObject);
   protected
     procedure VerifyTable(Name: string);
     procedure VerifyColumnInTable(Table, Column, FieldType: string);

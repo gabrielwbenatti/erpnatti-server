@@ -85,13 +85,12 @@ begin
   begin
     Result := TProduct.Create;
 
-    Result.RowId := FDQuery.FieldByName('ROWID').AsInteger;
-    Result.Name := FDQuery.FieldByName('NAME').AsString;
-    Result.NameAlias := FDQuery.FieldByName('NAME_ALIAS').AsString;
-    Result.Reference := FDQuery.FieldByName('REFERENCE').AsString;
-    Result.Status := FDQuery.FieldByName('STATUS').AsBoolean;
-    Result.ToSell := FDQuery.FieldByName('TO_SELL').AsBoolean;
-    Result.ToBuy := FDQuery.FieldByName('TO_BUY').AsBoolean;
+    Result.Id := FDQuery.FieldByName('id').AsInteger;
+    Result.Nome := FDQuery.FieldByName('nome').AsString;
+    Result.CodigoBarras := FDQuery.FieldByName('codigo_barra').AsString;
+    Result.MovimentaEstoque := FDQuery.FieldByName('movimenta_estoque').AsBoolean;
+    Result.EstoqueMinimo := FDQuery.FieldByName('estoque_minimo').AsFloat;
+    Result.EstoqueMaximo := FDQuery.FieldByName('estoque_maximo').AsFloat;
   end;
 
   FDQuery.Transaction.Commit;
@@ -100,12 +99,11 @@ end;
 function TDmProduct.Index(Query: TDictionary<string, string>): TJSONArray;
 var
   Product: TProduct;
-  SearchTerm, Reference: string;
+  SearchTerm: string;
 begin
   Result := TJSONArray.Create;
 
   Query.TryGetValue('searchTerm', SearchTerm);
-  Query.TryGetValue('reference', Reference);
 
   with FDQuery do
   begin
@@ -114,20 +112,12 @@ begin
 
     Close;
     SQL.Clear;
-    SQL.Add(' select * from PRODUCTS ');
+    SQL.Add(' select * from produtos ');
 
-    if not (Reference.Trim.IsEmpty) then
+    if not (SearchTerm.Trim.IsEmpty) then
     begin
       SQL.Add(' where ');
-      SQL.Add('     REFERENCE = :REFERENCE ');
-      ParamByName('REFERENCE').AsString := Reference;
-    end
-    else if not (SearchTerm.Trim.IsEmpty) then
-    begin
-      SQL.Add(' where ');
-      SQL.Add('     (NAME containing(:SEARCH_TERM)) or ');
-      SQL.Add('     (NAME_ALIAS containing(:SEARCH_TERM)) or ');
-      SQL.Add('     (REFERENCE containing(:SEARCH_TERM)) ');
+      SQL.Add('     (NOME containing(:SEARCH_TERM)) ');
       ParamByName('SEARCH_TERM').AsString := SearchTerm;
     end;
 
@@ -142,10 +132,12 @@ begin
     begin
       Product := TProduct.Create;
       try
-        Product.RowId := FDQuery.FieldByName('rowid').AsInteger;
-        Product.Name := FDQuery.FieldByName('name').AsString;
-        Product.NameAlias := FDQuery.FieldByName('name_alias').AsString;
-        Product.Reference := FDQuery.FieldByName('reference').AsString;
+        Product.RowId := FDQuery.FieldByName('id').AsInteger;
+        Product.Name := FDQuery.FieldByName('nome').AsString;
+        Product.NameAlias := FDQuery.FieldByName('codigo_barra').AsString;
+        Product.Reference := FDQuery.FieldByName('movimenta_estoque').AsString;
+        Product.Reference := FDQuery.FieldByName('estoque_minimo').AsString;
+        Product.Reference := FDQuery.FieldByName('estoque_maximo').AsString;
 
         Result.Add(Product.ToJSON);
       finally
