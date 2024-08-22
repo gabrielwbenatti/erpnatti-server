@@ -13,41 +13,76 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model products {
-  rowid      Int     @id @default(autoincrement())
-  reference  String
-  name       String
-  name_alias String?
-  status     Boolean @default(true)
-  to_sell    Boolean @default(true)
-  to_buy     Boolean @default(true)
+enum TIPO_PESSOA {
+  CLI
+  FORN
+  TRANSP
+  FUNC
 }
 
-model thirdies {
-  rowid       Int     @id @default(autoincrement())
-  name        String
-  name_alias  String?
-  document    String
-  is_supplier Boolean @default(false)
+model grupos_produtos {
+  id     Int     @id @default(autoincrement())
+  nome   String  @db.VarChar(127)
+  status Boolean @default(true)
 
-  PurchaseInvoice purchase_invoices[]
+  produtos produtos[]
 }
 
-model purchase_invoices {
-  rowid          Int      @id @default(autoincrement())
-  fk_supplier_id Int
-  entry_date     DateTime
-  issuance_date  DateTime
-  total_amount   Decimal  @default(0.00)
+model produtos {
+  id                Int     @id @default(autoincrement())
+  nome              String  @db.VarChar(127)
+  codigo_barra      String  @db.VarChar(127)
+  movimenta_estoque Boolean
+  estoque_minimo    Decimal @default(0.00) @db.Decimal(10, 2)
+  estoque_maximo    Decimal @default(0.00) @db.Decimal(10, 2)
+  grupo_produto_id  Int
 
-  Supplier thirdies @relation(fields: [fk_supplier_id], references: [rowid])
+  grupo_produto grupos_produtos @relation(fields: [grupo_produto_id], references: [id])
+  compras_itens compras_itens[]
 }
 
-model purch_inv_det {
-  rowid           Int     @id @default(autoincrement())
-  fk_purch_inv_id Int
-  fk_product_id   Int
-  unitary         Decimal
-  quantity        Decimal
-  total           Decimal
+model pessoas {
+  id            Int         @id @default(autoincrement())
+  razao_social  String      @db.VarChar(127)
+  nome_fantasia String      @db.VarChar(127)
+  cpf_cnpj      String      @db.VarChar(31)
+  tipo_pessoa   TIPO_PESSOA @default(CLI)
+  usuario_id    Int
+
+  usuario usuarios  @relation(fields: [usuario_id], references: [id])
+  compras compras[]
+}
+
+model usuarios {
+  id           Int    @id @default(autoincrement())
+  nome_usuario String @db.VarChar(63)
+  senha        String @db.VarChar(255)
+
+  pessoas pessoas[]
+}
+
+model compras {
+  id            Int      @id @default(autoincrement())
+  pessoa_id     Int
+  data_emissao  DateTime
+  data_entrada  DateTime
+  valor_produto Decimal  @default(0.00) @db.Decimal(10, 2)
+  valor_outros  Decimal  @default(0.00) @db.Decimal(10, 2)
+  valor_total   Decimal  @default(0.00) @db.Decimal(10, 2)
+
+  pessoa        pessoas         @relation(fields: [pessoa_id], references: [id])
+  compras_itens compras_itens[]
+}
+
+model compras_itens {
+  id             Int     @id @default(autoincrement())
+  compra_id      Int
+  produto_id     Int
+  quantidade     Decimal @default(0.00) @db.Decimal(10, 2)
+  valor_unitario Decimal @default(0.00) @db.Decimal(10, 2)
+  valor_total    Decimal @default(0.00) @db.Decimal(10, 2)
+  observacao     String
+
+  compra  compras  @relation(fields: [compra_id], references: [id])
+  produto produtos @relation(fields: [produto_id], references: [id])
 }
