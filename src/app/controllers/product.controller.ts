@@ -1,11 +1,20 @@
 import { Request, Response } from "express";
+import productService from "../services/product.service";
 import db from "../services/database";
 
-const getProducts = async () => {
-  const result = await db.produtos.findMany();
-  console.log(result);
-};
+class ProductController {
+  getProducts = async (_: Request, res: Response) => {
+    const result = await productService.getProducts();
 
-const createProduct = async (req: Request, res: Response) => {};
+    res.send(result);
+  };
 
-export { getProducts, createProduct };
+  createProduct = async (req: Request, res: Response) => {
+    const body = req.body;
+    const product = await productService.createProduct(body);
+
+    res.send(product);
+  };
+}
+
+export default new ProductController();

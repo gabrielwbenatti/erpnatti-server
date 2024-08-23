@@ -1,7 +1,14 @@
+import express, { Router } from "express";
 import db from "./services/database";
+import router from "./routes/v1";
 
 async function main() {
-  await db.$connect();
+  const app = express();
+
+  app.use(express.json());
+  app.use(router);
+
+  app.listen(3000);
 }
 
 main()

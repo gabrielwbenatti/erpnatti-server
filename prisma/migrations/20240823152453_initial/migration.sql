@@ -14,11 +14,11 @@ CREATE TABLE "grupos_produtos" (
 CREATE TABLE "produtos" (
     "id" SERIAL NOT NULL,
     "nome" VARCHAR(127) NOT NULL,
-    "codigo_barra" VARCHAR(127) NOT NULL,
-    "movimenta_estoque" BOOLEAN NOT NULL,
+    "codigo_barra" VARCHAR(127) NOT NULL DEFAULT '',
+    "movimenta_estoque" BOOLEAN NOT NULL DEFAULT true,
     "estoque_minimo" DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     "estoque_maximo" DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-    "grupo_produto_id" INTEGER NOT NULL,
+    "grupo_produto_id" INTEGER,
 
     CONSTRAINT "produtos_pkey" PRIMARY KEY ("id")
 );
@@ -27,10 +27,10 @@ CREATE TABLE "produtos" (
 CREATE TABLE "pessoas" (
     "id" SERIAL NOT NULL,
     "razao_social" VARCHAR(127) NOT NULL,
-    "nome_fantasia" VARCHAR(127) NOT NULL,
+    "nome_fantasia" VARCHAR(127),
     "cpf_cnpj" VARCHAR(31) NOT NULL,
     "tipo_pessoa" "TIPO_PESSOA" NOT NULL DEFAULT 'CLI',
-    "usuario_id" INTEGER NOT NULL,
+    "usuario_id" INTEGER,
 
     CONSTRAINT "pessoas_pkey" PRIMARY KEY ("id")
 );
@@ -71,10 +71,10 @@ CREATE TABLE "compras_itens" (
 );
 
 -- AddForeignKey
-ALTER TABLE "produtos" ADD CONSTRAINT "produtos_grupo_produto_id_fkey" FOREIGN KEY ("grupo_produto_id") REFERENCES "grupos_produtos"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "produtos" ADD CONSTRAINT "produtos_grupo_produto_id_fkey" FOREIGN KEY ("grupo_produto_id") REFERENCES "grupos_produtos"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "pessoas" ADD CONSTRAINT "pessoas_usuario_id_fkey" FOREIGN KEY ("usuario_id") REFERENCES "usuarios"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "pessoas" ADD CONSTRAINT "pessoas_usuario_id_fkey" FOREIGN KEY ("usuario_id") REFERENCES "usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "compras" ADD CONSTRAINT "compras_pessoa_id_fkey" FOREIGN KEY ("pessoa_id") REFERENCES "pessoas"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
