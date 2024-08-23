@@ -29,7 +29,7 @@ CREATE TABLE "pessoas" (
     "razao_social" VARCHAR(127) NOT NULL,
     "nome_fantasia" VARCHAR(127),
     "cpf_cnpj" VARCHAR(31) NOT NULL,
-    "tipo_pessoa" "TIPO_PESSOA" NOT NULL DEFAULT 'CLI',
+    "tipo_pessoa" "TIPO_PESSOA"[] DEFAULT ARRAY['CLI']::"TIPO_PESSOA"[],
     "usuario_id" INTEGER,
 
     CONSTRAINT "pessoas_pkey" PRIMARY KEY ("id")

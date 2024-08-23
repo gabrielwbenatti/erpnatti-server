@@ -42,11 +42,11 @@ model produtos {
 }
 
 model pessoas {
-  id            Int         @id @default(autoincrement())
-  razao_social  String      @db.VarChar(127)
-  nome_fantasia String?     @db.VarChar(127)
-  cpf_cnpj      String      @db.VarChar(31)
-  tipo_pessoa   TIPO_PESSOA @default(CLI)
+  id            Int           @id @default(autoincrement())
+  razao_social  String        @db.VarChar(127)
+  nome_fantasia String?       @db.VarChar(127)
+  cpf_cnpj      String        @db.VarChar(31)
+  tipo_pessoa   TIPO_PESSOA[] @default([CLI])
   usuario_id    Int?
 
   usuario usuarios? @relation(fields: [usuario_id], references: [id])
