@@ -2,6 +2,26 @@ import db from "./database";
 
 class ProductsService {
   getProducts = async () => {
+    //     const result = await db.$queryRaw`WITH ultima_compra AS (
+    //          SELECT ci.produto_id,
+    //             ci.valor_unitario,
+    //             c.data_emissao,
+    //             row_number() OVER (PARTITION BY ci.produto_id ORDER BY c.data_emissao DESC) AS row_no
+    //            FROM compras_itens ci
+    //              JOIN compras c ON c.id = ci.compra_id
+    //           ORDER BY c.data_emissao DESC
+    //         )
+    //  SELECT p.id,
+    //     p.nome,
+    //     p.codigo_barra,
+    //     p.movimenta_estoque,
+    //     p.estoque_minimo,
+    //     p.estoque_maximo,
+    //     p.grupo_produto_id,
+    //     uc.valor_unitario AS valor_ultima_compra,
+    //     uc.data_emissao AS data_ultima_compra
+    //    FROM produtos p
+    //      LEFT JOIN ultima_compra uc ON uc.produto_id = p.id AND uc.row_no = 1;`;
     const result = await db.produtos.findMany();
 
     return result;

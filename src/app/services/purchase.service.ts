@@ -21,7 +21,10 @@ class PurchaseService {
       where: { id: id },
       include: {
         pessoa: {
-          select: { razao_social: true, nome_fantasia: true, cpf_cnpj: true },
+          select: {
+            razao_social: true,
+            nome_fantasia: true,
+          },
         },
       },
     });
