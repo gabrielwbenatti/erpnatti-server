@@ -1,2 +1,0 @@
-inherited DmProduct: TDmProduct
-end
