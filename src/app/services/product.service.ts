@@ -3,6 +3,7 @@ import db from "./database";
 class ProductsService {
   getProducts = async () => {
     const result = await db.produtos.findMany();
+
     return result;
   };
 
@@ -19,6 +20,18 @@ class ProductsService {
     });
 
     return result;
+  };
+
+  showProduct = async (id: number) => {
+    const product = await db.produtos.findFirst({ where: { id: id } });
+
+    return product;
+  };
+
+  deleteProduct = async (id: number) => {
+    const product = await db.produtos.delete({ where: { id: id } });
+
+    return product;
   };
 }
 

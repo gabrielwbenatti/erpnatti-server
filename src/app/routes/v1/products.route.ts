@@ -8,4 +8,9 @@ router
   .get(productController.getProducts)
   .post(productController.createProduct);
 
+router
+  .route("/:id")
+  .get(productController.showProduct)
+  .delete(productController.deleteProduct);
+
 export default router;

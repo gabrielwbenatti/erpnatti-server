@@ -15,6 +15,20 @@ class ProductController {
 
     res.send(product);
   };
+
+  showProduct = async (req: Request, res: Response) => {
+    const id = req.params.id;
+    const product = await productService.showProduct(+id);
+
+    res.send(product);
+  };
+
+  deleteProduct = async (req: Request, res: Response) => {
+    const id = req.params.id;
+    const product = await productService.deleteProduct(+id);
+
+    res.send(product);
+  };
 }
 
 export default new ProductController();
