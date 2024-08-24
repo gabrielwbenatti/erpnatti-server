@@ -1,34 +1,33 @@
 import { Request, Response } from "express";
-import productService from "../services/product.service";
-import db from "../services/database";
+import productsService from "../services/products.service";
 
-class ProductController {
+class ProductsController {
   getProducts = async (_: Request, res: Response) => {
-    const result = await productService.getProducts();
+    const result = await productsService.getProducts();
 
     res.send(result);
   };
 
   createProduct = async (req: Request, res: Response) => {
     const body = req.body;
-    const product = await productService.createProduct(body);
+    const product = await productsService.createProduct(body);
 
     res.send(product);
   };
 
   showProduct = async (req: Request, res: Response) => {
     const id = req.params.id;
-    const product = await productService.showProduct(+id);
+    const product = await productsService.showProduct(+id);
 
     res.send(product);
   };
 
   deleteProduct = async (req: Request, res: Response) => {
     const id = req.params.id;
-    const product = await productService.deleteProduct(+id);
+    const product = await productsService.deleteProduct(+id);
 
     res.send(product);
   };
 }
 
-export default new ProductController();
+export default new ProductsController();

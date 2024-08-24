@@ -1,20 +1,20 @@
 import { Request, Response } from "express";
-import purchaseService from "../services/purchase.service";
+import purchasesService from "../services/purchases.service";
 
-class PurchaseController {
+class PurchasesController {
   createPurchase = async (req: Request, res: Response) => {
     const body = req.body;
-    const purchase = await purchaseService.createPurchase(body);
+    const purchase = await purchasesService.createPurchase(body);
 
     res.send(purchase);
   };
 
   showPurchase = async (req: Request, res: Response) => {
     const id = req.params.id;
-    const purchase = await purchaseService.showPurchase(+id);
+    const purchase = await purchasesService.showPurchase(+id);
 
     res.send(purchase);
   };
 }
 
-export default new PurchaseController();
+export default new PurchasesController();

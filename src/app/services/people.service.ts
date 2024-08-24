@@ -1,6 +1,6 @@
 import db from "./database";
 
-class PersonService {
+class PeopleService {
   getPeople = async () => {
     const people = await db.pessoas.findMany();
 
@@ -34,4 +34,4 @@ class PersonService {
   };
 }
 
-export default new PersonService();
+export default new PeopleService();

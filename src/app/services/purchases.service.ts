@@ -1,6 +1,6 @@
 import db from "./database";
 
-class PurchaseService {
+class PurchasesService {
   createPurchase = async (body: any) => {
     const result = await db.compras.create({
       data: {
@@ -33,4 +33,4 @@ class PurchaseService {
   };
 }
 
-export default new PurchaseService();
+export default new PurchasesService();
