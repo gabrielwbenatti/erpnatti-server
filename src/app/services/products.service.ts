@@ -31,10 +31,10 @@ class ProductsService {
     const result = await db.produtos.create({
       data: {
         nome: body.nome,
-        codigo_barra: body.codigo_barra || "",
-        movimenta_estoque: body.movimenta_estoque || true,
-        estoque_minimo: body.estoque_minimo || 0.0,
-        estoque_maximo: body.estoque_maximo || 0.0,
+        codigo_barra: body.codigo_barra,
+        movimenta_estoque: body.movimenta_estoque,
+        estoque_minimo: body.estoque_minimo,
+        estoque_maximo: body.estoque_maximo,
         grupo_produto_id: body.grupo_produto?.id || null,
       },
     });

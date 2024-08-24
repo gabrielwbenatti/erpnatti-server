@@ -62,13 +62,15 @@ model usuarios {
 }
 
 model compras {
-  id            Int      @id @default(autoincrement())
-  pessoa_id     Int
-  data_emissao  DateTime
-  data_entrada  DateTime
-  valor_produto Decimal  @default(0.00) @db.Decimal(10, 2)
-  valor_outros  Decimal  @default(0.00) @db.Decimal(10, 2)
-  valor_total   Decimal  @default(0.00) @db.Decimal(10, 2)
+  id               Int      @id @default(autoincrement())
+  pessoa_id        Int
+  data_emissao     DateTime
+  data_entrada     DateTime
+  valor_produto    Decimal  @default(0.00) @db.Decimal(10, 2)
+  valor_outros     Decimal  @default(0.00) @db.Decimal(10, 2)
+  valor_total      Decimal  @default(0.00) @db.Decimal(10, 2)
+  numero_documento String   @db.VarChar(31)
+  serie_documento  String   @db.VarChar(7)
 
   pessoa        pessoas         @relation(fields: [pessoa_id], references: [id])
   compras_itens compras_itens[]

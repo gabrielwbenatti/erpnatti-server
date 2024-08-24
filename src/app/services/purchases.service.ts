@@ -5,11 +5,13 @@ class PurchasesService {
     const result = await db.compras.create({
       data: {
         pessoa_id: body.pessoa.id,
-        valor_outros: body.valor_outros || 0.0,
-        valor_produto: body.valor_produto || 0.0,
-        valor_total: body.valor_total || 0.0,
+        valor_outros: body.valor_outros,
+        valor_produto: body.valor_produto,
+        valor_total: body.valor_total,
         data_emissao: new Date(body.data_emissao),
         data_entrada: new Date(body.data_entrada),
+        numero_documento: body.numero_documento,
+        serie_documento: body.serie_documento,
       },
     });
 
@@ -18,15 +20,21 @@ class PurchasesService {
 
   showPurchase = async (id: number) => {
     const result = await db.compras.findFirst({
-      where: { id: id },
-      include: {
+      select: {
+        id: true,
         pessoa: {
-          select: {
-            razao_social: true,
-            nome_fantasia: true,
-          },
+          select: { id: true, razao_social: true, nome_fantasia: true },
         },
+        numero_documento: true,
+        serie_documento: true,
+        data_emissao: true,
+        data_entrada: true,
+        valor_produto: true,
+        valor_outros: true,
+        valor_total: true,
+        compras_itens: true,
       },
+      where: { id: id },
     });
 
     return result;

@@ -53,6 +53,8 @@ CREATE TABLE "compras" (
     "valor_produto" DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     "valor_outros" DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     "valor_total" DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    "numero_documento" VARCHAR(31) NOT NULL,
+    "serie_documento" VARCHAR(7) NOT NULL,
 
     CONSTRAINT "compras_pkey" PRIMARY KEY ("id")
 );
