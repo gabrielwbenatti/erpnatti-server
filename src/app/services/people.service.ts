@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import db from "../config/database";
+import { onlyNumbers } from "../helpers/string_helper";
 
 class PeopleService {
   getPeople = async (
@@ -17,7 +18,7 @@ class PeopleService {
       data: {
         razao_social: body.razao_social,
         nome_fantasia: body.nome_fantasia || "",
-        cpf_cnpj: body.cpf_cnpj,
+        cpf_cnpj: onlyNumbers(body.cpf_cnpj),
         tipo_pessoa: body.tipo_pessoa || ["CLI"],
         usuario_id: body.usuario_id || null,
       },

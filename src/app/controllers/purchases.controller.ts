@@ -20,7 +20,7 @@ class PurchasesController {
 
     if (purchaseExists.length > 0) {
       res.status(HttpStatusCode.CONFLICT);
-      res.send({ message: "Duplicated purchase" });
+      res.json({ message: "Duplicated purchase" });
       return;
     }
 
