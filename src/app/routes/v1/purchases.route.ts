@@ -3,7 +3,10 @@ import purchaseController from "../../controllers/purchases.controller";
 
 const router = Router();
 
-router.route("/").post(purchaseController.createPurchase);
+router
+  .route("/")
+  .get(purchaseController.getPurchases)
+  .post(purchaseController.createPurchase);
 
 router.route("/:id").get(purchaseController.showPurchase);
 

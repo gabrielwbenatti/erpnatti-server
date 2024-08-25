@@ -1,7 +1,10 @@
-import db from "./database";
+import { Prisma } from "@prisma/client";
+import db from "../config/database";
 
 class ProductsService {
-  getProducts = async () => {
+  getProducts = async (
+    query: Prisma.produtoWhereInput | undefined = undefined
+  ) => {
     //     const result = await db.$queryRaw`WITH ultima_compra AS (
     //          SELECT ci.produto_id,
     //             ci.valor_unitario,
@@ -22,7 +25,9 @@ class ProductsService {
     //     uc.data_emissao AS data_ultima_compra
     //    FROM produtos p
     //      LEFT JOIN ultima_compra uc ON uc.produto_id = p.id AND uc.row_no = 1;`;
-    const result = await db.produto.findMany();
+    const result = await db.produto.findMany({
+      where: query,
+    });
 
     return result;
   };

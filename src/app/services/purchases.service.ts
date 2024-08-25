@@ -1,7 +1,15 @@
 import { Prisma } from "@prisma/client";
-import db from "./database";
+import db from "../config/database";
 
 class PurchasesService {
+  getPurchases = async (params?: Prisma.comprasWhereInput) => {
+    const result = await db.compras.findMany({
+      where: params,
+    });
+
+    return result;
+  };
+
   createPurchase = async (body: any) => {
     const result = await db.compras.create({
       data: {
@@ -34,12 +42,12 @@ class PurchasesService {
     return result;
   };
 
-  showPurchase = async (whereParams: Prisma.comprasWhereInput) => {
+  showPurchase = async (id: number) => {
     const result = await db.compras.findFirst({
-      where: whereParams,
+      where: { id: id },
       include: {
         compras_itens: {
-          select: { produto: { select: { id: true, nome: true } } },
+          include: { produto: { select: { id: true, nome: true } } },
         },
         pessoa: {
           select: {

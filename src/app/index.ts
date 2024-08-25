@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import db from "./services/database";
+import db from "./config/database";
 import router from "./routes/v1";
 
 async function main() {

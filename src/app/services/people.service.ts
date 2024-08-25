@@ -1,8 +1,13 @@
-import db from "./database";
+import { Prisma } from "@prisma/client";
+import db from "../config/database";
 
 class PeopleService {
-  getPeople = async () => {
-    const people = await db.pessoa.findMany();
+  getPeople = async (
+    query: Prisma.pessoaWhereInput | undefined = undefined
+  ) => {
+    const people = await db.pessoa.findMany({
+      where: query,
+    });
 
     return people;
   };
