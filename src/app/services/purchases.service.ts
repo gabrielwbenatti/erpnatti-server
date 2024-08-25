@@ -18,6 +18,22 @@ class PurchasesService {
     return result;
   };
 
+  createPurchaseItems = async (body: any, compraId: number) => {
+    const body_items = body.compras_itens;
+
+    body_items.forEach((element: any) => {
+      element.compra_id = compraId;
+    });
+
+    console.log(body_items);
+
+    const compras_itens = await db.compras_itens.createMany({
+      data: body_items,
+    });
+
+    return compras_itens;
+  };
+
   showPurchase = async (id: number) => {
     const result = await db.compras.findFirst({
       select: {

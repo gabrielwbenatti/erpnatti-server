@@ -83,7 +83,7 @@ model compras_itens {
   quantidade     Decimal @default(0.00) @db.Decimal(10, 2)
   valor_unitario Decimal @default(0.00) @db.Decimal(10, 2)
   valor_total    Decimal @default(0.00) @db.Decimal(10, 2)
-  observacao     String
+  observacao     String?
 
   compra  compras  @relation(fields: [compra_id], references: [id])
   produto produtos @relation(fields: [produto_id], references: [id])

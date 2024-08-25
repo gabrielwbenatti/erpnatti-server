@@ -6,6 +6,10 @@ class PurchasesController {
     const body = req.body;
     const purchase = await purchasesService.createPurchase(body);
 
+    if (purchase) {
+      await purchasesService.createPurchaseItems(body, purchase.id);
+    }
+
     res.send(purchase);
   };
 
