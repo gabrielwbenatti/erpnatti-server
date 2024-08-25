@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import db from "./database";
 
 class PurchasesService {
@@ -15,42 +16,40 @@ class PurchasesService {
       },
     });
 
+    if (result) {
+      const body_items = body.compras_itens;
+
+      body_items.forEach((element: any) => {
+        element.compra_id = result.id;
+        element.produto_id = element.produto.id;
+
+        delete element.produto;
+      });
+
+      await db.compras_itens.createMany({
+        data: body_items,
+      });
+    }
+
     return result;
   };
 
-  createPurchaseItems = async (body: any, compraId: number) => {
-    const body_items = body.compras_itens;
-
-    body_items.forEach((element: any) => {
-      element.compra_id = compraId;
-    });
-
-    console.log(body_items);
-
-    const compras_itens = await db.compras_itens.createMany({
-      data: body_items,
-    });
-
-    return compras_itens;
-  };
-
-  showPurchase = async (id: number) => {
+  showPurchase = async (whereParams: Prisma.comprasWhereInput) => {
     const result = await db.compras.findFirst({
-      select: {
-        id: true,
-        pessoa: {
-          select: { id: true, razao_social: true, nome_fantasia: true },
+      where: whereParams,
+      include: {
+        compras_itens: {
+          select: { produto: { select: { id: true, nome: true } } },
         },
-        numero_documento: true,
-        serie_documento: true,
-        data_emissao: true,
-        data_entrada: true,
-        valor_produto: true,
-        valor_outros: true,
-        valor_total: true,
-        compras_itens: true,
+        pessoa: {
+          select: {
+            id: true,
+            razao_social: true,
+            nome_fantasia: true,
+            cpf_cnpj: true,
+          },
+        },
       },
-      where: { id: id },
     });
 
     return result;

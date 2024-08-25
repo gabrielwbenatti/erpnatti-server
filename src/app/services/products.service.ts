@@ -22,13 +22,13 @@ class ProductsService {
     //     uc.data_emissao AS data_ultima_compra
     //    FROM produtos p
     //      LEFT JOIN ultima_compra uc ON uc.produto_id = p.id AND uc.row_no = 1;`;
-    const result = await db.produtos.findMany();
+    const result = await db.produto.findMany();
 
     return result;
   };
 
   createProduct = async (body: any) => {
-    const result = await db.produtos.create({
+    const result = await db.produto.create({
       data: {
         nome: body.nome,
         codigo_barra: body.codigo_barra,
@@ -43,13 +43,13 @@ class ProductsService {
   };
 
   showProduct = async (id: number) => {
-    const product = await db.produtos.findFirst({ where: { id: id } });
+    const product = await db.produto.findFirst({ where: { id: id } });
 
     return product;
   };
 
   deleteProduct = async (id: number) => {
-    const product = await db.produtos.delete({ where: { id: id } });
+    const product = await db.produto.delete({ where: { id: id } });
 
     return product;
   };

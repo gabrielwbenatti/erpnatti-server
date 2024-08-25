@@ -25,10 +25,10 @@ model grupos_produtos {
   nome   String  @db.VarChar(127)
   status Boolean @default(true)
 
-  produtos produtos[]
+  produtos produto[]
 }
 
-model produtos {
+model produto {
   id                Int     @id @default(autoincrement())
   nome              String  @db.VarChar(127)
   codigo_barra      String  @default("") @db.VarChar(127)
@@ -37,11 +37,13 @@ model produtos {
   estoque_maximo    Decimal @default(0.00) @db.Decimal(10, 2)
   grupo_produto_id  Int?
 
-  grupo_produto grupos_produtos? @relation(fields: [grupo_produto_id], references: [id])
+  grupo_produto grupos_produtos? @relation(fields: [grupo_produto_id], references: [id], onUpdate: Cascade)
   compras_itens compras_itens[]
+
+  @@map("produtos")
 }
 
-model pessoas {
+model pessoa {
   id            Int           @id @default(autoincrement())
   razao_social  String        @db.VarChar(127)
   nome_fantasia String?       @db.VarChar(127)
@@ -49,8 +51,10 @@ model pessoas {
   tipo_pessoa   TIPO_PESSOA[] @default([CLI])
   usuario_id    Int?
 
-  usuario usuarios? @relation(fields: [usuario_id], references: [id])
+  usuario usuarios? @relation(fields: [usuario_id], references: [id], onUpdate: Cascade)
   compras compras[]
+
+  @@map("pessoas")
 }
 
 model usuarios {
@@ -58,7 +62,7 @@ model usuarios {
   nome_usuario String @db.VarChar(63)
   senha        String @db.VarChar(255)
 
-  pessoas pessoas[]
+  pessoas pessoa[]
 }
 
 model compras {
@@ -72,8 +76,10 @@ model compras {
   numero_documento String   @db.VarChar(31)
   serie_documento  String   @db.VarChar(7)
 
-  pessoa        pessoas         @relation(fields: [pessoa_id], references: [id])
+  pessoa        pessoa          @relation(fields: [pessoa_id], references: [id], onUpdate: Cascade)
   compras_itens compras_itens[]
+
+  @@map("compras")
 }
 
 model compras_itens {
@@ -85,6 +91,8 @@ model compras_itens {
   valor_total    Decimal @default(0.00) @db.Decimal(10, 2)
   observacao     String?
 
-  compra  compras  @relation(fields: [compra_id], references: [id])
-  produto produtos @relation(fields: [produto_id], references: [id])
+  compra  compras @relation(fields: [compra_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  produto produto @relation(fields: [produto_id], references: [id], onUpdate: Cascade)
+
+  @@map("compras_itens")
 }

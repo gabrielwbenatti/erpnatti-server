@@ -67,7 +67,7 @@ CREATE TABLE "compras_itens" (
     "quantidade" DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     "valor_unitario" DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     "valor_total" DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-    "observacao" TEXT NOT NULL,
+    "observacao" TEXT,
 
     CONSTRAINT "compras_itens_pkey" PRIMARY KEY ("id")
 );
@@ -82,7 +82,7 @@ ALTER TABLE "pessoas" ADD CONSTRAINT "pessoas_usuario_id_fkey" FOREIGN KEY ("usu
 ALTER TABLE "compras" ADD CONSTRAINT "compras_pessoa_id_fkey" FOREIGN KEY ("pessoa_id") REFERENCES "pessoas"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "compras_itens" ADD CONSTRAINT "compras_itens_compra_id_fkey" FOREIGN KEY ("compra_id") REFERENCES "compras"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "compras_itens" ADD CONSTRAINT "compras_itens_compra_id_fkey" FOREIGN KEY ("compra_id") REFERENCES "compras"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "compras_itens" ADD CONSTRAINT "compras_itens_produto_id_fkey" FOREIGN KEY ("produto_id") REFERENCES "produtos"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
