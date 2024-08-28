@@ -1,12 +1,15 @@
 import { Request, Response } from "express";
 import purchasesService from "../services/purchases.service";
 import HttpStatusCode from "../helpers/http_status_code";
+import { successResponse } from "../helpers/http_responses";
 
 class PurchasesController {
   getPurchases = async (_: Request, res: Response) => {
     const result = await purchasesService.getPurchases();
 
-    res.send(result);
+    if (result) {
+      successResponse(res, HttpStatusCode.OK, result);
+    }
   };
 
   createPurchase = async (req: Request, res: Response) => {
@@ -27,7 +30,7 @@ class PurchasesController {
     const purchase = await purchasesService.createPurchase(body);
 
     if (purchase) {
-      res.status(HttpStatusCode.CREATED).send(purchase);
+      successResponse(res, HttpStatusCode.CREATED, purchase);
     }
   };
 
@@ -35,7 +38,9 @@ class PurchasesController {
     const id = req.params.id;
     const purchase = await purchasesService.showPurchase(+id);
 
-    res.send(purchase);
+    if (purchase) {
+      successResponse(res, HttpStatusCode.OK, purchase);
+    }
   };
 }
 

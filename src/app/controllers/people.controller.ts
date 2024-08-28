@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import peopleService from "../services/people.service";
 import HttpStatusCode from "../helpers/http_status_code";
 import { onlyNumbers } from "../helpers/string_helper";
+import { successResponse } from "../helpers/http_responses";
 
 class PeopleController {
   getPeople = async (req: Request, res: Response) => {
@@ -23,7 +24,9 @@ class PeopleController {
         })
       : await peopleService.getPeople();
 
-    res.send(result);
+    if (result) {
+      successResponse(res, HttpStatusCode.OK, result);
+    }
   };
 
   createPerson = async (req: Request, res: Response) => {
@@ -42,7 +45,7 @@ class PeopleController {
     const person = await peopleService.createPerson(body);
 
     if (person) {
-      res.status(HttpStatusCode.CREATED).send(person);
+      successResponse(res, HttpStatusCode.CREATED, person);
     }
   };
 
@@ -50,14 +53,18 @@ class PeopleController {
     const id = req.params.id;
     const person = await peopleService.showPerson(+id);
 
-    res.send(person);
+    if (person) {
+      successResponse(res, HttpStatusCode.OK, person);
+    }
   };
 
   deletePerson = async (req: Request, res: Response) => {
     const id = req.params.id;
     const person = await peopleService.deletePerson(+id);
 
-    res.send(person);
+    if (person) {
+      successResponse(res, HttpStatusCode.ACCEPTED, person);
+    }
   };
 }
 
