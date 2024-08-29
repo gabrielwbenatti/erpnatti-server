@@ -39,6 +39,15 @@ class ProductsController {
     }
   };
 
+  updateProduct = async (req: Request, res: Response) => {
+    const body = req.body;
+    const product = await productsService.updateProduct(body);
+
+    if (product) {
+      successResponse(res, HttpStatusCode.ACCEPTED, product);
+    }
+  };
+
   deleteProduct = async (req: Request, res: Response) => {
     const id = req.params.id;
     const product = await productsService.deleteProduct(+id);

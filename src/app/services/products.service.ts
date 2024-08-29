@@ -53,6 +53,22 @@ class ProductsService {
     return product;
   };
 
+  updateProduct = async (body: any) => {
+    const result = await db.produto.update({
+      data: {
+        nome: body.nome,
+        codigo_barra: body.codigo_barra,
+        movimenta_estoque: body.movimenta_estoque,
+        estoque_minimo: body.estoque_minimo,
+        estoque_maximo: body.estoque_maximo,
+        grupo_produto_id: body.grupo_produto?.id || null,
+      },
+      where: { id: body.id },
+    });
+
+    return result;
+  };
+
   deleteProduct = async (id: number) => {
     const product = await db.produto.delete({ where: { id: id } });
 
