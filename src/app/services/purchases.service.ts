@@ -5,6 +5,7 @@ class PurchasesService {
   getPurchases = async (params?: Prisma.comprasWhereInput) => {
     const result = await db.compras.findMany({
       where: params,
+      orderBy: { data_emissao: "desc" },
     });
 
     return result;

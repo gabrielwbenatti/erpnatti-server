@@ -27,6 +27,7 @@ class ProductsService {
     //      LEFT JOIN ultima_compra uc ON uc.produto_id = p.id AND uc.row_no = 1;`;
     const result = await db.produto.findMany({
       where: query,
+      orderBy: { nome: "asc" },
     });
 
     return result;

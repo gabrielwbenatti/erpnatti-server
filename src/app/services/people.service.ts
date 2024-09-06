@@ -8,6 +8,7 @@ class PeopleService {
   ) => {
     const people = await db.pessoa.findMany({
       where: query,
+      orderBy: { razao_social: "asc" },
     });
 
     return people;
