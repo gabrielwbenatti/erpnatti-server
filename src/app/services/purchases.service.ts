@@ -14,7 +14,7 @@ class PurchasesService {
   createPurchase = async (body: any) => {
     const result = await db.compra.create({
       data: {
-        pessoa_id: body.pessoa.id,
+        pessoa_id: body.pessoa_id,
         valor_outros: body.valor_outros,
         valor_produto: body.valor_produto,
         valor_total: body.valor_total,
