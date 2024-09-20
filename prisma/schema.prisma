@@ -135,3 +135,21 @@ model compra_item {
 
   @@map("compras_itens")
 }
+
+model venda {
+  id            Int       @id @default(autoincrement())
+  pessoa_id     Int
+  valor_produto Decimal   @default(0.00) @db.Decimal(10, 2)
+  valor_frete   Decimal   @default(0.00) @db.Decimal(10, 2)
+  valor_outros  Decimal   @default(0.00) @db.Decimal(10, 2)
+  valor_total   Decimal   @default(0.00) @db.Decimal(10, 2)
+  data_venda    DateTime  @default(now()) @db.Date
+  data_entrega  DateTime? @db.Date
+
+  dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
+  dt_hr_alteracao DateTime? @db.Timestamp()
+
+  pessoa pessoa @relation(fields: [pessoa_id], references: [id], onUpdate: Cascade)
+
+  @@map("vendas")
+}
