@@ -17,16 +17,18 @@ class ProductsController {
       : await productsService.getProducts();
 
     if (result) {
-      successResponse(res, HttpStatusCode.OK, result);
+      successResponse(res, result, HttpStatusCode.OK, {
+        count: result.length,
+      });
     }
   };
 
   createProduct = async (req: Request, res: Response) => {
     const body = req.body;
-    const product = await productsService.createProduct(body);
+    const result = await productsService.createProduct(body);
 
-    if (product) {
-      successResponse(res, HttpStatusCode.CREATED, product);
+    if (result) {
+      successResponse(res, result, HttpStatusCode.CREATED);
     }
   };
 
@@ -35,7 +37,7 @@ class ProductsController {
     const product = await productsService.showProduct(+id);
 
     if (product) {
-      successResponse(res, HttpStatusCode.OK, product);
+      successResponse(res, product, HttpStatusCode.OK);
     }
   };
 
@@ -44,7 +46,7 @@ class ProductsController {
     const product = await productsService.updateProduct(body);
 
     if (product) {
-      successResponse(res, HttpStatusCode.ACCEPTED, product);
+      successResponse(res, product, HttpStatusCode.ACCEPTED);
     }
   };
 
@@ -53,7 +55,7 @@ class ProductsController {
     const product = await productsService.deleteProduct(+id);
 
     if (product) {
-      successResponse(res, HttpStatusCode.ACCEPTED, product);
+      successResponse(res, product, HttpStatusCode.ACCEPTED);
     }
   };
 }

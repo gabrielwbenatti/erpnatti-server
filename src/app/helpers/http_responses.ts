@@ -3,8 +3,8 @@ import HttpStatusCode from "./http_status_code";
 
 const successResponse = (
   response: Response,
-  statusCode: number = HttpStatusCode.OK,
   data: any,
+  statusCode: number,
   metadata: any = {}
 ) => {
   response.status(statusCode).json({

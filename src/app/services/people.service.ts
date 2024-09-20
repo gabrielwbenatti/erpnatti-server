@@ -15,11 +15,13 @@ class PeopleService {
   };
 
   createPerson = async (body: any) => {
+    const { cpf_cnpj } = body;
+
     const person = await db.pessoa.create({
       data: {
         razao_social: body.razao_social,
-        nome_fantasia: body.nome_fantasia || "",
-        cpf_cnpj: onlyNumbers(body.cpf_cnpj),
+        nome_fantasia: body.nome_fantasia,
+        cpf_cnpj: onlyNumbers(cpf_cnpj),
         tipo_pessoa: body.tipo_pessoa || ["CLI"],
         usuario_id: body.usuario_id || null,
       },

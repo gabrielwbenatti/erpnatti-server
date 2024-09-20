@@ -25,7 +25,9 @@ class PeopleController {
       : await peopleService.getPeople();
 
     if (result) {
-      successResponse(res, HttpStatusCode.OK, result);
+      successResponse(res, result, HttpStatusCode.OK, {
+        count: result.length,
+      });
     }
   };
 
@@ -45,7 +47,7 @@ class PeopleController {
     const person = await peopleService.createPerson(body);
 
     if (person) {
-      successResponse(res, HttpStatusCode.CREATED, person);
+      successResponse(res, person, HttpStatusCode.CREATED);
     }
   };
 
@@ -54,7 +56,7 @@ class PeopleController {
     const person = await peopleService.showPerson(+id);
 
     if (person) {
-      successResponse(res, HttpStatusCode.OK, person);
+      successResponse(res, person, HttpStatusCode.OK);
     }
   };
 
@@ -63,7 +65,7 @@ class PeopleController {
     const person = await peopleService.deletePerson(+id);
 
     if (person) {
-      successResponse(res, HttpStatusCode.ACCEPTED, person);
+      successResponse(res, person, HttpStatusCode.ACCEPTED);
     }
   };
 }

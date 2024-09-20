@@ -8,7 +8,7 @@ class PurchasesController {
     const result = await purchasesService.getPurchases();
 
     if (result) {
-      successResponse(res, HttpStatusCode.OK, result);
+      successResponse(res, result, HttpStatusCode.OK);
     }
   };
 
@@ -30,7 +30,7 @@ class PurchasesController {
     const purchase = await purchasesService.createPurchase(body);
 
     if (purchase) {
-      successResponse(res, HttpStatusCode.CREATED, purchase);
+      successResponse(res, purchase, HttpStatusCode.CREATED);
     }
   };
 
@@ -39,7 +39,7 @@ class PurchasesController {
     const purchase = await purchasesService.showPurchase(+id);
 
     if (purchase) {
-      successResponse(res, HttpStatusCode.OK, purchase);
+      successResponse(res, purchase, HttpStatusCode.OK);
     }
   };
 }

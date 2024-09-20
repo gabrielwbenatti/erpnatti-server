@@ -2,8 +2,8 @@ import { Prisma } from "@prisma/client";
 import db from "../config/database";
 
 class PurchasesService {
-  getPurchases = async (params?: Prisma.comprasWhereInput) => {
-    const result = await db.compras.findMany({
+  getPurchases = async (params?: Prisma.compraWhereInput) => {
+    const result = await db.compra.findMany({
       where: params,
       orderBy: { data_emissao: "desc" },
     });
@@ -12,7 +12,7 @@ class PurchasesService {
   };
 
   createPurchase = async (body: any) => {
-    const result = await db.compras.create({
+    const result = await db.compra.create({
       data: {
         pessoa_id: body.pessoa.id,
         valor_outros: body.valor_outros,
@@ -35,7 +35,7 @@ class PurchasesService {
         delete element.produto;
       });
 
-      await db.compras_itens.createMany({
+      await db.compra_item.createMany({
         data: body_items,
       });
     }
@@ -44,7 +44,7 @@ class PurchasesService {
   };
 
   showPurchase = async (id: number) => {
-    const result = await db.compras.findFirst({
+    const result = await db.compra.findFirst({
       where: { id: id },
       include: {
         compras_itens: {

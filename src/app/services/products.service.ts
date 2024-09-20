@@ -41,7 +41,7 @@ class ProductsService {
         movimenta_estoque: body.movimenta_estoque,
         estoque_minimo: body.estoque_minimo,
         estoque_maximo: body.estoque_maximo,
-        grupo_produto_id: body.grupo_produto?.id || null,
+        grupo_produto_id: body.grupo_produto_id,
       },
     });
 
