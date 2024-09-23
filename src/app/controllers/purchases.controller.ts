@@ -16,7 +16,7 @@ class PurchasesController {
     const body = req.body;
 
     const purchaseExists = await purchasesService.getPurchases({
-      pessoa_id: body.pessoa.id,
+      pessoa_id: body.pessoa_id,
       numero_documento: body.numero_documento,
       serie_documento: body.serie_documento,
     });

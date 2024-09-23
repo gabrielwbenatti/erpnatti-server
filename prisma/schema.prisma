@@ -51,6 +51,7 @@ model produto {
   nome              String  @db.VarChar(127)
   codigo_barra      String? @db.VarChar(127)
   movimenta_estoque Boolean @default(true)
+  status            Boolean @default(true)
   estoque_minimo    Decimal @default(0.00) @db.Decimal(10, 2)
   estoque_maximo    Decimal @default(0.00) @db.Decimal(10, 2)
   grupo_produto_id  Int?
@@ -62,6 +63,7 @@ model produto {
   grupo_produto grupo_produto? @relation(fields: [grupo_produto_id], references: [id], onUpdate: Cascade)
   linha_produto linha_produto? @relation(fields: [linha_produto_id], references: [id], onUpdate: Cascade)
   compras_itens compra_item[]
+  venda_item    venda_item[]
 
   @@map("produtos")
 }
@@ -72,14 +74,14 @@ model pessoa {
   nome_fantasia String?       @db.VarChar(127)
   cpf_cnpj      String        @db.VarChar(31)
   tipo_pessoa   TIPO_PESSOA[] @default([CLI])
-  usuario_id    Int?
 
   dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
   dt_hr_alteracao DateTime? @db.Timestamp()
 
-  usuario usuario? @relation(fields: [usuario_id], references: [id], onUpdate: Cascade)
-  compras compra[]
-  venda   venda[]
+  compras       compra[]
+  venda         venda[]
+  conta_pagar   conta_pagar[]
+  conta_receber conta_receber[]
 
   @@map("pessoas")
 }
@@ -92,28 +94,27 @@ model usuario {
   dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
   dt_hr_alteracao DateTime? @db.Timestamp()
 
-  pessoas pessoa[]
-
   @@map("usuarios")
 }
 
 model compra {
-  id               Int      @id @default(autoincrement())
+  id               Int       @id @default(autoincrement())
   pessoa_id        Int
-  data_emissao     DateTime
-  data_entrada     DateTime
-  valor_produto    Decimal  @default(0.00) @db.Decimal(10, 2)
-  valor_frete      Decimal  @default(0.00) @db.Decimal(10, 2)
-  valor_outros     Decimal  @default(0.00) @db.Decimal(10, 2)
-  valor_total      Decimal  @default(0.00) @db.Decimal(10, 2)
-  numero_documento String   @db.VarChar(31)
-  serie_documento  String   @db.VarChar(7)
+  data_emissao     DateTime  @default(now()) @db.Date
+  data_entrada     DateTime? @db.Date
+  valor_produto    Decimal   @default(0.00) @db.Decimal(10, 2)
+  valor_frete      Decimal   @default(0.00) @db.Decimal(10, 2)
+  valor_outros     Decimal   @default(0.00) @db.Decimal(10, 2)
+  valor_total      Decimal   @default(0.00) @db.Decimal(10, 2)
+  numero_documento String    @db.VarChar(31)
+  serie_documento  String    @db.VarChar(7)
 
   dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
   dt_hr_alteracao DateTime? @db.Timestamp()
 
   pessoa        pessoa        @relation(fields: [pessoa_id], references: [id], onUpdate: Cascade)
   compras_itens compra_item[]
+  conta_pagar   conta_pagar[]
 
   @@map("compras")
 }
@@ -136,20 +137,108 @@ model compra_item {
   @@map("compras_itens")
 }
 
-model venda {
-  id            Int       @id @default(autoincrement())
-  pessoa_id     Int
-  valor_produto Decimal   @default(0.00) @db.Decimal(10, 2)
-  valor_frete   Decimal   @default(0.00) @db.Decimal(10, 2)
-  valor_outros  Decimal   @default(0.00) @db.Decimal(10, 2)
-  valor_total   Decimal   @default(0.00) @db.Decimal(10, 2)
-  data_venda    DateTime  @default(now()) @db.Date
-  data_entrega  DateTime? @db.Date
+model conta_pagar {
+  id              Int      @id @default(autoincrement())
+  pessoa_id       Int
+  numero_titulo   String   @db.VarChar(63)
+  valor           Decimal  @db.Decimal(10, 2)
+  data_emissao    DateTime @db.Date
+  data_vencimento DateTime @db.Date
+  numero_parcela  Int      @db.SmallInt
+  compra_id       Int?
 
   dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
   dt_hr_alteracao DateTime? @db.Timestamp()
 
-  pessoa pessoa @relation(fields: [pessoa_id], references: [id], onUpdate: Cascade)
+  pessoa          pessoa            @relation(fields: [pessoa_id], references: [id], onUpdate: Cascade)
+  compra          compra?           @relation(fields: [compra_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  conta_pagamento conta_pagamento[]
+
+  @@map("contas_pagar")
+}
+
+model conta_pagamento {
+  id              Int      @id @default(autoincrement())
+  conta_pagar_id  Int
+  data_pagamento  DateTime @db.Date
+  valor_pagamento Decimal  @db.Decimal(10, 2)
+
+  dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
+  dt_hr_alteracao DateTime? @db.Timestamp()
+
+  conta_pagar conta_pagar @relation(fields: [conta_pagar_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("contas_pagamentos")
+}
+
+model venda {
+  id            Int       @id @default(autoincrement())
+  pessoa_id     Int
+  data_emissao  DateTime  @default(now()) @db.Date
+  data_entrega  DateTime? @db.Date
+  valor_produto Decimal   @default(0.00) @db.Decimal(10, 2)
+  valor_frete   Decimal   @default(0.00) @db.Decimal(10, 2)
+  valor_outros  Decimal   @default(0.00) @db.Decimal(10, 2)
+  valor_total   Decimal   @default(0.00) @db.Decimal(10, 2)
+
+  dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
+  dt_hr_alteracao DateTime? @db.Timestamp()
+
+  pessoa        pessoa          @relation(fields: [pessoa_id], references: [id], onUpdate: Cascade)
+  conta_receber conta_receber[]
+  venda_item    venda_item[]
 
   @@map("vendas")
+}
+
+model venda_item {
+  id             Int     @id @default(autoincrement())
+  venda_id       Int
+  produto_id     Int
+  quantidade     Decimal @default(0.00) @db.Decimal(10, 2)
+  valor_unitario Decimal @default(0.00) @db.Decimal(10, 2)
+  valor_total    Decimal @default(0.00) @db.Decimal(10, 2)
+  observacao     String?
+
+  dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
+  dt_hr_alteracao DateTime? @db.Timestamp()
+
+  venda   venda   @relation(fields: [venda_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  produto produto @relation(fields: [produto_id], references: [id], onUpdate: Cascade)
+
+  @@map("vendas_itens")
+}
+
+model conta_receber {
+  id              Int      @id @default(autoincrement())
+  pessoa_id       Int
+  numero_titulo   String   @db.VarChar(63)
+  valor           Decimal  @db.Decimal(10, 2)
+  data_emissao    DateTime @db.Date
+  data_vencimento DateTime @db.Date
+  numero_parcela  Int      @db.SmallInt
+  venda_id        Int?
+
+  dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
+  dt_hr_alteracao DateTime? @db.Timestamp()
+
+  pessoa            pessoa              @relation(fields: [pessoa_id], references: [id], onUpdate: Cascade)
+  venda             venda?              @relation(fields: [venda_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  conta_recebimento conta_recebimento[]
+
+  @@map("contas_receber")
+}
+
+model conta_recebimento {
+  id               Int      @id @default(autoincrement())
+  conta_receber_id Int
+  data_pagamento   DateTime @db.Date
+  valor_pagamento  Decimal  @db.Decimal(10, 2)
+
+  dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
+  dt_hr_alteracao DateTime? @db.Timestamp()
+
+  conta_receber conta_receber @relation(fields: [conta_receber_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("contas_recebimentos")
 }

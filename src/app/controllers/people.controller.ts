@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import peopleService from "../services/people.service";
 import HttpStatusCode from "../helpers/http_status_code";
-import { onlyNumbers } from "../helpers/string_helper";
+import { numbersOnly } from "../helpers/string_helper";
 import { successResponse } from "../helpers/http_responses";
 
 class PeopleController {
@@ -18,7 +18,7 @@ class PeopleController {
               razao_social: { contains: search, mode: "insensitive" },
             },
             {
-              cpf_cnpj: { contains: onlyNumbers(search), mode: "insensitive" },
+              cpf_cnpj: { contains: numbersOnly(search), mode: "insensitive" },
             },
           ],
         })
@@ -35,7 +35,7 @@ class PeopleController {
     const body = req.body;
 
     const personExists = await peopleService.getPeople({
-      cpf_cnpj: { equals: onlyNumbers(req.body.cpf_cnpj) },
+      cpf_cnpj: { equals: numbersOnly(req.body.cpf_cnpj) },
     });
 
     if (personExists.length > 0) {

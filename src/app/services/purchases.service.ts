@@ -12,6 +12,8 @@ class PurchasesService {
   };
 
   createPurchase = async (body: any) => {
+    const { data_entrada } = body;
+
     const result = await db.compra.create({
       data: {
         pessoa_id: body.pessoa_id,
@@ -19,13 +21,13 @@ class PurchasesService {
         valor_produto: body.valor_produto,
         valor_total: body.valor_total,
         data_emissao: new Date(body.data_emissao),
-        data_entrada: new Date(body.data_entrada),
+        data_entrada: data_entrada ? new Date(data_entrada) : null,
         numero_documento: body.numero_documento,
         serie_documento: body.serie_documento,
       },
     });
 
-    if (result) {
+    if (result && body.compras_itens) {
       const body_items = body.compras_itens;
 
       body_items.forEach((element: any) => {
