@@ -14,10 +14,52 @@ datasource db {
 }
 
 enum TIPO_PESSOA {
-  CLI
-  FORN
-  TRANSP
-  FUNC
+  CLIENTE
+  FORNECEDOR
+  TRANSPORTADORA
+  FUNCIONARIO
+}
+
+// model empresa {
+//   id            Int     @id @default(autoincrement())
+//   razao_social  String  @db.VarChar(127)
+//   nome_fantasia String? @db.VarChar(127)
+//   cpf_cnpj      String  @db.VarChar(31)
+// }
+
+model usuario {
+  id           Int    @id @default(autoincrement())
+  nome_usuario String @db.VarChar(63)
+  senha        String @db.VarChar(255)
+
+  dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
+  dt_hr_alteracao DateTime? @db.Timestamp()
+
+  assinaturas assinatura[]
+
+  @@map("usuarios")
+}
+
+model plano_assinatura {
+  id           Int     @id @default(autoincrement())
+  nome         String  @db.VarChar(63)
+  valor        Decimal @default(0.00) @db.Decimal(10, 2)
+  max_usuarios Int
+
+  assinaturas assinatura[]
+
+  @@map("planos_assinaturas")
+}
+
+model assinatura {
+  id                  Int @id @default(autoincrement())
+  usuario_id          Int
+  plano_assinatura_id Int
+
+  usuario          usuario          @relation(fields: [usuario_id], references: [id], onUpdate: Cascade)
+  plano_assinatura plano_assinatura @relation(fields: [plano_assinatura_id], references: [id], onUpdate: Cascade)
+
+  @@map("assinaturas")
 }
 
 model grupo_produto {
@@ -41,7 +83,7 @@ model linha_produto {
   dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
   dt_hr_alteracao DateTime? @db.Timestamp()
 
-  produto produto[]
+  produtos produto[]
 
   @@map("linhas_produtos")
 }
@@ -63,7 +105,7 @@ model produto {
   grupo_produto grupo_produto? @relation(fields: [grupo_produto_id], references: [id], onUpdate: Cascade)
   linha_produto linha_produto? @relation(fields: [linha_produto_id], references: [id], onUpdate: Cascade)
   compras_itens compra_item[]
-  venda_item    venda_item[]
+  vendas_itens  venda_item[]
 
   @@map("produtos")
 }
@@ -73,28 +115,17 @@ model pessoa {
   razao_social  String        @db.VarChar(127)
   nome_fantasia String?       @db.VarChar(127)
   cpf_cnpj      String        @db.VarChar(31)
-  tipo_pessoa   TIPO_PESSOA[] @default([CLI])
+  tipo_pessoa   TIPO_PESSOA[] @default([CLIENTE])
 
   dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
   dt_hr_alteracao DateTime? @db.Timestamp()
 
-  compras       compra[]
-  venda         venda[]
-  conta_pagar   conta_pagar[]
-  conta_receber conta_receber[]
+  compras        compra[]
+  vendas         venda[]
+  contas_pagar   conta_pagar[]
+  contas_receber conta_receber[]
 
   @@map("pessoas")
-}
-
-model usuario {
-  id           Int    @id @default(autoincrement())
-  nome_usuario String @db.VarChar(63)
-  senha        String @db.VarChar(255)
-
-  dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
-  dt_hr_alteracao DateTime? @db.Timestamp()
-
-  @@map("usuarios")
 }
 
 model compra {
@@ -114,7 +145,7 @@ model compra {
 
   pessoa        pessoa        @relation(fields: [pessoa_id], references: [id], onUpdate: Cascade)
   compras_itens compra_item[]
-  conta_pagar   conta_pagar[]
+  contas_pagar  conta_pagar[]
 
   @@map("compras")
 }
@@ -150,9 +181,9 @@ model conta_pagar {
   dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
   dt_hr_alteracao DateTime? @db.Timestamp()
 
-  pessoa          pessoa            @relation(fields: [pessoa_id], references: [id], onUpdate: Cascade)
-  compra          compra?           @relation(fields: [compra_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  conta_pagamento conta_pagamento[]
+  pessoa            pessoa            @relation(fields: [pessoa_id], references: [id], onUpdate: Cascade)
+  compra            compra?           @relation(fields: [compra_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  contas_pagamentos conta_pagamento[]
 
   @@map("contas_pagar")
 }
@@ -184,9 +215,9 @@ model venda {
   dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
   dt_hr_alteracao DateTime? @db.Timestamp()
 
-  pessoa        pessoa          @relation(fields: [pessoa_id], references: [id], onUpdate: Cascade)
-  conta_receber conta_receber[]
-  venda_item    venda_item[]
+  pessoa         pessoa          @relation(fields: [pessoa_id], references: [id], onUpdate: Cascade)
+  contas_receber conta_receber[]
+  vendas_itens   venda_item[]
 
   @@map("vendas")
 }
@@ -222,9 +253,9 @@ model conta_receber {
   dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
   dt_hr_alteracao DateTime? @db.Timestamp()
 
-  pessoa            pessoa              @relation(fields: [pessoa_id], references: [id], onUpdate: Cascade)
-  venda             venda?              @relation(fields: [venda_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  conta_recebimento conta_recebimento[]
+  pessoa              pessoa              @relation(fields: [pessoa_id], references: [id], onUpdate: Cascade)
+  venda               venda?              @relation(fields: [venda_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  contas_recebimentos conta_recebimento[]
 
   @@map("contas_receber")
 }
