@@ -24,11 +24,14 @@ class ProductsController {
   };
 
   createProduct = async (req: Request, res: Response) => {
-    const body = req.body;
+    const body = Array.isArray(req.body) ? req.body : [req.body];
+
     const result = await productsService.createProduct(body);
 
     if (result) {
-      successResponse(res, result, HttpStatusCode.CREATED);
+      successResponse(res, result, HttpStatusCode.CREATED, {
+        count: result.length,
+      });
     }
   };
 

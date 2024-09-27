@@ -13,29 +13,49 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum TIPO_PESSOA {
+enum TP_PESSOA {
   CLIENTE
   FORNECEDOR
   TRANSPORTADORA
   FUNCIONARIO
+
+  @@map("TIPO_PESSOA")
 }
 
-// model empresa {
-//   id            Int     @id @default(autoincrement())
-//   razao_social  String  @db.VarChar(127)
-//   nome_fantasia String? @db.VarChar(127)
-//   cpf_cnpj      String  @db.VarChar(31)
-// }
+enum USR_PAPEL {
+  ADMIN
+  COMUM
 
-model usuario {
-  id           Int    @id @default(autoincrement())
-  nome_usuario String @db.VarChar(63)
-  senha        String @db.VarChar(255)
+  @@map("PAPEL_USUARIO")
+}
+
+model empresa {
+  id            Int     @id @default(autoincrement())
+  razao_social  String  @db.VarChar(127)
+  nome_fantasia String? @db.VarChar(127)
+  cpf_cnpj      String  @db.VarChar(31)
+  usuario_id    Int
 
   dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
   dt_hr_alteracao DateTime? @db.Timestamp()
 
+  usuario usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("empresas")
+}
+
+model usuario {
+  id           Int       @id @default(autoincrement())
+  email        String    @db.VarChar(255)
+  senha        String    @db.VarChar(255)
+  ultimo_login DateTime? @db.Timestamp()
+
+  dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
+  dt_hr_alteracao DateTime? @db.Timestamp()
+
+  papel       USR_PAPEL    @default(COMUM)
   assinaturas assinatura[]
+  empresa     empresa[]
 
   @@map("usuarios")
 }
@@ -111,15 +131,15 @@ model produto {
 }
 
 model pessoa {
-  id            Int           @id @default(autoincrement())
-  razao_social  String        @db.VarChar(127)
-  nome_fantasia String?       @db.VarChar(127)
-  cpf_cnpj      String        @db.VarChar(31)
-  tipo_pessoa   TIPO_PESSOA[] @default([CLIENTE])
+  id            Int     @id @default(autoincrement())
+  razao_social  String  @db.VarChar(127)
+  nome_fantasia String? @db.VarChar(127)
+  cpf_cnpj      String  @db.VarChar(31)
 
   dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
   dt_hr_alteracao DateTime? @db.Timestamp()
 
+  tipo_pessoa    TP_PESSOA[]     @default([CLIENTE])
   compras        compra[]
   vendas         venda[]
   contas_pagar   conta_pagar[]

@@ -2,9 +2,9 @@ import { Prisma } from "@prisma/client";
 import db from "../config/database";
 
 class PurchasesService {
-  getPurchases = async (params?: Prisma.compraWhereInput) => {
+  getPurchases = async (query?: Prisma.compraWhereInput) => {
     const result = await db.compra.findMany({
-      where: params,
+      where: query,
       orderBy: { data_emissao: "desc" },
     });
 

@@ -11,12 +11,8 @@ class PeopleController {
     const result = search
       ? await peopleService.getPeople({
           OR: [
-            {
-              nome_fantasia: { contains: search, mode: "insensitive" },
-            },
-            {
-              razao_social: { contains: search, mode: "insensitive" },
-            },
+            { nome_fantasia: { contains: search, mode: "insensitive" } },
+            { razao_social: { contains: search, mode: "insensitive" } },
             {
               cpf_cnpj: { contains: numbersOnly(search), mode: "insensitive" },
             },

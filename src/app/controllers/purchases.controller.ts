@@ -8,7 +8,9 @@ class PurchasesController {
     const result = await purchasesService.getPurchases();
 
     if (result) {
-      successResponse(res, result, HttpStatusCode.OK);
+      successResponse(res, result, HttpStatusCode.OK, {
+        count: result.length,
+      });
     }
   };
 
@@ -22,8 +24,9 @@ class PurchasesController {
     });
 
     if (purchaseExists.length > 0) {
-      res.status(HttpStatusCode.CONFLICT);
-      res.json({ message: "Duplicated purchase" });
+      res
+        .status(HttpStatusCode.CONFLICT)
+        .json({ message: "Duplicated purchase" });
       return;
     }
 
