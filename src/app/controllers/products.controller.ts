@@ -4,17 +4,8 @@ import HttpStatusCode from "../helpers/http_status_code";
 import { successResponse } from "../helpers/http_responses";
 
 class ProductsController {
-  getProducts = async (req: Request, res: Response) => {
-    const search = req.query.search?.toString();
-
-    const result = search
-      ? await productsService.getProducts({
-          OR: [
-            { nome: { contains: search, mode: "insensitive" } },
-            { codigo_barra: { contains: search, mode: "insensitive" } },
-          ],
-        })
-      : await productsService.getProducts();
+  getProducts = async (_: Request, res: Response) => {
+    const result = await productsService.getProducts();
 
     if (result) {
       successResponse(res, result, HttpStatusCode.OK, {

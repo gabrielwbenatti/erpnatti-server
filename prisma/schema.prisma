@@ -22,65 +22,62 @@ enum TP_PESSOA {
   @@map("TIPO_PESSOA")
 }
 
-enum USR_PAPEL {
-  ADMIN
-  COMUM
+enum TP_MOVIMENTO {
+  ENTRADA
+  SAIDA
 
-  @@map("PAPEL_USUARIO")
+  @@map("TIPO_MOVIMENTO")
 }
 
-model empresa {
-  id            Int     @id @default(autoincrement())
-  razao_social  String  @db.VarChar(127)
-  nome_fantasia String? @db.VarChar(127)
-  cpf_cnpj      String  @db.VarChar(31)
-  usuario_id    Int
+// model empresa {
+//   id            Int     @id @default(autoincrement())
+//   razao_social  String  @db.VarChar(127)
+//   nome_fantasia String? @db.VarChar(127)
+//   cpf_cnpj      String  @db.VarChar(31)
 
-  dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
-  dt_hr_alteracao DateTime? @db.Timestamp()
+//   dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
+//   dt_hr_alteracao DateTime? @db.Timestamp()
 
-  usuario usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+//   @@map("empresas")
+// }
 
-  @@map("empresas")
-}
+// model usuario {
+//   id           Int       @id @default(autoincrement())
+//   email        String    @db.VarChar(255)
+//   senha        String    @db.VarChar(255)
+//   ultimo_login DateTime? @db.Timestamp()
+//   is_admin     Boolean   @default(false)
 
-model usuario {
-  id           Int       @id @default(autoincrement())
-  email        String    @db.VarChar(255)
-  senha        String    @db.VarChar(255)
-  ultimo_login DateTime? @db.Timestamp()
+//   dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
+//   dt_hr_alteracao DateTime? @db.Timestamp()
 
-  dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
-  dt_hr_alteracao DateTime? @db.Timestamp()
+//   assinaturas assinatura[]
+//   empresa     empresa[]
 
-  papel       USR_PAPEL    @default(COMUM)
-  assinaturas assinatura[]
-  empresa     empresa[]
+//   @@map("usuarios")
+// }
 
-  @@map("usuarios")
-}
+// model plano_assinatura {
+//   id           Int     @id @default(autoincrement())
+//   nome         String  @db.VarChar(63)
+//   valor        Decimal @default(0.00) @db.Decimal(10, 2)
+//   max_usuarios Int
 
-model plano_assinatura {
-  id           Int     @id @default(autoincrement())
-  nome         String  @db.VarChar(63)
-  valor        Decimal @default(0.00) @db.Decimal(10, 2)
-  max_usuarios Int
+//   assinaturas assinatura[]
 
-  assinaturas assinatura[]
+//   @@map("planos_assinaturas")
+// }
 
-  @@map("planos_assinaturas")
-}
+// model assinatura {
+//   id                  Int @id @default(autoincrement())
+//   usuario_id          Int
+//   plano_assinatura_id Int
 
-model assinatura {
-  id                  Int @id @default(autoincrement())
-  usuario_id          Int
-  plano_assinatura_id Int
+//   usuario          usuario          @relation(fields: [usuario_id], references: [id], onUpdate: Cascade)
+//   plano_assinatura plano_assinatura @relation(fields: [plano_assinatura_id], references: [id], onUpdate: Cascade)
 
-  usuario          usuario          @relation(fields: [usuario_id], references: [id], onUpdate: Cascade)
-  plano_assinatura plano_assinatura @relation(fields: [plano_assinatura_id], references: [id], onUpdate: Cascade)
-
-  @@map("assinaturas")
-}
+//   @@map("assinaturas")
+// }
 
 model grupo_produto {
   id     Int     @id @default(autoincrement())
@@ -122,12 +119,29 @@ model produto {
   dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
   dt_hr_alteracao DateTime? @db.Timestamp()
 
-  grupo_produto grupo_produto? @relation(fields: [grupo_produto_id], references: [id], onUpdate: Cascade)
-  linha_produto linha_produto? @relation(fields: [linha_produto_id], references: [id], onUpdate: Cascade)
-  compras_itens compra_item[]
-  vendas_itens  venda_item[]
+  grupo_produto        grupo_produto?         @relation(fields: [grupo_produto_id], references: [id], onUpdate: Cascade)
+  linha_produto        linha_produto?         @relation(fields: [linha_produto_id], references: [id], onUpdate: Cascade)
+  compras_itens        compra_item[]
+  vendas_itens         venda_item[]
+  produto_movimentacao produto_movimentacao[]
 
   @@map("produtos")
+}
+
+model produto_movimentacao {
+  id             Int          @id @default(autoincrement())
+  produto_id     Int
+  operacao       TP_MOVIMENTO @default(SAIDA)
+  quantidade     Decimal      @db.Decimal(10, 2)
+  observacao     String       @db.VarChar(127)
+  data_movimento DateTime     @default(now()) @db.Date
+
+  dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
+  dt_hr_alteracao DateTime? @db.Timestamp()
+
+  produto produto @relation(fields: [produto_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("produtos_movimentacoes")
 }
 
 model pessoa {
@@ -135,6 +149,12 @@ model pessoa {
   razao_social  String  @db.VarChar(127)
   nome_fantasia String? @db.VarChar(127)
   cpf_cnpj      String  @db.VarChar(31)
+
+  endereco         String? @db.VarChar(127)
+  bairro           String? @db.VarChar(127)
+  numero           String? @db.VarChar(127)
+  complemento      String? @db.VarChar(127)
+  ponto_referencia String? @db.VarChar(127)
 
   dt_hr_inclusao  DateTime  @default(now()) @db.Timestamp()
   dt_hr_alteracao DateTime? @db.Timestamp()

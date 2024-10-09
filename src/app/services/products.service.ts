@@ -25,6 +25,7 @@ class ProductsService {
     //     uc.data_emissao AS data_ultima_compra
     //    FROM produtos p
     //      LEFT JOIN ultima_compra uc ON uc.produto_id = p.id AND uc.row_no = 1;`;
+
     const result = await db.produto.findMany({
       where: query,
       orderBy: { nome: "asc" },
@@ -34,6 +35,8 @@ class ProductsService {
   };
 
   createProduct = async (body: any[]) => {
+    console.log(body);
+
     const result = await db.produto.createManyAndReturn({
       data: body.map((product: any) => ({
         nome: product.nome,
