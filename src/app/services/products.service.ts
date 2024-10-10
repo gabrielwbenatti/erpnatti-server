@@ -40,6 +40,7 @@ class ProductsService {
     const result = await db.produto.createManyAndReturn({
       data: body.map((product: any) => ({
         nome: product.nome,
+        referencia: product.referencia,
         codigo_barra: product.codigo_barra,
         movimenta_estoque: product.movimenta_estoque,
         estoque_minimo: product.estoque_minimo,
@@ -61,6 +62,7 @@ class ProductsService {
     const result = await db.produto.update({
       data: {
         nome: body.nome,
+        referencia: body.referencia,
         codigo_barra: body.codigo_barra,
         movimenta_estoque: body.movimenta_estoque,
         estoque_minimo: body.estoque_minimo,
