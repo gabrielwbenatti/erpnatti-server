@@ -56,6 +56,16 @@ class PeopleController {
     }
   };
 
+  updatePerson = async (req: Request, res: Response) => {
+    const body = req.body;
+    const id = req.params.id;
+    const person = await peopleService.updatePerson(+id, body);
+
+    if (person) {
+      successResponse(res, person, HttpStatusCode.OK);
+    }
+  };
+
   deletePerson = async (req: Request, res: Response) => {
     const id = req.params.id;
     const person = await peopleService.deletePerson(+id);

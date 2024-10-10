@@ -11,6 +11,7 @@ router
 router
   .route("/:id")
   .get(personController.showPerson)
+  .put(personController.updatePerson)
   .delete(personController.deletePerson);
 
 export default router;

@@ -150,6 +150,7 @@ model pessoa {
   nome_fantasia String? @db.VarChar(127)
   cpf_cnpj      String  @db.VarChar(31)
 
+  cep              String? @db.VarChar(15)
   endereco         String? @db.VarChar(127)
   bairro           String? @db.VarChar(127)
   numero           String? @db.VarChar(127)
