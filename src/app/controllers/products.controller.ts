@@ -15,14 +15,25 @@ class ProductsController {
   };
 
   createProduct = async (req: Request, res: Response) => {
-    const body = Array.isArray(req.body) ? req.body : [req.body];
+    const body = req.body;
+
+    if (body.referencia) {
+      const productExists = await productsService.getProducts({
+        referencia: body.referencia,
+      });
+
+      if (productExists.length > 0) {
+        res
+          .status(HttpStatusCode.CONFLICT)
+          .json({ message: "Duplicated product" });
+        return;
+      }
+    }
 
     const result = await productsService.createProduct(body);
 
     if (result) {
-      successResponse(res, result, HttpStatusCode.CREATED, {
-        count: result.length,
-      });
+      successResponse(res, result, HttpStatusCode.CREATED);
     }
   };
 

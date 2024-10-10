@@ -34,19 +34,17 @@ class ProductsService {
     return result;
   };
 
-  createProduct = async (body: any[]) => {
-    console.log(body);
-
-    const result = await db.produto.createManyAndReturn({
-      data: body.map((product: any) => ({
-        nome: product.nome,
-        referencia: product.referencia,
-        codigo_barra: product.codigo_barra,
-        movimenta_estoque: product.movimenta_estoque,
-        estoque_minimo: product.estoque_minimo,
-        estoque_maximo: product.estoque_maximo,
-        grupo_produto_id: product.grupo_produto_id,
-      })),
+  createProduct = async (body: any) => {
+    const result = await db.produto.create({
+      data: {
+        nome: body.nome,
+        referencia: body.referencia,
+        codigo_barra: body.codigo_barra,
+        movimenta_estoque: body.movimenta_estoque,
+        estoque_minimo: body.estoque_minimo,
+        estoque_maximo: body.estoque_maximo,
+        grupo_produto_id: body.grupo_produto_id,
+      },
     });
 
     return result;
