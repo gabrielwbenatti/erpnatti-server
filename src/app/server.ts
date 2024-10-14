@@ -19,6 +19,5 @@ async function main() {
 
 main().catch(async (e) => {
   console.log(e);
-  (await db).$client.end();
   process.exit(1);
 });

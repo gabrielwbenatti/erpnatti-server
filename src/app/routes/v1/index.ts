@@ -11,7 +11,7 @@ const defaultRoutes = [
   { path: "/products", route: productRoute },
   { path: "/people", route: peopleRoute },
   { path: "/purchases", route: purchasesRoute },
-  { path: "/sales", route: salesRoute },
+  // { path: "/sales", route: salesRoute },
 ];
 
 defaultRoutes.forEach((e) => {

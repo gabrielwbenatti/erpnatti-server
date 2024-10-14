@@ -2,10 +2,11 @@ import { Request, Response } from "express";
 import purchasesService from "../services/purchases.service";
 import HttpStatusCode from "../helpers/http_status_code";
 import { successResponse } from "../helpers/http_responses";
+import purchasesValidador from "../validators/purchases.validador";
 
 class PurchasesController {
   getPurchases = async (_: Request, res: Response) => {
-    const result = await purchasesService.getPurchases();
+    const result = await purchasesService.getPurchases(undefined);
 
     if (result) {
       successResponse(res, result, HttpStatusCode.OK, {
@@ -16,18 +17,19 @@ class PurchasesController {
 
   createPurchase = async (req: Request, res: Response) => {
     const body = req.body;
+    const { pessoa_id, numero_documento, serie_documento } = body;
 
-    const purchaseExists = await purchasesService.getPurchases({
-      pessoa_id: body.pessoa_id,
-      numero_documento: body.numero_documento,
-      serie_documento: body.serie_documento,
-    });
+    if (pessoa_id && numero_documento && serie_documento) {
+      const isDuplicate = await purchasesValidador.isPurchaseDuplicated(
+        pessoa_id,
+        numero_documento,
+        serie_documento
+      );
 
-    if (purchaseExists.length > 0) {
-      res
-        .status(HttpStatusCode.CONFLICT)
-        .json({ message: "Duplicated purchase" });
-      return;
+      if (isDuplicate)
+        return res
+          .status(HttpStatusCode.CONFLICT)
+          .json({ message: "Duplicate Purchase" });
     }
 
     const purchase = await purchasesService.createPurchase(body);

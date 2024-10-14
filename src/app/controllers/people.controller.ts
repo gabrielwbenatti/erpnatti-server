@@ -1,14 +1,16 @@
 import { Request, Response } from "express";
 import peopleService from "../services/people.service";
 import HttpStatusCode from "../helpers/http_status_code";
-import { numbersOnly } from "../helpers/string_helper";
+import peopleValidator from "../validators/people.validator";
 import { successResponse } from "../helpers/http_responses";
+import { pessoasTable } from "../../db/schema";
+import { eq } from "drizzle-orm";
 
 class PeopleController {
   getPeople = async (req: Request, res: Response) => {
     const search = req.query.search?.toString();
 
-    const result = await peopleService.getPeople();
+    const result = await peopleService.getPeople(undefined);
 
     if (result) {
       successResponse(res, result, HttpStatusCode.OK, {
@@ -19,19 +21,16 @@ class PeopleController {
 
   createPerson = async (req: Request, res: Response) => {
     const body = req.body;
+    const { cpf_cnpj } = body;
 
-    // if (body.cpf_cnpj) {
-    //   const personExists = await peopleService.getPeople({
-    //     cpf_cnpj: { equals: numbersOnly(body.cpf_cnpj) },
-    //   });
+    if (cpf_cnpj) {
+      const isDuplicate = await peopleValidator.isDuplicatedPerson(cpf_cnpj);
 
-    //   if (personExists.length > 0) {
-    //     res
-    //       .status(HttpStatusCode.CONFLICT)
-    //       .json({ message: "Duplicated person" });
-    //     return;
-    //   }
-    // }
+      if (isDuplicate)
+        return res
+          .status(HttpStatusCode.CONFLICT)
+          .json({ message: "Duplicated Person" });
+    }
 
     const person = await peopleService.createPerson(body);
 

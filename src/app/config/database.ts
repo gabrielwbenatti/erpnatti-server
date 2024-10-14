@@ -1,13 +1,20 @@
 import "dotenv/config";
-import { drizzle } from "drizzle-orm/connect";
-// import { drizzle } from "drizzle-orm/node-postgres";
-// import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 
-const databaseUrl = process.env.DATABASE_URL!;
+class Database {
+  private static instance: Pool;
+  private constructor() {}
 
-// const pool = new Pool({ connectionString: databaseUrl });
-// const db = drizzle(pool);
+  public static getInstance() {
+    const databaseUrl = process.env.DATABASE_URL!;
 
-const db = drizzle("node-postgres", databaseUrl);
+    if (!Database.instance) {
+      Database.instance = new Pool({ connectionString: databaseUrl });
+    }
 
-export default db;
+    return drizzle(Database.instance);
+  }
+}
+
+export default Database;

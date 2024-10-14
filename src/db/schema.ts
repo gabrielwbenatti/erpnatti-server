@@ -1,5 +1,6 @@
 import {
   boolean,
+  decimal,
   integer,
   numeric,
   pgEnum,
@@ -44,8 +45,12 @@ export const produtosTable = pgTable("produtos", {
   referencia: varchar({ length: 63 }),
   movimenta_estoque: boolean().default(true),
   status: boolean().default(true),
-  estoque_minimo: numeric({ precision: 10, scale: 2 }).default("0"),
-  estoque_maximo: numeric({ precision: 10, scale: 2 }).default("0"),
+  estoque_minimo: decimal({ precision: 10, scale: 2 })
+    .$type<number>()
+    .default(0),
+  estoque_maximo: decimal({ precision: 10, scale: 2 })
+    .$type<number>()
+    .default(0),
 
   ...camposPadroes,
 
@@ -77,10 +82,12 @@ export const comprasTable = pgTable("compras", {
   id: serial().primaryKey(),
   data_emissao: timestamp().notNull(),
   data_entrada: timestamp().notNull(),
-  valor_produto: numeric({ precision: 10, scale: 2 }).default("0"),
-  valor_frete: numeric({ precision: 10, scale: 2 }).default("0"),
-  valor_outros: numeric({ precision: 10, scale: 2 }).default("0"),
-  valor_total: numeric({ precision: 10, scale: 2 }).default("0"),
+  valor_produto: decimal({ precision: 10, scale: 2 })
+    .$type<number>()
+    .default(0),
+  valor_frete: decimal({ precision: 10, scale: 2 }).$type<number>().default(0),
+  valor_outros: decimal({ precision: 10, scale: 2 }).$type<number>().default(0),
+  valor_total: decimal({ precision: 10, scale: 2 }).$type<number>().default(0),
   numero_documento: varchar({ length: 31 }),
   serie_documento: varchar({ length: 7 }),
 
@@ -93,9 +100,11 @@ export const comprasTable = pgTable("compras", {
 
 export const comprasItensTable = pgTable("compras_itens", {
   id: integer().notNull().generatedAlwaysAsIdentity(),
-  quantidade: numeric({ precision: 10, scale: 2 }).default("1"),
-  valor_unitario: numeric({ precision: 10, scale: 2 }).default("0"),
-  valor_total: numeric({ precision: 10, scale: 2 }).default("0"),
+  quantidade: decimal({ precision: 10, scale: 2 }).$type<number>().default(1),
+  valor_unitario: decimal({ precision: 10, scale: 2 })
+    .$type<number>()
+    .default(0),
+  valor_total: decimal({ precision: 10, scale: 2 }).$type<number>().default(0),
   observacao: varchar({ length: 127 }),
 
   ...camposPadroes,

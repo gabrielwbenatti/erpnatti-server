@@ -1,25 +1,28 @@
-import { eq } from "drizzle-orm";
+import { eq, SQL } from "drizzle-orm";
 import { pessoasTable } from "../../db/schema";
 import db from "../config/database";
 import { numbersOnly } from "../helpers/string_helper";
+import Database from "../config/database";
 
 class PeopleService {
-  getPeople = async () => {
-    const result = (await db).select().from(pessoasTable);
+  getPeople = async (where: SQL | undefined) => {
+    const db = Database.getInstance();
+    const result = await db.select().from(pessoasTable);
 
     return result;
   };
 
   createPerson = async (body: any) => {
+    const db = Database.getInstance();
     const { cpf_cnpj, cep } = body;
 
-    const result = (await db)
+    const result = await db
       .insert(pessoasTable)
       .values({
         razao_social: body.razao_social,
         nome_fantasia: body.nome_fantasia,
         cpf_cnpj: numbersOnly(cpf_cnpj),
-        tipo_pessoa: body.tipo_pessoa || ["CLI"],
+        tipo_pessoa: body.tipo_pessoa || ["CLIENTE"],
         endereco: body.endereco,
         numero: body.numero,
         complemento: body.complemento,
@@ -31,7 +34,8 @@ class PeopleService {
   };
 
   showPerson = async (id: number) => {
-    const result = (await db)
+    const db = Database.getInstance();
+    const result = await db
       .select()
       .from(pessoasTable)
       .where(eq(pessoasTable.id, id));
@@ -40,9 +44,10 @@ class PeopleService {
   };
 
   updatePerson = async (id: number, body: any) => {
+    const db = Database.getInstance();
     const { cpf_cnpj, cep } = body;
 
-    const result = (await db)
+    const result = await db
       .update(pessoasTable)
       .set({
         razao_social: body.razao_social,
@@ -61,7 +66,9 @@ class PeopleService {
   };
 
   deletePerson = async (id: number) => {
-    const person = (await db)
+    const db = Database.getInstance();
+
+    const person = await db
       .delete(pessoasTable)
       .where(eq(pessoasTable.id, id))
       .returning();

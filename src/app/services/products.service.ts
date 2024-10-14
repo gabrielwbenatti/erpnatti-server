@@ -1,6 +1,7 @@
 import db from "../config/database";
 import { produtosTable } from "../../db/schema";
 import { eq } from "drizzle-orm";
+import Database from "../config/database";
 
 class ProductsService {
   getProducts = async () => {
@@ -24,8 +25,9 @@ class ProductsService {
     //     uc.data_emissao AS data_ultima_compra
     //    FROM produtos p
     //      LEFT JOIN ultima_compra uc ON uc.produto_id = p.id AND uc.row_no = 1;`;
+    const db = Database.getInstance();
 
-    const result = (await db)
+    const result = await db
       .select()
       .from(produtosTable)
       .orderBy(produtosTable.nome);
@@ -34,7 +36,9 @@ class ProductsService {
   };
 
   createProduct = async (body: any) => {
-    const result = (await db)
+    const db = Database.getInstance();
+
+    const result = await db
       .insert(produtosTable)
       .values({
         nome: body.nome,
@@ -52,7 +56,9 @@ class ProductsService {
   };
 
   showProduct = async (id: number) => {
-    const product = (await db)
+    const db = Database.getInstance();
+
+    const product = await db
       .select()
       .from(produtosTable)
       .where(eq(produtosTable.id, id));
@@ -61,7 +67,9 @@ class ProductsService {
   };
 
   updateProduct = async (id: number, body: any) => {
-    const result = (await db)
+    const db = Database.getInstance();
+
+    const result = await db
       .update(produtosTable)
       .set({
         nome: body.nome,
@@ -80,7 +88,9 @@ class ProductsService {
   };
 
   deleteProduct = async (id: number) => {
-    const product = (await db)
+    const db = Database.getInstance();
+
+    const product = await db
       .delete(produtosTable)
       .where(eq(produtosTable.id, id))
       .returning();

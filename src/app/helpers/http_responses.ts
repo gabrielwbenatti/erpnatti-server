@@ -7,6 +7,8 @@ const successResponse = (
   statusCode: number,
   metadata: any = {}
 ) => {
+  // console.log(data);
+
   response.status(statusCode).json({
     data,
     metadata,

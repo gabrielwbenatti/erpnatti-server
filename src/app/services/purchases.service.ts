@@ -1,68 +1,76 @@
-import { Prisma } from "@prisma/client";
+import { eq, SQL } from "drizzle-orm";
+import { comprasTable, pessoasTable } from "../../db/schema";
 import db from "../config/database";
+import Database from "../config/database";
 
 class PurchasesService {
-  getPurchases = async (query?: Prisma.compraWhereInput) => {
-    const result = await db.compra.findMany({
-      where: query,
-      orderBy: { data_emissao: "desc" },
-    });
+  getPurchases = async (where: SQL | undefined) => {
+    const db = Database.getInstance();
+
+    const result = await db
+      .select({
+        id: comprasTable.id,
+        pessoa_id: comprasTable.id,
+        data_emissao: comprasTable.data_emissao,
+        data_entrada: comprasTable.data_entrada,
+        valor_produto: comprasTable.valor_produto,
+        valor_total: comprasTable.valor_total,
+        razao_social: pessoasTable.razao_social,
+      })
+      .from(comprasTable)
+      .innerJoin(pessoasTable, eq(comprasTable.pessoa_id, pessoasTable.id))
+      .where(where);
 
     return result;
   };
 
   createPurchase = async (body: any) => {
-    const { data_entrada } = body;
+    const db = Database.getInstance();
+    const { data_entrada, data_emissao } = body;
 
-    const result = await db.compra.create({
-      data: {
-        pessoa_id: body.pessoa_id,
-        valor_outros: body.valor_outros,
+    const result = await db
+      .insert(comprasTable)
+      .values({
+        data_emissao: new Date(data_emissao),
+        data_entrada: new Date(data_entrada),
         valor_produto: body.valor_produto,
+        valor_frete: body.valor_frete,
+        valor_outros: body.valor_outros,
         valor_total: body.valor_total,
-        data_emissao: new Date(body.data_emissao),
-        data_entrada: data_entrada ? new Date(data_entrada) : null,
         numero_documento: body.numero_documento,
         serie_documento: body.serie_documento,
-      },
-    });
+        pessoa_id: body.pessoa_id,
+      })
+      .returning();
 
-    if (result && body.compras_itens) {
-      const body_items = body.compras_itens;
+    // if (result && body.compras_itens) {
+    //   const body_items = body.compras_itens;
 
-      body_items.forEach((element: any) => {
-        element.compra_id = result.id;
-        element.produto_id = element.produto.id;
+    //   body_items.forEach((element: any) => {
+    //     element.compra_id = result.id;
+    //     element.produto_id = element.produto.id;
 
-        delete element.produto;
-      });
+    //     delete element.produto;
+    //   });
 
-      await db.compra_item.createMany({
-        data: body_items,
-      });
-    }
+    //   await db.compra_item.createMany({
+    //     data: body_items,
+    //   });
+    // }
 
     return result;
   };
 
   showPurchase = async (id: number) => {
-    const result = await db.compra.findFirst({
-      where: { id: id },
-      include: {
-        compras_itens: {
-          include: { produto: { select: { id: true, nome: true } } },
-        },
-        pessoa: {
-          select: {
-            id: true,
-            razao_social: true,
-            nome_fantasia: true,
-            cpf_cnpj: true,
-          },
-        },
-      },
-    });
+    const db = Database.getInstance();
 
+    const result = await db
+      .select()
+      .from(comprasTable)
+      .innerJoin(pessoasTable, eq(comprasTable.pessoa_id, pessoasTable.id))
+      .where(eq(comprasTable.id, id));
+
+    console.log("res", result);
     return result;
   };
 }
