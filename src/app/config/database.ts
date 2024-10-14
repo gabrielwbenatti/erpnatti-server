@@ -1,8 +1,10 @@
-import { PrismaClient } from "@prisma/client";
+import "dotenv/config";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 
-const prismaClient = new PrismaClient({
-  log: ["info", "warn", "error"],
-});
-const db = prismaClient;
+const databaseUrl = process.env.DATABASE_URL!;
+const pool = new Pool({ connectionString: databaseUrl });
+
+const db = drizzle(pool);
 
 export default db;
