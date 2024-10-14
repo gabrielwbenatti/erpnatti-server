@@ -16,20 +16,17 @@ class ProductsController {
 
   createProduct = async (req: Request, res: Response) => {
     const body = req.body;
-
-    if (body.referencia) {
-      const productExists = await productsService.getProducts({
-        referencia: body.referencia,
-      });
-
-      if (productExists.length > 0) {
-        res
-          .status(HttpStatusCode.CONFLICT)
-          .json({ message: "Duplicated product" });
-        return;
-      }
-    }
-
+    // if (body.referencia) {
+    //   const productExists = await productsService.getProducts({
+    //     referencia: body.referencia,
+    //   });
+    //   if (productExists.length > 0) {
+    //     res
+    //       .status(HttpStatusCode.CONFLICT)
+    //       .json({ message: "Duplicated product" });
+    //     return;
+    //   }
+    // }
     const result = await productsService.createProduct(body);
 
     if (result) {
@@ -48,7 +45,8 @@ class ProductsController {
 
   updateProduct = async (req: Request, res: Response) => {
     const body = req.body;
-    const product = await productsService.updateProduct(body);
+    const id = req.params.id;
+    const product = await productsService.updateProduct(+id, body);
 
     if (product) {
       successResponse(res, product, HttpStatusCode.ACCEPTED);
@@ -58,7 +56,6 @@ class ProductsController {
   deleteProduct = async (req: Request, res: Response) => {
     const id = req.params.id;
     const product = await productsService.deleteProduct(+id);
-
     if (product) {
       successResponse(res, product, HttpStatusCode.ACCEPTED);
     }
