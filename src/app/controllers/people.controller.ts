@@ -8,17 +8,7 @@ class PeopleController {
   getPeople = async (req: Request, res: Response) => {
     const search = req.query.search?.toString();
 
-    const result = search
-      ? await peopleService.getPeople({
-          OR: [
-            { nome_fantasia: { contains: search, mode: "insensitive" } },
-            { razao_social: { contains: search, mode: "insensitive" } },
-            {
-              cpf_cnpj: { contains: numbersOnly(search), mode: "insensitive" },
-            },
-          ],
-        })
-      : await peopleService.getPeople();
+    const result = await peopleService.getPeople();
 
     if (result) {
       successResponse(res, result, HttpStatusCode.OK, {
@@ -30,18 +20,18 @@ class PeopleController {
   createPerson = async (req: Request, res: Response) => {
     const body = req.body;
 
-    if (body.cpf_cnpj) {
-      const personExists = await peopleService.getPeople({
-        cpf_cnpj: { equals: numbersOnly(body.cpf_cnpj) },
-      });
+    // if (body.cpf_cnpj) {
+    //   const personExists = await peopleService.getPeople({
+    //     cpf_cnpj: { equals: numbersOnly(body.cpf_cnpj) },
+    //   });
 
-      if (personExists.length > 0) {
-        res
-          .status(HttpStatusCode.CONFLICT)
-          .json({ message: "Duplicated person" });
-        return;
-      }
-    }
+    //   if (personExists.length > 0) {
+    //     res
+    //       .status(HttpStatusCode.CONFLICT)
+    //       .json({ message: "Duplicated person" });
+    //     return;
+    //   }
+    // }
 
     const person = await peopleService.createPerson(body);
 

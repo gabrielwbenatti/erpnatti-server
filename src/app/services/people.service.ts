@@ -1,24 +1,21 @@
-import { Prisma } from "@prisma/client";
+import { eq } from "drizzle-orm";
+import { pessoasTable } from "../../db/schema";
 import db from "../config/database";
 import { numbersOnly } from "../helpers/string_helper";
 
 class PeopleService {
-  getPeople = async (
-    query: Prisma.pessoaWhereInput | undefined = undefined
-  ) => {
-    const people = await db.pessoa.findMany({
-      where: query,
-      orderBy: { razao_social: "asc" },
-    });
+  getPeople = async () => {
+    const result = (await db).select().from(pessoasTable);
 
-    return people;
+    return result;
   };
 
   createPerson = async (body: any) => {
     const { cpf_cnpj, cep } = body;
 
-    const person = await db.pessoa.create({
-      data: {
+    const result = (await db)
+      .insert(pessoasTable)
+      .values({
         razao_social: body.razao_social,
         nome_fantasia: body.nome_fantasia,
         cpf_cnpj: numbersOnly(cpf_cnpj),
@@ -27,23 +24,27 @@ class PeopleService {
         numero: body.numero,
         complemento: body.complemento,
         cep: numbersOnly(cep),
-      },
-    });
+      })
+      .returning();
 
-    return person;
+    return result;
   };
 
   showPerson = async (id: number) => {
-    const person = await db.pessoa.findFirst({ where: { id: id } });
+    const result = (await db)
+      .select()
+      .from(pessoasTable)
+      .where(eq(pessoasTable.id, id));
 
-    return person;
+    return result;
   };
 
   updatePerson = async (id: number, body: any) => {
     const { cpf_cnpj, cep } = body;
 
-    const person = await db.pessoa.update({
-      data: {
+    const result = (await db)
+      .update(pessoasTable)
+      .set({
         razao_social: body.razao_social,
         nome_fantasia: body.nome_fantasia,
         cpf_cnpj: numbersOnly(cpf_cnpj),
@@ -52,15 +53,18 @@ class PeopleService {
         numero: body.numero,
         complemento: body.complemento,
         cep: numbersOnly(cep),
-      },
-      where: { id: id },
-    });
+      })
+      .where(eq(pessoasTable.id, id))
+      .returning();
 
-    return person;
+    return result;
   };
 
   deletePerson = async (id: number) => {
-    const person = await db.pessoa.delete({ where: { id: id } });
+    const person = (await db)
+      .delete(pessoasTable)
+      .where(eq(pessoasTable.id, id))
+      .returning();
 
     return person;
   };
