@@ -25,13 +25,16 @@ class ProductsService {
     //    FROM produtos p
     //      LEFT JOIN ultima_compra uc ON uc.produto_id = p.id AND uc.row_no = 1;`;
 
-    const result = db.select().from(produtosTable).orderBy(produtosTable.nome);
+    const result = (await db)
+      .select()
+      .from(produtosTable)
+      .orderBy(produtosTable.nome);
 
     return result;
   };
 
   createProduct = async (body: any) => {
-    const result = db
+    const result = (await db)
       .insert(produtosTable)
       .values({
         nome: body.nome,
@@ -49,7 +52,7 @@ class ProductsService {
   };
 
   showProduct = async (id: number) => {
-    const product = await db
+    const product = (await db)
       .select()
       .from(produtosTable)
       .where(eq(produtosTable.id, id));
@@ -58,7 +61,7 @@ class ProductsService {
   };
 
   updateProduct = async (id: number, body: any) => {
-    const result = db
+    const result = (await db)
       .update(produtosTable)
       .set({
         nome: body.nome,
@@ -77,7 +80,7 @@ class ProductsService {
   };
 
   deleteProduct = async (id: number) => {
-    const product = db
+    const product = (await db)
       .delete(produtosTable)
       .where(eq(produtosTable.id, id))
       .returning();
