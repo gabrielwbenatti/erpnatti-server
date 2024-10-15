@@ -29,7 +29,7 @@ class PeopleController {
       if (isDuplicate)
         return res
           .status(HttpStatusCode.CONFLICT)
-          .json({ message: "Duplicated Person" });
+          .json({ message: "Duplicated person" });
     }
 
     const person = await peopleService.createPerson(body);

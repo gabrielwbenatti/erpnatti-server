@@ -9,9 +9,8 @@ class Database {
   public static getInstance() {
     const databaseUrl = process.env.DATABASE_URL!;
 
-    if (!Database.instance) {
+    if (!Database.instance)
       Database.instance = new Pool({ connectionString: databaseUrl });
-    }
 
     return drizzle(Database.instance);
   }

@@ -1,10 +1,11 @@
+import { eq } from "drizzle-orm";
 import {
   boolean,
-  decimal,
   integer,
-  numeric,
   pgEnum,
   pgTable,
+  pgView,
+  real,
   serial,
   timestamp,
   varchar,
@@ -12,7 +13,7 @@ import {
 
 const camposPadroes = {
   dt_hr_inclusao: timestamp().defaultNow(),
-  dt_hr_alteracao: timestamp().$onUpdate(() => new Date()),
+  dt_hr_alteracao: timestamp(),
 };
 
 export const tp_pessoa = pgEnum("tp_pessoa", [
@@ -45,12 +46,8 @@ export const produtosTable = pgTable("produtos", {
   referencia: varchar({ length: 63 }),
   movimenta_estoque: boolean().default(true),
   status: boolean().default(true),
-  estoque_minimo: decimal({ precision: 10, scale: 2 })
-    .$type<number>()
-    .default(0),
-  estoque_maximo: decimal({ precision: 10, scale: 2 })
-    .$type<number>()
-    .default(0),
+  estoque_minimo: real().default(0),
+  estoque_maximo: real().default(0),
 
   ...camposPadroes,
 
@@ -82,12 +79,10 @@ export const comprasTable = pgTable("compras", {
   id: serial().primaryKey(),
   data_emissao: timestamp().notNull(),
   data_entrada: timestamp().notNull(),
-  valor_produto: decimal({ precision: 10, scale: 2 })
-    .$type<number>()
-    .default(0),
-  valor_frete: decimal({ precision: 10, scale: 2 }).$type<number>().default(0),
-  valor_outros: decimal({ precision: 10, scale: 2 }).$type<number>().default(0),
-  valor_total: decimal({ precision: 10, scale: 2 }).$type<number>().default(0),
+  valor_produto: real().default(0),
+  valor_frete: real().default(0),
+  valor_outros: real().default(0),
+  valor_total: real().default(0),
   numero_documento: varchar({ length: 31 }),
   serie_documento: varchar({ length: 7 }),
 
@@ -100,11 +95,10 @@ export const comprasTable = pgTable("compras", {
 
 export const comprasItensTable = pgTable("compras_itens", {
   id: integer().notNull().generatedAlwaysAsIdentity(),
-  quantidade: decimal({ precision: 10, scale: 2 }).$type<number>().default(1),
-  valor_unitario: decimal({ precision: 10, scale: 2 })
-    .$type<number>()
-    .default(0),
-  valor_total: decimal({ precision: 10, scale: 2 }).$type<number>().default(0),
+  // descricao: varchar({ length: 127 }).notNull(),
+  quantidade: real().default(0),
+  valor_unitario: real().default(0),
+  valor_total: real().default(0),
   observacao: varchar({ length: 127 }),
 
   ...camposPadroes,
@@ -119,3 +113,22 @@ export const comprasItensTable = pgTable("compras_itens", {
     .notNull()
     .references(() => produtosTable.id, { onUpdate: "cascade" }),
 });
+
+// export const viewComprasItens = pgView("v_compras_itens").as((qb) =>
+//   qb
+//     .select({
+//       id: comprasItensTable.id,
+//       produto_id: comprasItensTable.produto_id,
+//       compra_id: comprasItensTable.compra_id,
+//       nome: produtosTable.nome,
+//       quantidade: comprasItensTable.quantidade,
+//       valor_unitario: comprasItensTable.valor_unitario,
+//       valor_total: comprasItensTable.valor_total,
+//       observacao: comprasItensTable.observacao,
+//     })
+//     .from(comprasItensTable)
+//     .innerJoin(
+//       produtosTable,
+//       eq(produtosTable.id, comprasItensTable.produto_id)
+//     )
+// );
