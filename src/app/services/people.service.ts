@@ -1,13 +1,20 @@
 import { eq, SQL } from "drizzle-orm";
 import { pessoasTable } from "../../db/schema";
-import db from "../config/database";
 import { numbersOnly } from "../helpers/string_helper";
 import Database from "../config/database";
 
 class PeopleService {
   getPeople = async (where: SQL | undefined) => {
     const db = Database.getInstance();
-    const result = await db.select().from(pessoasTable);
+    const result = await db
+      .select({
+        id: pessoasTable.id,
+        razao_social: pessoasTable.razao_social,
+        nome_fantasia: pessoasTable.nome_fantasia,
+        cpf_cnpj: pessoasTable.cpf_cnpj,
+        tipo_pessoa: pessoasTable.tipo_pessoa,
+      })
+      .from(pessoasTable);
 
     return result;
   };

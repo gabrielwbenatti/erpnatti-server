@@ -28,7 +28,12 @@ class ProductsService {
     const db = Database.getInstance();
 
     const result = await db
-      .select()
+      .select({
+        id: produtosTable.id,
+        nome: produtosTable.nome,
+        codigo_barra: produtosTable.codigo_barra,
+        referencia: produtosTable.referencia,
+      })
       .from(produtosTable)
       .orderBy(produtosTable.nome);
 

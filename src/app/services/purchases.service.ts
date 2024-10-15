@@ -144,7 +144,7 @@ class PurchasesService {
           .set({
             compra_id: compra_id,
             produto_id: item.produto_id,
-
+            // descricao: item.descricao,
             quantidade: item.quantidade,
             valor_unitario: item.quantidade,
             valor_total: item.quantidade,
