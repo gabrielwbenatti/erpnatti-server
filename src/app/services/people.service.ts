@@ -1,6 +1,5 @@
 import { eq, SQL } from "drizzle-orm";
 import { pessoasTable } from "../../db/schema";
-import db from "../config/database";
 import { numbersOnly } from "../helpers/string_helper";
 import Database from "../config/database";
 
@@ -40,7 +39,7 @@ class PeopleService {
       .from(pessoasTable)
       .where(eq(pessoasTable.id, id));
 
-    return result;
+    return result[0];
   };
 
   updatePerson = async (id: number, body: any) => {

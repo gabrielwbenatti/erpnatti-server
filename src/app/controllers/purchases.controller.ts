@@ -70,7 +70,7 @@ class PurchasesController {
     const result = await purchasesService.updatePurchase(+id, body);
 
     if (result) {
-      successResponse(res, result, HttpStatusCode.ACCEPTED);
+      successResponse(res, result, HttpStatusCode.OK);
     }
   };
 }
