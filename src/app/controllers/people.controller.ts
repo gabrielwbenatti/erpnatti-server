@@ -3,8 +3,6 @@ import peopleService from "../services/people.service";
 import HttpStatusCode from "../helpers/http_status_code";
 import peopleValidator from "../validators/people.validator";
 import { successResponse } from "../helpers/http_responses";
-import { pessoasTable } from "../../db/schema";
-import { eq } from "drizzle-orm";
 
 class PeopleController {
   getPeople = async (req: Request, res: Response) => {
