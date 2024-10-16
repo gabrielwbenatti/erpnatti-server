@@ -1,5 +1,4 @@
 import { Response } from "express";
-import HttpStatusCode from "./http_status_code";
 
 const successResponse = (
   response: Response,

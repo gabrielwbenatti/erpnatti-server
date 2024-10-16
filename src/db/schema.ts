@@ -1,10 +1,9 @@
-import { eq } from "drizzle-orm";
 import {
   boolean,
+  date,
   integer,
   pgEnum,
   pgTable,
-  pgView,
   real,
   serial,
   timestamp,

@@ -1,4 +1,3 @@
-import db from "../config/database";
 import { produtosTable } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import Database from "../config/database";
