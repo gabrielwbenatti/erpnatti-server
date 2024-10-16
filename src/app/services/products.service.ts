@@ -63,7 +63,7 @@ class ProductsService {
       .from(produtosTable)
       .where(eq(produtosTable.id, id));
 
-    return product;
+    return product[0];
   };
 
   updateProduct = async (id: number, body: any) => {

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import productsService from "../services/products.service";
 import HttpStatusCode from "../helpers/http_status_code";
 import { successResponse } from "../helpers/http_responses";
+import productsValidator from "../validators/products.validator";
 
 class ProductsController {
   getProducts = async (_: Request, res: Response) => {
@@ -16,17 +17,19 @@ class ProductsController {
 
   createProduct = async (req: Request, res: Response) => {
     const body = req.body;
-    // if (body.referencia) {
-    //   const productExists = await productsService.getProducts({
-    //     referencia: body.referencia,
-    //   });
-    //   if (productExists.length > 0) {
-    //     res
-    //       .status(HttpStatusCode.CONFLICT)
-    //       .json({ message: "Duplicated product" });
-    //     return;
-    //   }
-    // }
+    const { referencia } = body;
+
+    if (referencia) {
+      const isDuplicate = await productsValidator.isReferenceDuplicate(
+        referencia
+      );
+
+      if (isDuplicate)
+        return res
+          .status(HttpStatusCode.CONFLICT)
+          .json({ message: "Duplicate product" });
+    }
+
     const result = await productsService.createProduct(body);
 
     if (result) {
@@ -49,7 +52,7 @@ class ProductsController {
     const product = await productsService.updateProduct(+id, body);
 
     if (product) {
-      successResponse(res, product, HttpStatusCode.ACCEPTED);
+      successResponse(res, product, HttpStatusCode.OK);
     }
   };
 
@@ -57,7 +60,7 @@ class ProductsController {
     const id = req.params.id;
     const product = await productsService.deleteProduct(+id);
     if (product) {
-      successResponse(res, product, HttpStatusCode.ACCEPTED);
+      successResponse(res, product, HttpStatusCode.OK);
     }
   };
 }
