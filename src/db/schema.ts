@@ -63,13 +63,16 @@ export const pessoasTable = pgTable("pessoas", {
   razao_social: varchar({ length: 127 }).notNull(),
   nome_fantasia: varchar({ length: 127 }),
   cpf_cnpj: varchar({ length: 31 }),
+  tipo_pessoa: varchar({ length: 31 }).array().default([]),
+
   cep: varchar({ length: 15 }),
   endereco: varchar({ length: 127 }),
+  cidade: varchar({ length: 127 }),
   bairro: varchar({ length: 127 }),
   numero: varchar({ length: 127 }),
   complemento: varchar({ length: 127 }),
+  codigo_ibge: integer(),
   ponto_referencia: varchar({ length: 127 }),
-  tipo_pessoa: varchar({ length: 31 }).array().default([]),
 
   ...camposPadroes,
 });

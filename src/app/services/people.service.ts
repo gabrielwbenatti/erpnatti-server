@@ -1,12 +1,17 @@
-import { eq, SQL } from "drizzle-orm";
+import { and, asc, eq, SQL } from "drizzle-orm";
 import { pessoasTable } from "../../db/schema";
 import { numbersOnly } from "../helpers/string_helper";
 import Database from "../config/database";
 
 class PeopleService {
-  getPeople = async (where: SQL | undefined) => {
+  getPeople = async (filters: (SQL | undefined)[] = []) => {
     const db = Database.getInstance();
-    const result = await db.select().from(pessoasTable);
+
+    const result = await db
+      .select()
+      .from(pessoasTable)
+      .where(and(...filters))
+      .orderBy(asc(pessoasTable.razao_social));
 
     return result;
   };
@@ -22,7 +27,11 @@ class PeopleService {
         nome_fantasia: body.nome_fantasia,
         cpf_cnpj: numbersOnly(cpf_cnpj),
         tipo_pessoa: body.tipo_pessoa || ["CLIENTE"],
+
         endereco: body.endereco,
+        bairro: body.bairro,
+        cidade: body.cidade,
+        codigo_ibge: body.codigo_ibge,
         numero: body.numero,
         complemento: body.complemento,
         cep: numbersOnly(cep),
@@ -53,7 +62,11 @@ class PeopleService {
         nome_fantasia: body.nome_fantasia,
         cpf_cnpj: numbersOnly(cpf_cnpj),
         tipo_pessoa: body.tipo_pessoa,
+
         endereco: body.endereco,
+        bairro: body.bairro,
+        cidade: body.cidade,
+        codigo_ibge: body.codigo_ibge,
         numero: body.numero,
         complemento: body.complemento,
         cep: numbersOnly(cep),

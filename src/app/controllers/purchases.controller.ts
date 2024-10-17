@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import purchasesService from "../services/purchases.service";
-import HttpStatusCode from "../helpers/http_status_code";
 import { successResponse } from "../helpers/http_responses";
 import purchasesValidador from "../validators/purchases.validador";
+import { HttpStatusCode } from "../helpers/http_status_code";
 
 class PurchasesController {
   getPurchases = async (_: Request, res: Response) => {
