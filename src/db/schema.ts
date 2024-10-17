@@ -1,4 +1,3 @@
-import { eq } from "drizzle-orm";
 import {
   boolean,
   date,
@@ -71,15 +70,15 @@ export const pessoasTable = pgTable("pessoas", {
   numero: varchar({ length: 127 }),
   complemento: varchar({ length: 127 }),
   ponto_referencia: varchar({ length: 127 }),
-  tipo_pessoa: tp_pessoa().array(),
+  tipo_pessoa: varchar({ length: 31 }).array().default([]),
 
   ...camposPadroes,
 });
 
 export const comprasTable = pgTable("compras", {
   id: serial().primaryKey(),
-  data_emissao: timestamp().notNull(),
-  data_entrada: timestamp().notNull(),
+  data_emissao: date({ mode: "date" }).notNull(),
+  data_entrada: date({ mode: "date" }).notNull(),
   valor_produto: real().default(0),
   valor_frete: real().default(0),
   valor_outros: real().default(0),

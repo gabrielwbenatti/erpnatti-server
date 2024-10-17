@@ -1,4 +1,3 @@
-import db from "../config/database";
 import { produtosTable } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import Database from "../config/database";
@@ -68,7 +67,7 @@ class ProductsService {
       .from(produtosTable)
       .where(eq(produtosTable.id, id));
 
-    return product;
+    return product[0];
   };
 
   updateProduct = async (id: number, body: any) => {

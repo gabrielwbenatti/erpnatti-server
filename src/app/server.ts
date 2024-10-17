@@ -1,7 +1,6 @@
 import "dotenv/config";
 import express, { Request } from "express";
 import cors from "cors";
-import db from "./config/database";
 import router from "./routes/v1";
 
 async function main() {

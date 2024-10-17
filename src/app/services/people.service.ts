@@ -47,7 +47,7 @@ class PeopleService {
       .from(pessoasTable)
       .where(eq(pessoasTable.id, id));
 
-    return result;
+    return result[0];
   };
 
   updatePerson = async (id: number, body: any) => {
