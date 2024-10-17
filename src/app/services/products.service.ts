@@ -1,9 +1,9 @@
 import { produtosTable } from "../../db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and, SQL, asc } from "drizzle-orm";
 import Database from "../config/database";
 
 class ProductsService {
-  getProducts = async () => {
+  getProducts = async (filters: (SQL | undefined)[] = []) => {
     //     const result = await db.$queryRaw`WITH ultima_compra AS (
     //          SELECT ci.produto_id,
     //             ci.valor_unitario,
@@ -34,7 +34,17 @@ class ProductsService {
         referencia: produtosTable.referencia,
       })
       .from(produtosTable)
-      .orderBy(produtosTable.nome);
+      .where(and(...filters))
+      .orderBy(asc(produtosTable.nome));
+
+    console.log(
+      db
+        .select()
+        .from(produtosTable)
+        .where(and(...filters))
+        .orderBy(produtosTable.nome)
+        .toSQL()
+    );
 
     return result;
   };
