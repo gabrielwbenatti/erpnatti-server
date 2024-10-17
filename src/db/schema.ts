@@ -1,12 +1,13 @@
 import { eq } from "drizzle-orm";
 import {
   boolean,
+  date,
   integer,
   pgEnum,
   pgTable,
-  pgView,
   real,
   serial,
+  smallint,
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -112,6 +113,36 @@ export const comprasItensTable = pgTable("compras_itens", {
   produto_id: integer()
     .notNull()
     .references(() => produtosTable.id, { onUpdate: "cascade" }),
+});
+
+export const contasPagarTable = pgTable("contas_pagar", {
+  id: serial().primaryKey(),
+  numero_titulo: varchar().notNull(),
+  valor: real().default(0),
+  data_vencimento: date().notNull(),
+  data_emissao: date(),
+  numero_parcela: smallint().default(1),
+
+  compra_id: integer().references(() => comprasTable.id, {
+    onDelete: "cascade",
+    onUpdate: "cascade",
+  }),
+  pessoa_id: integer()
+    .notNull()
+    .references(() => pessoasTable.id, { onUpdate: "cascade" }),
+});
+
+export const contasPagamentosTable = pgTable("contas_pagamentos", {
+  id: serial().primaryKey(),
+  data: date().notNull(),
+  valor: real().default(0),
+
+  conta_pagar_id: integer()
+    .notNull()
+    .references(() => contasPagarTable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
 });
 
 // export const viewComprasItens = pgView("v_compras_itens").as((qb) =>

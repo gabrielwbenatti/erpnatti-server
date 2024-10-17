@@ -18,6 +18,8 @@ class PurchasesService {
         data_emissao: comprasTable.data_emissao,
         data_entrada: comprasTable.data_entrada,
         valor_produto: comprasTable.valor_produto,
+        numero_documento: comprasTable.numero_documento,
+        serie_documento: comprasTable.serie_documento,
         valor_total: comprasTable.valor_total,
         razao_social: pessoasTable.razao_social,
       })
@@ -124,6 +126,7 @@ class PurchasesService {
       .set({
         data_emissao: new Date(data_emissao),
         data_entrada: new Date(data_entrada),
+
         valor_produto: body.valor_produto,
         valor_frete: body.valor_frete,
         valor_outros: body.valor_outros,
