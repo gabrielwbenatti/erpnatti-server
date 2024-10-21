@@ -1,10 +1,26 @@
-import { eq, SQL } from "drizzle-orm";
+import { eq, and, ilike, or, SQL } from "drizzle-orm";
 import { pessoasTable } from "../../db/schema";
 import { numbersOnly } from "../helpers/string_helper";
 import Database from "../config/database";
 
 class PeopleService {
-  getPeople = async (filters: (SQL | undefined)[] = []) => {
+  getPeople = async (filters: Record<string, any> = {}) => {
+    const where: (SQL | undefined)[] = [];
+    const { search } = filters;
+
+    if (search) {
+      where.push(
+        or(
+          ilike(pessoasTable.razao_social, `%${search}%`),
+          ilike(pessoasTable.nome_fantasia, `%${search}%`),
+
+          numbersOnly(String(search)) !== ""
+            ? ilike(pessoasTable.cpf_cnpj, `%${numbersOnly(String(search))}%`)
+            : undefined
+        )
+      );
+    }
+
     const db = Database.getInstance();
     const result = await db
       .select({
@@ -14,7 +30,8 @@ class PeopleService {
         cpf_cnpj: pessoasTable.cpf_cnpj,
         tipo_pessoa: pessoasTable.tipo_pessoa,
       })
-      .from(pessoasTable);
+      .from(pessoasTable)
+      .where(and(...where));
 
     return result;
   };

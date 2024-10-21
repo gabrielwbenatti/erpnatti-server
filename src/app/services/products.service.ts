@@ -1,9 +1,9 @@
 import { produtosTable } from "../../db/schema";
-import { eq, and, SQL, asc } from "drizzle-orm";
+import { eq, and, SQL, asc, or, ilike } from "drizzle-orm";
 import Database from "../config/database";
 
 class ProductsService {
-  getProducts = async (filters: (SQL | undefined)[] = []) => {
+  getProducts = async (filters: Record<string, any> = {}) => {
     //     const result = await db.$queryRaw`WITH ultima_compra AS (
     //          SELECT ci.produto_id,
     //             ci.valor_unitario,
@@ -24,7 +24,21 @@ class ProductsService {
     //     uc.data_emissao AS data_ultima_compra
     //    FROM produtos p
     //      LEFT JOIN ultima_compra uc ON uc.produto_id = p.id AND uc.row_no = 1;`;
+
+    const where: (SQL | undefined)[] = [];
+    const { search, referencia } = filters;
+
     const db = Database.getInstance();
+    if (search)
+      where.push(
+        or(
+          ilike(produtosTable.nome, `%${search}%`),
+          ilike(produtosTable.referencia, `%${search}%`)
+        )
+      );
+
+    if (referencia)
+      where.push(and(eq(produtosTable.referencia, `${referencia}`)));
 
     const result = await db
       .select({
@@ -34,17 +48,8 @@ class ProductsService {
         referencia: produtosTable.referencia,
       })
       .from(produtosTable)
-      .where(and(...filters))
+      .where(and(...where))
       .orderBy(asc(produtosTable.nome));
-
-    console.log(
-      db
-        .select()
-        .from(produtosTable)
-        .where(and(...filters))
-        .orderBy(produtosTable.nome)
-        .toSQL()
-    );
 
     return result;
   };
