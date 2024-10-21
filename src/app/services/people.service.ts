@@ -1,66 +1,109 @@
-import { Prisma } from "@prisma/client";
-import db from "../config/database";
+import { eq, and, ilike, or, SQL } from "drizzle-orm";
+import { pessoasTable } from "../../db/schema";
 import { numbersOnly } from "../helpers/string_helper";
+import Database from "../config/database";
 
 class PeopleService {
-  getPeople = async (
-    query: Prisma.pessoaWhereInput | undefined = undefined
-  ) => {
-    const people = await db.pessoa.findMany({
-      where: query,
-      orderBy: { razao_social: "asc" },
-    });
+  getPeople = async (filters: Record<string, any> = {}) => {
+    const where: (SQL | undefined)[] = [];
+    const { search } = filters;
 
-    return people;
+    if (search) {
+      where.push(
+        or(
+          ilike(pessoasTable.razao_social, `%${search}%`),
+          ilike(pessoasTable.nome_fantasia, `%${search}%`),
+
+          numbersOnly(String(search)) !== ""
+            ? ilike(pessoasTable.cpf_cnpj, `%${numbersOnly(String(search))}%`)
+            : undefined
+        )
+      );
+    }
+
+    const db = Database.getInstance();
+    const result = await db
+      .select({
+        id: pessoasTable.id,
+        razao_social: pessoasTable.razao_social,
+        nome_fantasia: pessoasTable.nome_fantasia,
+        cpf_cnpj: pessoasTable.cpf_cnpj,
+        tipo_pessoa: pessoasTable.tipo_pessoa,
+      })
+      .from(pessoasTable)
+      .where(and(...where));
+
+    return result;
   };
 
   createPerson = async (body: any) => {
+    const db = Database.getInstance();
     const { cpf_cnpj, cep } = body;
 
-    const person = await db.pessoa.create({
-      data: {
+    const result = await db
+      .insert(pessoasTable)
+      .values({
         razao_social: body.razao_social,
         nome_fantasia: body.nome_fantasia,
         cpf_cnpj: numbersOnly(cpf_cnpj),
-        tipo_pessoa: body.tipo_pessoa || ["CLI"],
+        tipo_pessoa: body.tipo_pessoa || ["CLIENTE"],
+
         endereco: body.endereco,
+        bairro: body.bairro,
+        cidade: body.cidade,
+        codigo_ibge: body.codigo_ibge,
         numero: body.numero,
         complemento: body.complemento,
         cep: numbersOnly(cep),
-      },
-    });
+      })
+      .returning();
 
-    return person;
+    return result;
   };
 
   showPerson = async (id: number) => {
-    const person = await db.pessoa.findFirst({ where: { id: id } });
+    const db = Database.getInstance();
+    const result = await db
+      .select()
+      .from(pessoasTable)
+      .where(eq(pessoasTable.id, id));
 
-    return person;
+    return result[0];
   };
 
   updatePerson = async (id: number, body: any) => {
+    const db = Database.getInstance();
     const { cpf_cnpj, cep } = body;
 
-    const person = await db.pessoa.update({
-      data: {
+    const result = await db
+      .update(pessoasTable)
+      .set({
         razao_social: body.razao_social,
         nome_fantasia: body.nome_fantasia,
         cpf_cnpj: numbersOnly(cpf_cnpj),
         tipo_pessoa: body.tipo_pessoa,
+
         endereco: body.endereco,
+        bairro: body.bairro,
+        cidade: body.cidade,
+        codigo_ibge: body.codigo_ibge,
         numero: body.numero,
         complemento: body.complemento,
         cep: numbersOnly(cep),
-      },
-      where: { id: id },
-    });
+      })
+      .where(eq(pessoasTable.id, id))
+      .returning();
 
-    return person;
+    return result;
   };
 
   deletePerson = async (id: number) => {
-    const person = await db.pessoa.delete({ where: { id: id } });
+    const db = Database.getInstance();
+
+    const person = await db
+      .delete(pessoasTable)
+      .where(eq(pessoasTable.id, id))
+      .returning();
 
     return person;
   };

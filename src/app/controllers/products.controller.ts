@@ -1,11 +1,14 @@
 import { Request, Response } from "express";
 import productsService from "../services/products.service";
-import HttpStatusCode from "../helpers/http_status_code";
 import { successResponse } from "../helpers/http_responses";
+import productsValidator from "../validators/products.validator";
+import { HttpStatusCode } from "../helpers/http_status_code";
 
 class ProductsController {
-  getProducts = async (_: Request, res: Response) => {
-    const result = await productsService.getProducts();
+  getProducts = async (req: Request, res: Response) => {
+    const { search, referencia } = req.query;
+
+    const result = await productsService.getProducts({ search, referencia });
 
     if (result) {
       successResponse(res, result, HttpStatusCode.OK, {
@@ -16,25 +19,22 @@ class ProductsController {
 
   createProduct = async (req: Request, res: Response) => {
     const body = req.body;
+    const { referencia } = body;
 
-    if (body.referencia) {
-      const productExists = await productsService.getProducts({
-        referencia: body.referencia,
-      });
+    if (referencia) {
+      const isDuplicate = await productsValidator.isReferenceDuplicate(
+        referencia
+      );
 
-      if (productExists.length > 0) {
-        res
+      if (isDuplicate)
+        return res
           .status(HttpStatusCode.CONFLICT)
-          .json({ message: "Duplicated product" });
-        return;
-      }
+          .json({ message: "Duplicate product" });
     }
 
     const result = await productsService.createProduct(body);
 
-    if (result) {
-      successResponse(res, result, HttpStatusCode.CREATED);
-    }
+    if (result) successResponse(res, result, HttpStatusCode.CREATED);
   };
 
   showProduct = async (req: Request, res: Response) => {
@@ -48,19 +48,19 @@ class ProductsController {
 
   updateProduct = async (req: Request, res: Response) => {
     const body = req.body;
-    const product = await productsService.updateProduct(body);
+    const id = req.params.id;
+    const product = await productsService.updateProduct(+id, body);
 
     if (product) {
-      successResponse(res, product, HttpStatusCode.ACCEPTED);
+      successResponse(res, product, HttpStatusCode.OK);
     }
   };
 
   deleteProduct = async (req: Request, res: Response) => {
     const id = req.params.id;
     const product = await productsService.deleteProduct(+id);
-
     if (product) {
-      successResponse(res, product, HttpStatusCode.ACCEPTED);
+      successResponse(res, product, HttpStatusCode.OK);
     }
   };
 }

@@ -1,69 +1,172 @@
-import { Prisma } from "@prisma/client";
-import db from "../config/database";
+import { and, eq, SQL } from "drizzle-orm";
+import {
+  comprasItensTable,
+  comprasTable,
+  pessoasTable,
+  produtosTable,
+} from "../../db/schema";
+import Database from "../config/database";
 
 class PurchasesService {
-  getPurchases = async (query?: Prisma.compraWhereInput) => {
-    const result = await db.compra.findMany({
-      where: query,
-      orderBy: { data_emissao: "desc" },
-    });
+  getPurchases = async (filters: Record<string, any> = {}) => {
+    const {} = filters;
+    const where: (SQL | undefined)[] = [];
+
+    const db = Database.getInstance();
+    const result = await db
+      .select({
+        id: comprasTable.id,
+        pessoa_id: comprasTable.id,
+        data_emissao: comprasTable.data_emissao,
+        data_entrada: comprasTable.data_entrada,
+        valor_produto: comprasTable.valor_produto,
+        numero_documento: comprasTable.numero_documento,
+        serie_documento: comprasTable.serie_documento,
+        valor_total: comprasTable.valor_total,
+        razao_social: pessoasTable.razao_social,
+      })
+      .from(comprasTable)
+      .innerJoin(pessoasTable, eq(comprasTable.pessoa_id, pessoasTable.id))
+      .where(and(...where));
 
     return result;
   };
 
   createPurchase = async (body: any) => {
-    const { data_entrada } = body;
+    const db = Database.getInstance();
+    const { data_entrada, data_emissao, compras_itens } = body;
 
-    const result = await db.compra.create({
-      data: {
-        pessoa_id: body.pessoa_id,
-        valor_outros: body.valor_outros,
+    const result = await db
+      .insert(comprasTable)
+      .values({
+        data_emissao: new Date(data_emissao),
+        data_entrada: new Date(data_entrada),
         valor_produto: body.valor_produto,
+        valor_frete: body.valor_frete,
+        valor_outros: body.valor_outros,
         valor_total: body.valor_total,
-        data_emissao: new Date(body.data_emissao),
-        data_entrada: data_entrada ? new Date(data_entrada) : null,
         numero_documento: body.numero_documento,
         serie_documento: body.serie_documento,
-      },
-    });
+        pessoa_id: body.pessoa_id,
+      })
+      .returning();
 
-    if (result && body.compras_itens) {
-      const body_items = body.compras_itens;
+    if (result.length > 0 && compras_itens) {
+      const compra_id = result[0].id;
 
-      body_items.forEach((element: any) => {
-        element.compra_id = result.id;
-        element.produto_id = element.produto.id;
-
-        delete element.produto;
-      });
-
-      await db.compra_item.createMany({
-        data: body_items,
+      await db.transaction(async (tx) => {
+        compras_itens.map(async (item: any) => {
+          await tx.insert(comprasItensTable).values({
+            compra_id: compra_id,
+            produto_id: item.produto_id,
+            // descricao: item.descricao,
+            quantidade: item.quantidade,
+            valor_unitario: item.quantidade,
+            valor_total: item.quantidade,
+            observacao: item.quantidade,
+          });
+        });
       });
     }
 
-    return result;
+    return result[0];
   };
 
   showPurchase = async (id: number) => {
-    const result = await db.compra.findFirst({
-      where: { id: id },
-      include: {
-        compras_itens: {
-          include: { produto: { select: { id: true, nome: true } } },
-        },
-        pessoa: {
-          select: {
-            id: true,
-            razao_social: true,
-            nome_fantasia: true,
-            cpf_cnpj: true,
-          },
-        },
-      },
-    });
+    const db = Database.getInstance();
 
-    return result;
+    const result = await db
+      .select({
+        id: comprasTable.id,
+        data_emissao: comprasTable.data_emissao,
+        data_entrada: comprasTable.data_entrada,
+        valor_produto: comprasTable.valor_produto,
+        valor_frete: comprasTable.valor_frete,
+        valor_outros: comprasTable.valor_outros,
+        valor_total: comprasTable.valor_total,
+        numero_documento: comprasTable.numero_documento,
+        serie_documento: comprasTable.serie_documento,
+
+        pessoa_id: comprasTable.pessoa_id,
+
+        fornecedor: {
+          razao_social: pessoasTable.razao_social,
+          nome_fantasia: pessoasTable.nome_fantasia,
+          cpf_cnpj: pessoasTable.cpf_cnpj,
+        },
+      })
+      .from(comprasTable)
+      .innerJoin(pessoasTable, eq(comprasTable.pessoa_id, pessoasTable.id))
+      .where(eq(comprasTable.id, id));
+
+    const items = await db
+      .select({
+        id: comprasItensTable.id,
+        nome: produtosTable.nome,
+        quantidade: comprasItensTable.quantidade,
+        valor_unitario: comprasItensTable.valor_unitario,
+        valor_total: comprasItensTable.valor_total,
+        observacao: comprasItensTable.observacao,
+
+        produto_id: comprasItensTable.produto_id,
+        compra_id: comprasItensTable.compra_id,
+      })
+      .from(comprasItensTable)
+      .innerJoin(
+        produtosTable,
+        eq(comprasItensTable.produto_id, produtosTable.id)
+      )
+      .where(eq(comprasItensTable.compra_id, id));
+
+    return { ...result[0], compras_itens: items };
+  };
+
+  updatePurchase = async (id: number, body: any) => {
+    const db = Database.getInstance();
+    const { data_emissao, data_entrada, compras_itens } = body;
+
+    const result = await db
+      .update(comprasTable)
+      .set({
+        data_emissao: new Date(data_emissao),
+        data_entrada: new Date(data_entrada),
+
+        valor_produto: body.valor_produto,
+        valor_frete: body.valor_frete,
+        valor_outros: body.valor_outros,
+        valor_total: body.valor_total,
+        numero_documento: body.numero_documento,
+        serie_documento: body.serie_documento,
+        pessoa_id: body.pessoa_id,
+      })
+      .where(eq(comprasTable.id, id))
+      .returning();
+
+    if (result.length > 0 && compras_itens) {
+      compras_itens.forEach(async (item: any) => {
+        const { compra_id, id } = item;
+
+        await db
+          .update(comprasItensTable)
+          .set({
+            compra_id: compra_id,
+            produto_id: item.produto_id,
+            // descricao: item.descricao,
+            quantidade: item.quantidade,
+            valor_unitario: item.quantidade,
+            valor_total: item.quantidade,
+            observacao: item.quantidade,
+          })
+          .where(
+            and(
+              eq(comprasItensTable.compra_id, compra_id),
+              eq(comprasItensTable.id, id)
+            )
+          );
+      });
+    }
+
+    return result[0];
   };
 }
 

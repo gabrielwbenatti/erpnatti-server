@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import salesService from "../services/sales.service";
 import { successResponse } from "../helpers/http_responses";
-import HttpStatusCode from "../helpers/http_status_code";
+import { HttpStatusCode } from "../helpers/http_status_code";
 
 class SalesController {
   getSales = async (req: Request, res: Response) => {

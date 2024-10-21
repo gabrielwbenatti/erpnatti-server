@@ -1,6 +1,6 @@
+import "dotenv/config";
 import express, { Request } from "express";
 import cors from "cors";
-import db from "./config/database";
 import router from "./routes/v1";
 
 async function main() {
@@ -16,12 +16,7 @@ async function main() {
   });
 }
 
-main()
-  .then(async () => {
-    await db.$disconnect();
-  })
-  .catch(async (e) => {
-    console.log(e);
-    await db.$disconnect();
-    process.exit(1);
-  });
+main().catch(async (e) => {
+  console.log(e);
+  process.exit(1);
+});

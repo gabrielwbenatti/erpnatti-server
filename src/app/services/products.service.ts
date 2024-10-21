@@ -1,10 +1,9 @@
-import { Prisma } from "@prisma/client";
-import db from "../config/database";
+import { produtosTable } from "../../db/schema";
+import { eq, and, SQL, asc, or, ilike } from "drizzle-orm";
+import Database from "../config/database";
 
 class ProductsService {
-  getProducts = async (
-    query: Prisma.produtoWhereInput | undefined = undefined
-  ) => {
+  getProducts = async (filters: Record<string, any> = {}) => {
     //     const result = await db.$queryRaw`WITH ultima_compra AS (
     //          SELECT ci.produto_id,
     //             ci.valor_unitario,
@@ -26,17 +25,41 @@ class ProductsService {
     //    FROM produtos p
     //      LEFT JOIN ultima_compra uc ON uc.produto_id = p.id AND uc.row_no = 1;`;
 
-    const result = await db.produto.findMany({
-      where: query,
-      orderBy: { nome: "asc" },
-    });
+    const where: (SQL | undefined)[] = [];
+    const { search, referencia } = filters;
+
+    const db = Database.getInstance();
+    if (search)
+      where.push(
+        or(
+          ilike(produtosTable.nome, `%${search}%`),
+          ilike(produtosTable.referencia, `%${search}%`)
+        )
+      );
+
+    if (referencia)
+      where.push(and(eq(produtosTable.referencia, `${referencia}`)));
+
+    const result = await db
+      .select({
+        id: produtosTable.id,
+        nome: produtosTable.nome,
+        codigo_barra: produtosTable.codigo_barra,
+        referencia: produtosTable.referencia,
+      })
+      .from(produtosTable)
+      .where(and(...where))
+      .orderBy(asc(produtosTable.nome));
 
     return result;
   };
 
   createProduct = async (body: any) => {
-    const result = await db.produto.create({
-      data: {
+    const db = Database.getInstance();
+
+    const result = await db
+      .insert(produtosTable)
+      .values({
         nome: body.nome,
         referencia: body.referencia,
         codigo_barra: body.codigo_barra,
@@ -44,37 +67,52 @@ class ProductsService {
         estoque_minimo: body.estoque_minimo,
         estoque_maximo: body.estoque_maximo,
         grupo_produto_id: body.grupo_produto_id,
-      },
-    });
+        linha_produto_id: body.linha_produto_id,
+      })
+      .returning();
 
     return result;
   };
 
   showProduct = async (id: number) => {
-    const product = await db.produto.findFirst({ where: { id: id } });
+    const db = Database.getInstance();
 
-    return product;
+    const product = await db
+      .select()
+      .from(produtosTable)
+      .where(eq(produtosTable.id, id));
+
+    return product[0];
   };
 
-  updateProduct = async (body: any) => {
-    const result = await db.produto.update({
-      data: {
+  updateProduct = async (id: number, body: any) => {
+    const db = Database.getInstance();
+
+    const result = await db
+      .update(produtosTable)
+      .set({
         nome: body.nome,
         referencia: body.referencia,
         codigo_barra: body.codigo_barra,
         movimenta_estoque: body.movimenta_estoque,
         estoque_minimo: body.estoque_minimo,
         estoque_maximo: body.estoque_maximo,
-        grupo_produto_id: body.grupo_produto_id || null,
-      },
-      where: { id: body.id },
-    });
+        grupo_produto_id: body.grupo_produto_id,
+        linha_produto_id: body.linha_produto_id,
+      })
+      .where(eq(produtosTable.id, id))
+      .returning();
 
     return result;
   };
 
   deleteProduct = async (id: number) => {
-    const product = await db.produto.delete({ where: { id: id } });
+    const db = Database.getInstance();
+
+    const product = await db
+      .delete(produtosTable)
+      .where(eq(produtosTable.id, id))
+      .returning();
 
     return product;
   };

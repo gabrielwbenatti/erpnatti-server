@@ -8,6 +8,9 @@ router
   .get(purchaseController.getPurchases)
   .post(purchaseController.createPurchase);
 
-router.route("/:id").get(purchaseController.showPurchase);
+router
+  .route("/:id")
+  .get(purchaseController.showPurchase)
+  .put(purchaseController.updatePurchase);
 
 export default router;

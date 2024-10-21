@@ -1,4 +1,4 @@
-enum HttpStatusCode {
+export enum HttpStatusCode {
   // Informational (100-199)
 
   // Successful responses (200-299)
@@ -15,5 +15,3 @@ enum HttpStatusCode {
   // Server error responses (500-599)
   INTERNAL_SERVER_ERROR = 500,
 }
-
-export default HttpStatusCode;

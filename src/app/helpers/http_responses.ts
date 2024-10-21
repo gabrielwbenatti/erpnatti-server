@@ -1,15 +1,14 @@
 import { Response } from "express";
-import HttpStatusCode from "./http_status_code";
 
 const successResponse = (
   response: Response,
-  data: any,
+  result: any,
   statusCode: number,
   metadata: any = {}
 ) => {
   response.status(statusCode).json({
-    data,
-    metadata,
+    result: result,
+    meta: metadata,
   });
 };
 
