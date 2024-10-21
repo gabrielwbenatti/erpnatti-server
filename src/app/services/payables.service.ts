@@ -3,7 +3,10 @@ import Database from "../config/database";
 import { contasPagarTable, pessoasTable } from "../../db/schema";
 
 class PayablesService {
-  getPayables = async (filters: (SQL | undefined)[] = []) => {
+  getPayables = async (filters: Record<string, any> = {}) => {
+    const {} = filters;
+    const where: (SQL | undefined)[] = [];
+
     const db = Database.getInstance();
     const rows = await db
       .select({
@@ -19,29 +22,37 @@ class PayablesService {
       })
       .from(contasPagarTable)
       .innerJoin(pessoasTable, eq(contasPagarTable.pessoa_id, pessoasTable.id))
-      .where(and(...filters));
+      .where(and(...where));
 
     return rows;
   };
 
-  createPayable = async (body: any) => {
+  createPayable = async (body: any[]) => {
     const db = Database.getInstance();
-    const { data_emissao, data_vencimento } = body;
+    const rows: any[] = [];
 
-    const row = await db
-      .insert(contasPagarTable)
-      .values({
-        data_vencimento: new Date(data_vencimento),
-        data_emissao: new Date(data_emissao),
-        numero_titulo: body.numero_titulo,
-        pessoa_id: body.pessoa_id,
-        compra_id: body.compra_id,
-        numero_parcela: body.numero_parcela,
-        valor: body.valor,
-      })
-      .returning();
+    await db.transaction(async (tx) => {
+      body.map(async (payable: any) => {
+        const { data_emissao, data_vencimento } = payable;
 
-    return row[0];
+        const row = await tx
+          .insert(contasPagarTable)
+          .values({
+            data_vencimento: new Date(data_vencimento),
+            data_emissao: new Date(data_emissao),
+            numero_titulo: payable.numero_titulo,
+            pessoa_id: payable.pessoa_id,
+            compra_id: payable.compra_id,
+            numero_parcela: payable.numero_parcela,
+            valor: payable.valor,
+          })
+          .returning();
+
+        rows.push(row[0]);
+      });
+    });
+
+    return rows;
   };
 
   show = async (id: number) => {
@@ -57,7 +68,16 @@ class PayablesService {
 
   update = async (id: number, body: any) => {};
 
-  remove = async (id: number) => {};
+  remove = async (id: number) => {
+    const db = Database.getInstance();
+
+    const rows = await db
+      .delete(contasPagarTable)
+      .where(eq(contasPagarTable.id, id))
+      .returning();
+
+    return rows[0];
+  };
 }
 
 export default new PayablesService();

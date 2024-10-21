@@ -5,8 +5,10 @@ import purchasesValidador from "../validators/purchases.validador";
 import { HttpStatusCode } from "../helpers/http_status_code";
 
 class PurchasesController {
-  getPurchases = async (_: Request, res: Response) => {
-    const result = await purchasesService.getPurchases(undefined);
+  getPurchases = async (req: Request, res: Response) => {
+    const {} = req.query;
+
+    const result = await purchasesService.getPurchases({});
 
     if (result) {
       successResponse(res, result, HttpStatusCode.OK, {
@@ -17,7 +19,13 @@ class PurchasesController {
 
   createPurchase = async (req: Request, res: Response) => {
     const body = req.body;
-    const { pessoa_id, numero_documento, serie_documento } = body;
+    const {
+      pessoa_id,
+      numero_documento,
+      serie_documento,
+      data_emissao,
+      data_entrada,
+    } = body;
 
     if (!pessoa_id)
       return res
@@ -33,6 +41,11 @@ class PurchasesController {
       return res
         .status(HttpStatusCode.BAD_REQUEST)
         .json({ message: "Field 'serie_documento' is required" });
+
+    if (!data_emissao || !data_entrada)
+      return res.status(HttpStatusCode.BAD_REQUEST).json({
+        message: "Fields 'data_emissao' and 'data_entrada' are required",
+      });
 
     if (pessoa_id && numero_documento && serie_documento) {
       const isDuplicate = await purchasesValidador.isPurchaseDuplicated(

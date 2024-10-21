@@ -8,9 +8,11 @@ import {
 import Database from "../config/database";
 
 class PurchasesService {
-  getPurchases = async (where: SQL | undefined) => {
-    const db = Database.getInstance();
+  getPurchases = async (filters: Record<string, any> = {}) => {
+    const {} = filters;
+    const where: (SQL | undefined)[] = [];
 
+    const db = Database.getInstance();
     const result = await db
       .select({
         id: comprasTable.id,
@@ -25,7 +27,7 @@ class PurchasesService {
       })
       .from(comprasTable)
       .innerJoin(pessoasTable, eq(comprasTable.pessoa_id, pessoasTable.id))
-      .where(where);
+      .where(and(...where));
 
     return result;
   };
@@ -52,15 +54,17 @@ class PurchasesService {
     if (result.length > 0 && compras_itens) {
       const compra_id = result[0].id;
 
-      compras_itens.forEach(async (item: any) => {
-        await db.insert(comprasItensTable).values({
-          compra_id: compra_id,
-          produto_id: item.produto_id,
-          // descricao: item.descricao,
-          quantidade: item.quantidade,
-          valor_unitario: item.quantidade,
-          valor_total: item.quantidade,
-          observacao: item.quantidade,
+      await db.transaction(async (tx) => {
+        compras_itens.map(async (item: any) => {
+          await tx.insert(comprasItensTable).values({
+            compra_id: compra_id,
+            produto_id: item.produto_id,
+            // descricao: item.descricao,
+            quantidade: item.quantidade,
+            valor_unitario: item.quantidade,
+            valor_total: item.quantidade,
+            observacao: item.quantidade,
+          });
         });
       });
     }

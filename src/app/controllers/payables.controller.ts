@@ -4,8 +4,10 @@ import { successResponse } from "../helpers/http_responses";
 import { HttpStatusCode } from "../helpers/http_status_code";
 
 class PayablesController {
-  index = async (_: Request, res: Response) => {
-    const result = await payablesService.getPayables(undefined);
+  index = async (req: Request, res: Response) => {
+    const {} = req.query;
+
+    const result = await payablesService.getPayables({});
 
     if (result) {
       successResponse(res, result, HttpStatusCode.OK, {
@@ -15,7 +17,8 @@ class PayablesController {
   };
 
   store = async (req: Request, res: Response) => {
-    const body = req.body;
+    const body = Array.isArray(req.body) ? Array.from(req.body) : [req.body];
+
     const result = await payablesService.createPayable(body);
 
     if (result) successResponse(res, result, HttpStatusCode.CREATED);
@@ -30,7 +33,12 @@ class PayablesController {
 
   update = async (req: Request, res: Response) => {};
 
-  remove = async (req: Request, res: Response) => {};
+  remove = async (req: Request, res: Response) => {
+    const id = req.params.id;
+    const result = await payablesService.remove(+id);
+
+    if (result) successResponse(res, result, HttpStatusCode.OK);
+  };
 }
 
 export default new PayablesController();

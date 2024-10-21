@@ -3,8 +3,10 @@ import payablesController from "../../controllers/payables.controller";
 
 const router = Router();
 
-router.route("/").get(payablesController.index).post(payablesController.store);
-
-router.route("/:id").get(payablesController.show);
+router
+  .get("/", payablesController.index)
+  .post("/", payablesController.store)
+  .get("/:id", payablesController.show)
+  .delete("/:id", payablesController.remove);
 
 export default router;
