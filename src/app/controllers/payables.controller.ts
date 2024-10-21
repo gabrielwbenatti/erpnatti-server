@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import payablesService from "../services/payables.service";
 import { successResponse } from "../helpers/http_responses";
-import HttpStatusCode from "../helpers/http_status_code";
+import { HttpStatusCode } from "../helpers/http_status_code";
 
 class PayablesController {
-  index = async (req: Request, res: Response) => {
+  index = async (_: Request, res: Response) => {
     const result = await payablesService.getPayables(undefined);
 
     if (result) {
@@ -21,7 +21,12 @@ class PayablesController {
     if (result) successResponse(res, result, HttpStatusCode.CREATED);
   };
 
-  show = async (req: Request, res: Response) => {};
+  show = async (req: Request, res: Response) => {
+    const id = req.params.id;
+    const result = await payablesService.show(+id);
+
+    if (result) successResponse(res, result, HttpStatusCode.OK);
+  };
 
   update = async (req: Request, res: Response) => {};
 

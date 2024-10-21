@@ -1,4 +1,4 @@
-import {  eq, SQL } from "drizzle-orm";
+import { eq, SQL } from "drizzle-orm";
 import { pessoasTable } from "../../db/schema";
 import { numbersOnly } from "../helpers/string_helper";
 import Database from "../config/database";

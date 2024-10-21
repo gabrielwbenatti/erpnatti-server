@@ -121,8 +121,8 @@ export const contasPagarTable = pgTable("contas_pagar", {
   id: serial().primaryKey(),
   numero_titulo: varchar().notNull(),
   valor: real().default(0),
-  data_vencimento: date().notNull(),
-  data_emissao: date(),
+  data_vencimento: date({ mode: "date" }).notNull(),
+  data_emissao: date({ mode: "date" }),
   numero_parcela: smallint().default(1),
 
   compra_id: integer().references(() => comprasTable.id, {
@@ -136,7 +136,7 @@ export const contasPagarTable = pgTable("contas_pagar", {
 
 export const contasPagamentosTable = pgTable("contas_pagamentos", {
   id: serial().primaryKey(),
-  data: date().notNull(),
+  data: date({ mode: "date" }).notNull(),
   valor: real().default(0),
 
   conta_pagar_id: integer()
