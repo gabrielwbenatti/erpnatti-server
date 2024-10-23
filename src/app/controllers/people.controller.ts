@@ -1,9 +1,14 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import peopleService from "../services/people.service";
 import peopleValidator from "../validators/people.validator";
 import { successResponse } from "../helpers/http_responses";
 import { HttpStatusCode } from "../helpers/http_status_code";
 import { ControllerInterface } from "../interfaces/controller.interface";
+import {
+  DuplicatedRecordError,
+  MissingFieldError,
+} from "../helpers/http_error";
+import { numbersOnly } from "../helpers/string_helper";
 
 class PeopleController implements ControllerInterface {
   async index(req: Request, res: Response) {
@@ -18,25 +23,31 @@ class PeopleController implements ControllerInterface {
     }
   }
 
-  async store(req: Request, res: Response) {
+  async store(req: Request, res: Response, next: NextFunction) {
     const body = req.body;
-    const { cpf_cnpj } = body;
+    const { company_name, cpf_cnpj } = body;
 
-    if (cpf_cnpj) {
-      const isDuplicate = await peopleValidator.isDuplicatedPerson(cpf_cnpj);
-
-      if (isDuplicate) {
-        res
-          .status(HttpStatusCode.CONFLICT)
-          .json({ message: "Duplicated person" });
-        return;
+    try {
+      if (!company_name || company_name === "") {
+        throw new MissingFieldError("company_name");
       }
-    }
 
-    const person = await peopleService.createPerson(body);
+      if (cpf_cnpj) {
+        const document = numbersOnly(cpf_cnpj);
+        const isDuplicate = await peopleValidator.isDuplicatedPerson(document);
 
-    if (person) {
-      successResponse(res, person, HttpStatusCode.CREATED);
+        if (isDuplicate) {
+          throw new DuplicatedRecordError("person", "cpf_cnpj");
+        }
+      }
+
+      const person = await peopleService.createPerson(body);
+
+      if (person) {
+        successResponse(res, person, HttpStatusCode.CREATED);
+      }
+    } catch (error) {
+      return next(error);
     }
   }
 

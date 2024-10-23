@@ -31,7 +31,8 @@ class PeopleService {
         person_type: person.person_type,
       })
       .from(person)
-      .where(and(...where));
+      .where(and(...where))
+      .orderBy(person.company_name);
 
     return rows;
   };

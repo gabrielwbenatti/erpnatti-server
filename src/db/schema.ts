@@ -128,12 +128,12 @@ export const payable = pgTable("payables", {
     .references(() => person.id, { onUpdate: "cascade" }),
 });
 
-export const contaPagamento = pgTable("contas_pagamentos", {
+export const payments = pgTable("payments", {
   id: serial().primaryKey(),
-  data: date({ mode: "date" }).notNull(),
-  valor: real().default(0),
+  date: date({ mode: "date" }).notNull(),
+  value: real().default(0),
 
-  conta_pagar_id: integer()
+  payable_id: integer()
     .notNull()
     .references(() => payable.id, {
       onDelete: "cascade",

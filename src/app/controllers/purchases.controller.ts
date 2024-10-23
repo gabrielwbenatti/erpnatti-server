@@ -1,9 +1,13 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import purchasesService from "../services/purchases.service";
 import { successResponse } from "../helpers/http_responses";
 import purchasesValidador from "../validators/purchases.validador";
 import { HttpStatusCode } from "../helpers/http_status_code";
 import { ControllerInterface } from "../interfaces/controller.interface";
+import {
+  DuplicatedRecordError,
+  MissingFieldError,
+} from "../helpers/http_error";
 
 class PurchasesController implements ControllerInterface {
   async index(req: Request, res: Response) {
@@ -18,63 +22,38 @@ class PurchasesController implements ControllerInterface {
     }
   }
 
-  async store(req: Request, res: Response) {
+  async store(req: Request, res: Response, next: NextFunction) {
     const body = req.body;
-    const {
-      pessoa_id,
-      numero_documento,
-      serie_documento,
-      data_emissao,
-      data_entrada,
-    } = body;
+    const { person_id, document_number, document_series } = body;
 
-    if (!pessoa_id) {
-      res
-        .status(HttpStatusCode.BAD_REQUEST)
-        .json({ message: "Field 'pessoa_id' is required" });
-      return;
-    }
+    try {
+      if (!person_id) throw new MissingFieldError("person_id");
 
-    if (!numero_documento) {
-      res
-        .status(HttpStatusCode.BAD_REQUEST)
-        .json({ message: "Field 'numero_documento' is required" });
-      return;
-    }
+      if (!document_number) throw new MissingFieldError("document_number");
 
-    if (!serie_documento) {
-      res
-        .status(HttpStatusCode.BAD_REQUEST)
-        .json({ message: "Field 'serie_documento' is required" });
-      return;
-    }
+      if (!document_series) throw new MissingFieldError("document_series");
 
-    if (!data_emissao || !data_entrada) {
-      res.status(HttpStatusCode.BAD_REQUEST).json({
-        message: "Fields 'data_emissao' and 'data_entrada' are required",
-      });
-      return;
-    }
+      if (person_id && document_number && document_series) {
+        const isDuplicate = await purchasesValidador.isPurchaseDuplicated(
+          person_id,
+          document_number,
+          document_series
+        );
 
-    if (pessoa_id && numero_documento && serie_documento) {
-      const isDuplicate = await purchasesValidador.isPurchaseDuplicated(
-        pessoa_id,
-        numero_documento,
-        serie_documento
-      );
-
-      if (isDuplicate) {
-        res
-          .status(HttpStatusCode.CONFLICT)
-          .json({ message: "Duplicate purchase" });
-        return;
+        if (isDuplicate)
+          throw new DuplicatedRecordError(
+            "purchase",
+            "person_id, document_number and document_series"
+          );
       }
-    }
 
-    const purchase = await purchasesService.createPurchase(body);
+      const purchase = await purchasesService.createPurchase(body);
 
-    if (purchase) {
-      successResponse(res, purchase, HttpStatusCode.CREATED);
+      if (purchase) {
+        successResponse(res, purchase, HttpStatusCode.CREATED);
+      }
+    } catch (error) {
+      return next(error);
     }
   }
 

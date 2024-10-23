@@ -11,14 +11,14 @@ class PurchasesService {
     const rows = await db
       .select({
         id: purchase.id,
-        pessoa_id: purchase.id,
-        data_emissao: purchase.emission_date,
-        data_entrada: purchase.entry_date,
-        valor_produto: purchase.product_amount,
-        numero_documento: purchase.document_number,
-        serie_documento: purchase.document_series,
-        valor_total: purchase.total_amount,
-        razao_social: person.company_name,
+        person_id: purchase.person_id,
+        emission_date: purchase.emission_date,
+        entry_date: purchase.entry_date,
+        product_amount: purchase.product_amount,
+        document_number: purchase.document_number,
+        document_series: purchase.document_series,
+        total_amount: purchase.total_amount,
+        company_name: person.company_name,
         cpf_cnpj: person.cpf_cnpj,
       })
       .from(purchase)

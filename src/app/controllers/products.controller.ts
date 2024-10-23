@@ -1,9 +1,13 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import productsService from "../services/products.service";
 import { successResponse } from "../helpers/http_responses";
 import productsValidator from "../validators/products.validator";
 import { HttpStatusCode } from "../helpers/http_status_code";
 import { ControllerInterface } from "../interfaces/controller.interface";
+import {
+  DuplicatedRecordError,
+  MissingFieldError,
+} from "../helpers/http_error";
 
 class ProductsController implements ControllerInterface {
   async index(req: Request, res: Response) {
@@ -18,25 +22,32 @@ class ProductsController implements ControllerInterface {
     }
   }
 
-  async store(req: Request, res: Response) {
+  async store(req: Request, res: Response, next: NextFunction) {
     const body = req.body;
-    const { referencia } = body;
+    const { name, reference } = body;
 
-    if (referencia) {
-      const isDuplicate = await productsValidator.isReferenceDuplicate(
-        referencia
-      );
+    try {
+      if (!name || name === "") {
+        throw new MissingFieldError("name");
+      }
 
-      if (isDuplicate)
-        res
-          .status(HttpStatusCode.CONFLICT)
-          .json({ message: "Duplicate product" });
-      return;
+      if (reference) {
+        const isDuplicate = await productsValidator.isReferenceDuplicate(
+          reference
+        );
+
+        if (isDuplicate)
+          throw new DuplicatedRecordError("product", "reference");
+      }
+
+      const result = await productsService.createProduct(body);
+
+      if (result.id) {
+        successResponse(res, result, HttpStatusCode.CREATED);
+      }
+    } catch (error) {
+      return next(error);
     }
-
-    const result = await productsService.createProduct(body);
-
-    if (result) successResponse(res, result, HttpStatusCode.CREATED);
   }
 
   async show(req: Request, res: Response) {

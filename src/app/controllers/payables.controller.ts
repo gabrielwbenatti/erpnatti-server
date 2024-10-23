@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import payablesService from "../services/payables.service";
 import { successResponse } from "../helpers/http_responses";
 import { HttpStatusCode } from "../helpers/http_status_code";
@@ -17,12 +17,18 @@ class PayablesController implements ControllerInterface {
     }
   }
 
-  async store(req: Request, res: Response) {
+  async store(req: Request, res: Response, next: NextFunction) {
     const body = Array.isArray(req.body) ? Array.from(req.body) : [req.body];
 
-    const result = await payablesService.createPayable(body);
+    try {
+      const result = await payablesService.createPayable(body);
 
-    if (result) successResponse(res, result, HttpStatusCode.CREATED);
+      if (result) {
+        successResponse(res, result, HttpStatusCode.CREATED);
+      }
+    } catch (error) {
+      return next(error);
+    }
   }
 
   async show(req: Request, res: Response) {

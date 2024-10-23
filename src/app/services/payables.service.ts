@@ -1,6 +1,6 @@
 import { eq, and, SQL } from "drizzle-orm";
 import Database from "../config/database";
-import { contaPagamento, payable, person } from "../../db/schema";
+import { payable, payments, person } from "../../db/schema";
 
 class PayablesService {
   getPayables = async (filters: Record<string, any> = {}) => {
@@ -62,8 +62,8 @@ class PayablesService {
 
     const payments_rows = await db
       .select()
-      .from(contaPagamento)
-      .where(eq(contaPagamento.conta_pagar_id, id));
+      .from(payments)
+      .where(eq(payments.payable_id, id));
 
     return { ...payables_rows[0], payments: payments_rows };
   };
