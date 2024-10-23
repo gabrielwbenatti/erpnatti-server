@@ -23,7 +23,7 @@ export const tp_pessoa = pgEnum("tp_pessoa", [
   "TRANSPORTADORA",
 ]);
 
-export const grupoProdutosTable = pgTable("grupos_produtos", {
+export const grupoProduto = pgTable("grupos_produtos", {
   id: serial().primaryKey(),
   nome: varchar({ length: 127 }).notNull(),
   status: boolean().default(true),
@@ -31,7 +31,7 @@ export const grupoProdutosTable = pgTable("grupos_produtos", {
   ...camposPadroes,
 });
 
-export const linhaProdutosTable = pgTable("grupos_produtos", {
+export const linhaProduto = pgTable("grupos_produtos", {
   id: serial().primaryKey(),
   nome: varchar({ length: 127 }).notNull(),
   status: boolean().default(true),
@@ -39,7 +39,7 @@ export const linhaProdutosTable = pgTable("grupos_produtos", {
   ...camposPadroes,
 });
 
-export const produtosTable = pgTable("produtos", {
+export const produto = pgTable("produtos", {
   id: serial().primaryKey(),
   nome: varchar({ length: 127 }).notNull(),
   codigo_barra: varchar({ length: 127 }),
@@ -51,15 +51,15 @@ export const produtosTable = pgTable("produtos", {
 
   ...camposPadroes,
 
-  grupo_produto_id: integer().references(() => grupoProdutosTable.id, {
+  grupo_produto_id: integer().references(() => grupoProduto.id, {
     onUpdate: "cascade",
   }),
-  linha_produto_id: integer().references(() => linhaProdutosTable.id, {
+  linha_produto_id: integer().references(() => linhaProduto.id, {
     onUpdate: "cascade",
   }),
 });
 
-export const pessoasTable = pgTable("pessoas", {
+export const pessoa = pgTable("pessoas", {
   id: serial().primaryKey(),
   razao_social: varchar({ length: 127 }).notNull(),
   nome_fantasia: varchar({ length: 127 }),
@@ -78,7 +78,7 @@ export const pessoasTable = pgTable("pessoas", {
   ...camposPadroes,
 });
 
-export const comprasTable = pgTable("compras", {
+export const compra = pgTable("compras", {
   id: serial().primaryKey(),
   data_emissao: date({ mode: "date" }).notNull(),
   data_entrada: date({ mode: "date" }).notNull(),
@@ -93,10 +93,10 @@ export const comprasTable = pgTable("compras", {
 
   pessoa_id: integer()
     .notNull()
-    .references(() => pessoasTable.id, { onUpdate: "cascade" }),
+    .references(() => pessoa.id, { onUpdate: "cascade" }),
 });
 
-export const comprasItensTable = pgTable("compras_itens", {
+export const compraItem = pgTable("compras_itens", {
   id: integer().notNull().generatedAlwaysAsIdentity(),
   // descricao: varchar({ length: 127 }).notNull(),
   quantidade: real().default(0),
@@ -108,16 +108,16 @@ export const comprasItensTable = pgTable("compras_itens", {
 
   compra_id: integer()
     .notNull()
-    .references(() => comprasTable.id, {
+    .references(() => compra.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
   produto_id: integer()
     .notNull()
-    .references(() => produtosTable.id, { onUpdate: "cascade" }),
+    .references(() => produto.id, { onUpdate: "cascade" }),
 });
 
-export const contasPagarTable = pgTable("contas_pagar", {
+export const contaPagar = pgTable("contas_pagar", {
   id: serial().primaryKey(),
   numero_titulo: varchar().notNull(),
   valor: real().default(0),
@@ -125,23 +125,23 @@ export const contasPagarTable = pgTable("contas_pagar", {
   data_emissao: date({ mode: "date" }),
   numero_parcela: smallint().default(1),
 
-  compra_id: integer().references(() => comprasTable.id, {
+  compra_id: integer().references(() => compra.id, {
     onDelete: "cascade",
     onUpdate: "cascade",
   }),
   pessoa_id: integer()
     .notNull()
-    .references(() => pessoasTable.id, { onUpdate: "cascade" }),
+    .references(() => pessoa.id, { onUpdate: "cascade" }),
 });
 
-export const contasPagamentosTable = pgTable("contas_pagamentos", {
+export const contaPagamento = pgTable("contas_pagamentos", {
   id: serial().primaryKey(),
   data: date({ mode: "date" }).notNull(),
   valor: real().default(0),
 
   conta_pagar_id: integer()
     .notNull()
-    .references(() => contasPagarTable.id, {
+    .references(() => contaPagar.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),

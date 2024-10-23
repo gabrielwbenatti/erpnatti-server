@@ -1,4 +1,4 @@
-import { produtosTable } from "../../db/schema";
+import { produto } from "../../db/schema";
 import { eq, and, SQL, asc, or, ilike } from "drizzle-orm";
 import Database from "../config/database";
 
@@ -32,24 +32,23 @@ class ProductsService {
     if (search)
       where.push(
         or(
-          ilike(produtosTable.nome, `%${search}%`),
-          ilike(produtosTable.referencia, `%${search}%`)
+          ilike(produto.nome, `%${search}%`),
+          ilike(produto.referencia, `%${search}%`)
         )
       );
 
-    if (referencia)
-      where.push(and(eq(produtosTable.referencia, `${referencia}`)));
+    if (referencia) where.push(and(eq(produto.referencia, `${referencia}`)));
 
     const result = await db
       .select({
-        id: produtosTable.id,
-        nome: produtosTable.nome,
-        codigo_barra: produtosTable.codigo_barra,
-        referencia: produtosTable.referencia,
+        id: produto.id,
+        nome: produto.nome,
+        codigo_barra: produto.codigo_barra,
+        referencia: produto.referencia,
       })
-      .from(produtosTable)
+      .from(produto)
       .where(and(...where))
-      .orderBy(asc(produtosTable.nome));
+      .orderBy(asc(produto.nome));
 
     return result;
   };
@@ -58,7 +57,7 @@ class ProductsService {
     const db = Database.getInstance();
 
     const result = await db
-      .insert(produtosTable)
+      .insert(produto)
       .values({
         nome: body.nome,
         referencia: body.referencia,
@@ -77,10 +76,7 @@ class ProductsService {
   showProduct = async (id: number) => {
     const db = Database.getInstance();
 
-    const product = await db
-      .select()
-      .from(produtosTable)
-      .where(eq(produtosTable.id, id));
+    const product = await db.select().from(produto).where(eq(produto.id, id));
 
     return product[0];
   };
@@ -89,7 +85,7 @@ class ProductsService {
     const db = Database.getInstance();
 
     const result = await db
-      .update(produtosTable)
+      .update(produto)
       .set({
         nome: body.nome,
         referencia: body.referencia,
@@ -100,7 +96,7 @@ class ProductsService {
         grupo_produto_id: body.grupo_produto_id,
         linha_produto_id: body.linha_produto_id,
       })
-      .where(eq(produtosTable.id, id))
+      .where(eq(produto.id, id))
       .returning();
 
     return result;
@@ -110,8 +106,8 @@ class ProductsService {
     const db = Database.getInstance();
 
     const product = await db
-      .delete(produtosTable)
-      .where(eq(produtosTable.id, id))
+      .delete(produto)
+      .where(eq(produto.id, id))
       .returning();
 
     return product;

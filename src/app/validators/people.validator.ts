@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { pessoasTable } from "../../db/schema";
+import { pessoa } from "../../db/schema";
 import Database from "../config/database";
 
 class PeopleValidator {
@@ -8,8 +8,8 @@ class PeopleValidator {
 
     const duplicatedPerson = await db
       .select()
-      .from(pessoasTable)
-      .where(eq(pessoasTable.cpf_cnpj, cpf_cnpj));
+      .from(pessoa)
+      .where(eq(pessoa.cpf_cnpj, cpf_cnpj));
 
     return duplicatedPerson.length > 0;
   };

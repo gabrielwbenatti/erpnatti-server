@@ -1,10 +1,5 @@
 import { and, eq, SQL } from "drizzle-orm";
-import {
-  comprasItensTable,
-  comprasTable,
-  pessoasTable,
-  produtosTable,
-} from "../../db/schema";
+import { compraItem, compra, pessoa, produto } from "../../db/schema";
 import Database from "../config/database";
 
 class PurchasesService {
@@ -15,18 +10,18 @@ class PurchasesService {
     const db = Database.getInstance();
     const result = await db
       .select({
-        id: comprasTable.id,
-        pessoa_id: comprasTable.id,
-        data_emissao: comprasTable.data_emissao,
-        data_entrada: comprasTable.data_entrada,
-        valor_produto: comprasTable.valor_produto,
-        numero_documento: comprasTable.numero_documento,
-        serie_documento: comprasTable.serie_documento,
-        valor_total: comprasTable.valor_total,
-        razao_social: pessoasTable.razao_social,
+        id: compra.id,
+        pessoa_id: compra.id,
+        data_emissao: compra.data_emissao,
+        data_entrada: compra.data_entrada,
+        valor_produto: compra.valor_produto,
+        numero_documento: compra.numero_documento,
+        serie_documento: compra.serie_documento,
+        valor_total: compra.valor_total,
+        razao_social: pessoa.razao_social,
       })
-      .from(comprasTable)
-      .innerJoin(pessoasTable, eq(comprasTable.pessoa_id, pessoasTable.id))
+      .from(compra)
+      .innerJoin(pessoa, eq(compra.pessoa_id, pessoa.id))
       .where(and(...where));
 
     return result;
@@ -37,7 +32,7 @@ class PurchasesService {
     const { data_entrada, data_emissao, compras_itens } = body;
 
     const result = await db
-      .insert(comprasTable)
+      .insert(compra)
       .values({
         data_emissao: new Date(data_emissao),
         data_entrada: new Date(data_entrada),
@@ -56,7 +51,7 @@ class PurchasesService {
 
       await db.transaction(async (tx) => {
         compras_itens.map(async (item: any) => {
-          await tx.insert(comprasItensTable).values({
+          await tx.insert(compraItem).values({
             compra_id: compra_id,
             produto_id: item.produto_id,
             // descricao: item.descricao,
@@ -77,46 +72,43 @@ class PurchasesService {
 
     const result = await db
       .select({
-        id: comprasTable.id,
-        data_emissao: comprasTable.data_emissao,
-        data_entrada: comprasTable.data_entrada,
-        valor_produto: comprasTable.valor_produto,
-        valor_frete: comprasTable.valor_frete,
-        valor_outros: comprasTable.valor_outros,
-        valor_total: comprasTable.valor_total,
-        numero_documento: comprasTable.numero_documento,
-        serie_documento: comprasTable.serie_documento,
+        id: compra.id,
+        data_emissao: compra.data_emissao,
+        data_entrada: compra.data_entrada,
+        valor_produto: compra.valor_produto,
+        valor_frete: compra.valor_frete,
+        valor_outros: compra.valor_outros,
+        valor_total: compra.valor_total,
+        numero_documento: compra.numero_documento,
+        serie_documento: compra.serie_documento,
 
-        pessoa_id: comprasTable.pessoa_id,
+        pessoa_id: compra.pessoa_id,
 
         fornecedor: {
-          razao_social: pessoasTable.razao_social,
-          nome_fantasia: pessoasTable.nome_fantasia,
-          cpf_cnpj: pessoasTable.cpf_cnpj,
+          razao_social: pessoa.razao_social,
+          nome_fantasia: pessoa.nome_fantasia,
+          cpf_cnpj: pessoa.cpf_cnpj,
         },
       })
-      .from(comprasTable)
-      .innerJoin(pessoasTable, eq(comprasTable.pessoa_id, pessoasTable.id))
-      .where(eq(comprasTable.id, id));
+      .from(compra)
+      .innerJoin(pessoa, eq(compra.pessoa_id, pessoa.id))
+      .where(eq(compra.id, id));
 
     const items = await db
       .select({
-        id: comprasItensTable.id,
-        nome: produtosTable.nome,
-        quantidade: comprasItensTable.quantidade,
-        valor_unitario: comprasItensTable.valor_unitario,
-        valor_total: comprasItensTable.valor_total,
-        observacao: comprasItensTable.observacao,
+        id: compraItem.id,
+        nome: produto.nome,
+        quantidade: compraItem.quantidade,
+        valor_unitario: compraItem.valor_unitario,
+        valor_total: compraItem.valor_total,
+        observacao: compraItem.observacao,
 
-        produto_id: comprasItensTable.produto_id,
-        compra_id: comprasItensTable.compra_id,
+        produto_id: compraItem.produto_id,
+        compra_id: compraItem.compra_id,
       })
-      .from(comprasItensTable)
-      .innerJoin(
-        produtosTable,
-        eq(comprasItensTable.produto_id, produtosTable.id)
-      )
-      .where(eq(comprasItensTable.compra_id, id));
+      .from(compraItem)
+      .innerJoin(produto, eq(compraItem.produto_id, produto.id))
+      .where(eq(compraItem.compra_id, id));
 
     return { ...result[0], compras_itens: items };
   };
@@ -126,7 +118,7 @@ class PurchasesService {
     const { data_emissao, data_entrada, compras_itens } = body;
 
     const result = await db
-      .update(comprasTable)
+      .update(compra)
       .set({
         data_emissao: new Date(data_emissao),
         data_entrada: new Date(data_entrada),
@@ -139,7 +131,7 @@ class PurchasesService {
         serie_documento: body.serie_documento,
         pessoa_id: body.pessoa_id,
       })
-      .where(eq(comprasTable.id, id))
+      .where(eq(compra.id, id))
       .returning();
 
     if (result.length > 0 && compras_itens) {
@@ -147,7 +139,7 @@ class PurchasesService {
         const { compra_id, id } = item;
 
         await db
-          .update(comprasItensTable)
+          .update(compraItem)
           .set({
             compra_id: compra_id,
             produto_id: item.produto_id,
@@ -158,10 +150,7 @@ class PurchasesService {
             observacao: item.quantidade,
           })
           .where(
-            and(
-              eq(comprasItensTable.compra_id, compra_id),
-              eq(comprasItensTable.id, id)
-            )
+            and(eq(compraItem.compra_id, compra_id), eq(compraItem.id, id))
           );
       });
     }

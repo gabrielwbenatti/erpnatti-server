@@ -1,5 +1,5 @@
 import { eq, and, ilike, or, SQL } from "drizzle-orm";
-import { pessoasTable } from "../../db/schema";
+import { pessoa } from "../../db/schema";
 import { numbersOnly } from "../helpers/string_helper";
 import Database from "../config/database";
 
@@ -11,11 +11,11 @@ class PeopleService {
     if (search) {
       where.push(
         or(
-          ilike(pessoasTable.razao_social, `%${search}%`),
-          ilike(pessoasTable.nome_fantasia, `%${search}%`),
+          ilike(pessoa.razao_social, `%${search}%`),
+          ilike(pessoa.nome_fantasia, `%${search}%`),
 
           numbersOnly(String(search)) !== ""
-            ? ilike(pessoasTable.cpf_cnpj, `%${numbersOnly(String(search))}%`)
+            ? ilike(pessoa.cpf_cnpj, `%${numbersOnly(String(search))}%`)
             : undefined
         )
       );
@@ -24,13 +24,13 @@ class PeopleService {
     const db = Database.getInstance();
     const result = await db
       .select({
-        id: pessoasTable.id,
-        razao_social: pessoasTable.razao_social,
-        nome_fantasia: pessoasTable.nome_fantasia,
-        cpf_cnpj: pessoasTable.cpf_cnpj,
-        tipo_pessoa: pessoasTable.tipo_pessoa,
+        id: pessoa.id,
+        razao_social: pessoa.razao_social,
+        nome_fantasia: pessoa.nome_fantasia,
+        cpf_cnpj: pessoa.cpf_cnpj,
+        tipo_pessoa: pessoa.tipo_pessoa,
       })
-      .from(pessoasTable)
+      .from(pessoa)
       .where(and(...where));
 
     return result;
@@ -41,7 +41,7 @@ class PeopleService {
     const { cpf_cnpj, cep } = body;
 
     const result = await db
-      .insert(pessoasTable)
+      .insert(pessoa)
       .values({
         razao_social: body.razao_social,
         nome_fantasia: body.nome_fantasia,
@@ -63,10 +63,7 @@ class PeopleService {
 
   showPerson = async (id: number) => {
     const db = Database.getInstance();
-    const result = await db
-      .select()
-      .from(pessoasTable)
-      .where(eq(pessoasTable.id, id));
+    const result = await db.select().from(pessoa).where(eq(pessoa.id, id));
 
     return result[0];
   };
@@ -76,7 +73,7 @@ class PeopleService {
     const { cpf_cnpj, cep } = body;
 
     const result = await db
-      .update(pessoasTable)
+      .update(pessoa)
       .set({
         razao_social: body.razao_social,
         nome_fantasia: body.nome_fantasia,
@@ -91,7 +88,7 @@ class PeopleService {
         complemento: body.complemento,
         cep: numbersOnly(cep),
       })
-      .where(eq(pessoasTable.id, id))
+      .where(eq(pessoa.id, id))
       .returning();
 
     return result;
@@ -100,10 +97,7 @@ class PeopleService {
   deletePerson = async (id: number) => {
     const db = Database.getInstance();
 
-    const person = await db
-      .delete(pessoasTable)
-      .where(eq(pessoasTable.id, id))
-      .returning();
+    const person = await db.delete(pessoa).where(eq(pessoa.id, id)).returning();
 
     return person;
   };

@@ -1,10 +1,6 @@
 import { eq, and, SQL } from "drizzle-orm";
 import Database from "../config/database";
-import {
-  contasPagamentosTable,
-  contasPagarTable,
-  pessoasTable,
-} from "../../db/schema";
+import { contaPagamento, contaPagar, pessoa } from "../../db/schema";
 
 class PayablesService {
   getPayables = async (filters: Record<string, any> = {}) => {
@@ -14,18 +10,18 @@ class PayablesService {
     const db = Database.getInstance();
     const rows = await db
       .select({
-        id: contasPagarTable.id,
-        numero_titulo: contasPagarTable.numero_titulo,
-        valor: contasPagarTable.valor,
-        data_vencimento: contasPagarTable.data_vencimento,
-        data_emissao: contasPagarTable.data_emissao,
-        numero_parcela: contasPagarTable.numero_parcela,
-        pessoa_id: contasPagarTable.pessoa_id,
-        razao_social: pessoasTable.razao_social,
-        nome_fantasia: pessoasTable.nome_fantasia,
+        id: contaPagar.id,
+        numero_titulo: contaPagar.numero_titulo,
+        valor: contaPagar.valor,
+        data_vencimento: contaPagar.data_vencimento,
+        data_emissao: contaPagar.data_emissao,
+        numero_parcela: contaPagar.numero_parcela,
+        pessoa_id: contaPagar.pessoa_id,
+        razao_social: pessoa.razao_social,
+        nome_fantasia: pessoa.nome_fantasia,
       })
-      .from(contasPagarTable)
-      .innerJoin(pessoasTable, eq(contasPagarTable.pessoa_id, pessoasTable.id))
+      .from(contaPagar)
+      .innerJoin(pessoa, eq(contaPagar.pessoa_id, pessoa.id))
       .where(and(...where));
 
     return rows;
@@ -40,7 +36,7 @@ class PayablesService {
         const { data_emissao, data_vencimento } = payable;
 
         const row = await tx
-          .insert(contasPagarTable)
+          .insert(contaPagar)
           .values({
             data_vencimento: new Date(data_vencimento),
             data_emissao: new Date(data_emissao),
@@ -64,13 +60,13 @@ class PayablesService {
 
     const rows = await db
       .select()
-      .from(contasPagarTable)
-      .where(eq(contasPagarTable.id, id));
+      .from(contaPagar)
+      .where(eq(contaPagar.id, id));
 
     const payments = await db
       .select()
-      .from(contasPagamentosTable)
-      .where(eq(contasPagamentosTable.conta_pagar_id, id));
+      .from(contaPagamento)
+      .where(eq(contaPagamento.conta_pagar_id, id));
 
     return { ...rows[0], pagamentos: payments };
   };
@@ -81,8 +77,8 @@ class PayablesService {
     const db = Database.getInstance();
 
     const rows = await db
-      .delete(contasPagarTable)
-      .where(eq(contasPagarTable.id, id))
+      .delete(contaPagar)
+      .where(eq(contaPagar.id, id))
       .returning();
 
     return rows[0];

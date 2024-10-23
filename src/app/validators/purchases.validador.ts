@@ -1,5 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import { comprasTable } from "../../db/schema";
+import { compra } from "../../db/schema";
 import Database from "../config/database";
 
 class PurchasesValidator {
@@ -12,12 +12,12 @@ class PurchasesValidator {
 
     const duplicatedPurchase = await db
       .select()
-      .from(comprasTable)
+      .from(compra)
       .where(
         and(
-          eq(comprasTable.numero_documento, numero_documento),
-          eq(comprasTable.serie_documento, serie_documento),
-          eq(comprasTable.pessoa_id, +pessoa_id)
+          eq(compra.numero_documento, numero_documento),
+          eq(compra.serie_documento, serie_documento),
+          eq(compra.pessoa_id, +pessoa_id)
         )
       );
 
