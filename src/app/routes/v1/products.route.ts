@@ -3,15 +3,12 @@ import productController from "../../controllers/products.controller";
 
 const router = Router();
 
-router
-  .route("/")
-  .get(productController.getProducts)
-  .post(productController.createProduct);
+router.route("/").get(productController.index).post(productController.store);
 
 router
   .route("/:id")
-  .get(productController.showProduct)
-  .put(productController.updateProduct)
-  .delete(productController.deleteProduct);
+  .get(productController.show)
+  .put(productController.update)
+  .delete(productController.remove);
 
 export default router;

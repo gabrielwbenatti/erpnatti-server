@@ -3,15 +3,12 @@ import personController from "../../controllers/people.controller";
 
 const router = Router();
 
-router
-  .route("/")
-  .get(personController.getPeople)
-  .post(personController.createPerson);
+router.route("/").get(personController.index).post(personController.store);
 
 router
   .route("/:id")
-  .get(personController.showPerson)
-  .put(personController.updatePerson)
-  .delete(personController.deletePerson);
+  .get(personController.show)
+  .put(personController.update)
+  .delete(personController.remove);
 
 export default router;

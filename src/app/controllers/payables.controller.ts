@@ -2,9 +2,10 @@ import { Request, Response } from "express";
 import payablesService from "../services/payables.service";
 import { successResponse } from "../helpers/http_responses";
 import { HttpStatusCode } from "../helpers/http_status_code";
+import { ControllerInterface } from "../interfaces/controller.interface";
 
-class PayablesController {
-  index = async (req: Request, res: Response) => {
+class PayablesController implements ControllerInterface {
+  async index(req: Request, res: Response) {
     const {} = req.query;
 
     const result = await payablesService.getPayables({});
@@ -14,31 +15,37 @@ class PayablesController {
         count: result.length,
       });
     }
-  };
+  }
 
-  store = async (req: Request, res: Response) => {
+  async store(req: Request, res: Response) {
     const body = Array.isArray(req.body) ? Array.from(req.body) : [req.body];
 
     const result = await payablesService.createPayable(body);
 
     if (result) successResponse(res, result, HttpStatusCode.CREATED);
-  };
+  }
 
-  show = async (req: Request, res: Response) => {
+  async show(req: Request, res: Response) {
     const id = req.params.id;
-    const result = await payablesService.show(+id);
+    const result = await payablesService.showPayable(+id);
 
     if (result) successResponse(res, result, HttpStatusCode.OK);
-  };
+  }
 
-  update = async (req: Request, res: Response) => {};
-
-  remove = async (req: Request, res: Response) => {
+  async update(req: Request, res: Response) {
     const id = req.params.id;
-    const result = await payablesService.remove(+id);
+    const body = req.body;
+    const result = await payablesService.updatePayable(+id, body);
 
     if (result) successResponse(res, result, HttpStatusCode.OK);
-  };
+  }
+
+  async remove(req: Request, res: Response) {
+    const id = req.params.id;
+    const result = await payablesService.removePayable(+id);
+
+    if (result) successResponse(res, result, HttpStatusCode.OK);
+  }
 }
 
 export default new PayablesController();

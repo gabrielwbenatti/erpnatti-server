@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { produto } from "../../db/schema";
+import { product } from "../../db/schema";
 import Database from "../config/database";
 
 class ProductsValidator {
@@ -7,8 +7,8 @@ class ProductsValidator {
     const db = Database.getInstance();
     const isDuplicate = await db
       .select()
-      .from(produto)
-      .where(eq(produto.referencia, referencia));
+      .from(product)
+      .where(eq(product.reference, referencia));
 
     return isDuplicate.length > 0;
   };

@@ -1,5 +1,5 @@
 import { eq, and, ilike, or, SQL } from "drizzle-orm";
-import { pessoa } from "../../db/schema";
+import { person } from "../../db/schema";
 import { numbersOnly } from "../helpers/string_helper";
 import Database from "../config/database";
 
@@ -11,95 +11,94 @@ class PeopleService {
     if (search) {
       where.push(
         or(
-          ilike(pessoa.razao_social, `%${search}%`),
-          ilike(pessoa.nome_fantasia, `%${search}%`),
+          ilike(person.company_name, `%${search}%`),
+          ilike(person.trading_name, `%${search}%`),
 
           numbersOnly(String(search)) !== ""
-            ? ilike(pessoa.cpf_cnpj, `%${numbersOnly(String(search))}%`)
+            ? ilike(person.cpf_cnpj, `%${numbersOnly(String(search))}%`)
             : undefined
         )
       );
     }
 
     const db = Database.getInstance();
-    const result = await db
+    const rows = await db
       .select({
-        id: pessoa.id,
-        razao_social: pessoa.razao_social,
-        nome_fantasia: pessoa.nome_fantasia,
-        cpf_cnpj: pessoa.cpf_cnpj,
-        tipo_pessoa: pessoa.tipo_pessoa,
+        id: person.id,
+        company_name: person.company_name,
+        trading_name: person.trading_name,
+        cpf_cnpj: person.cpf_cnpj,
+        person_type: person.person_type,
       })
-      .from(pessoa)
+      .from(person)
       .where(and(...where));
 
-    return result;
+    return rows;
   };
 
   createPerson = async (body: any) => {
+    const { cpf_cnpj, zip_code } = body;
+
     const db = Database.getInstance();
-    const { cpf_cnpj, cep } = body;
-
-    const result = await db
-      .insert(pessoa)
+    const rows = await db
+      .insert(person)
       .values({
-        razao_social: body.razao_social,
-        nome_fantasia: body.nome_fantasia,
+        company_name: body.company_name,
+        trading_name: body.trading_name,
         cpf_cnpj: numbersOnly(cpf_cnpj),
-        tipo_pessoa: body.tipo_pessoa || ["CLIENTE"],
+        person_type: body.person_type || ["CLIENTE"],
 
-        endereco: body.endereco,
-        bairro: body.bairro,
-        cidade: body.cidade,
-        codigo_ibge: body.codigo_ibge,
-        numero: body.numero,
-        complemento: body.complemento,
-        cep: numbersOnly(cep),
+        zip_code: numbersOnly(zip_code),
+        address: body.address,
+        neighbourhood: body.neighbourhood,
+        city: body.city,
+        ibge_code: body.ibge_code,
+        number: body.number,
+        complement: body.complement,
       })
       .returning();
 
-    return result;
+    return rows[0];
   };
 
   showPerson = async (id: number) => {
     const db = Database.getInstance();
-    const result = await db.select().from(pessoa).where(eq(pessoa.id, id));
+    const result = await db.select().from(person).where(eq(person.id, id));
 
     return result[0];
   };
 
   updatePerson = async (id: number, body: any) => {
+    const { cpf_cnpj, zip_code } = body;
+
     const db = Database.getInstance();
-    const { cpf_cnpj, cep } = body;
-
-    const result = await db
-      .update(pessoa)
+    const rows = await db
+      .update(person)
       .set({
-        razao_social: body.razao_social,
-        nome_fantasia: body.nome_fantasia,
+        company_name: body.company_name,
+        trading_name: body.trading_name,
         cpf_cnpj: numbersOnly(cpf_cnpj),
-        tipo_pessoa: body.tipo_pessoa,
+        person_type: body.person_type || ["CLIENTE"],
 
-        endereco: body.endereco,
-        bairro: body.bairro,
-        cidade: body.cidade,
-        codigo_ibge: body.codigo_ibge,
-        numero: body.numero,
-        complemento: body.complemento,
-        cep: numbersOnly(cep),
+        zip_code: numbersOnly(zip_code),
+        address: body.address,
+        neighbourhood: body.neighbourhood,
+        city: body.city,
+        ibge_code: body.ibge_code,
+        number: body.number,
+        complement: body.complement,
       })
-      .where(eq(pessoa.id, id))
+      .where(eq(person.id, id))
       .returning();
 
-    return result;
+    return rows[0];
   };
 
   deletePerson = async (id: number) => {
     const db = Database.getInstance();
+    const rows = await db.delete(person).where(eq(person.id, id)).returning();
 
-    const person = await db.delete(pessoa).where(eq(pessoa.id, id)).returning();
-
-    return person;
+    return rows[0];
   };
 }
 

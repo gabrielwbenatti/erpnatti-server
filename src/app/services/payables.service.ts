@@ -1,6 +1,6 @@
 import { eq, and, SQL } from "drizzle-orm";
 import Database from "../config/database";
-import { contaPagamento, contaPagar, pessoa } from "../../db/schema";
+import { contaPagamento, payable, person } from "../../db/schema";
 
 class PayablesService {
   getPayables = async (filters: Record<string, any> = {}) => {
@@ -10,76 +10,89 @@ class PayablesService {
     const db = Database.getInstance();
     const rows = await db
       .select({
-        id: contaPagar.id,
-        numero_titulo: contaPagar.numero_titulo,
-        valor: contaPagar.valor,
-        data_vencimento: contaPagar.data_vencimento,
-        data_emissao: contaPagar.data_emissao,
-        numero_parcela: contaPagar.numero_parcela,
-        pessoa_id: contaPagar.pessoa_id,
-        razao_social: pessoa.razao_social,
-        nome_fantasia: pessoa.nome_fantasia,
+        id: payable.id,
+        title_number: payable.title_number,
+        amount: payable.amount,
+        due_date: payable.due_date,
+        emission_date: payable.emission_date,
+        parcel_number: payable.parcel_number,
+        person_id: payable.person_id,
+        company_name: person.company_name,
+        trading_name: person.trading_name,
       })
-      .from(contaPagar)
-      .innerJoin(pessoa, eq(contaPagar.pessoa_id, pessoa.id))
+      .from(payable)
+      .innerJoin(person, eq(payable.person_id, person.id))
       .where(and(...where));
 
     return rows;
   };
 
   createPayable = async (body: any[]) => {
-    const db = Database.getInstance();
     const rows: any[] = [];
 
-    await db.transaction(async (tx) => {
-      body.map(async (payable: any) => {
-        const { data_emissao, data_vencimento } = payable;
+    const db = Database.getInstance();
+    for (const item of body) {
+      const { emission_date, due_date } = item;
+      const row = await db
+        .insert(payable)
+        .values({
+          due_date: new Date(due_date),
+          emission_date: new Date(emission_date),
+          person_id: item.person_id,
+          title_number: item.title_number,
+          amount: item.amount,
+          parcel_number: item.parcel_number,
+          purchase_id: item.purchase_id,
+        })
+        .returning();
 
-        const row = await tx
-          .insert(contaPagar)
-          .values({
-            data_vencimento: new Date(data_vencimento),
-            data_emissao: new Date(data_emissao),
-            numero_titulo: payable.numero_titulo,
-            pessoa_id: payable.pessoa_id,
-            compra_id: payable.compra_id,
-            numero_parcela: payable.numero_parcela,
-            valor: payable.valor,
-          })
-          .returning();
-
-        rows.push(row[0]);
-      });
-    });
+      rows.push(row[0]);
+    }
 
     return rows;
   };
 
-  show = async (id: number) => {
+  showPayable = async (id: number) => {
     const db = Database.getInstance();
 
-    const rows = await db
+    const payables_rows = await db
       .select()
-      .from(contaPagar)
-      .where(eq(contaPagar.id, id));
+      .from(payable)
+      .where(eq(payable.id, id));
 
-    const payments = await db
+    const payments_rows = await db
       .select()
       .from(contaPagamento)
       .where(eq(contaPagamento.conta_pagar_id, id));
 
-    return { ...rows[0], pagamentos: payments };
+    return { ...payables_rows[0], payments: payments_rows };
   };
 
-  update = async (id: number, body: any) => {};
+  updatePayable = async (id: number, body: any) => {
+    const { emission_date, due_date } = body;
 
-  remove = async (id: number) => {
+    const db = Database.getInstance();
+    const rows = await db
+      .update(payable)
+      .set({
+        due_date: new Date(due_date),
+        emission_date: new Date(emission_date),
+        person_id: body.person_id,
+        title_number: body.title_number,
+        amount: body.amount,
+        parcel_number: body.parcel_number,
+        purchase_id: body.purchase_id,
+      })
+      .where(eq(payable.id, id))
+      .returning();
+
+    return rows[0];
+  };
+
+  removePayable = async (id: number) => {
     const db = Database.getInstance();
 
-    const rows = await db
-      .delete(contaPagar)
-      .where(eq(contaPagar.id, id))
-      .returning();
+    const rows = await db.delete(payable).where(eq(payable.id, id)).returning();
 
     return rows[0];
   };

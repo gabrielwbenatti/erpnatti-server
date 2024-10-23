@@ -3,9 +3,10 @@ import purchasesService from "../services/purchases.service";
 import { successResponse } from "../helpers/http_responses";
 import purchasesValidador from "../validators/purchases.validador";
 import { HttpStatusCode } from "../helpers/http_status_code";
+import { ControllerInterface } from "../interfaces/controller.interface";
 
-class PurchasesController {
-  getPurchases = async (req: Request, res: Response) => {
+class PurchasesController implements ControllerInterface {
+  async index(req: Request, res: Response) {
     const {} = req.query;
 
     const result = await purchasesService.getPurchases({});
@@ -15,9 +16,9 @@ class PurchasesController {
         count: result.length,
       });
     }
-  };
+  }
 
-  createPurchase = async (req: Request, res: Response) => {
+  async store(req: Request, res: Response) {
     const body = req.body;
     const {
       pessoa_id,
@@ -27,25 +28,33 @@ class PurchasesController {
       data_entrada,
     } = body;
 
-    if (!pessoa_id)
-      return res
+    if (!pessoa_id) {
+      res
         .status(HttpStatusCode.BAD_REQUEST)
         .json({ message: "Field 'pessoa_id' is required" });
+      return;
+    }
 
-    if (!numero_documento)
-      return res
+    if (!numero_documento) {
+      res
         .status(HttpStatusCode.BAD_REQUEST)
         .json({ message: "Field 'numero_documento' is required" });
+      return;
+    }
 
-    if (!serie_documento)
-      return res
+    if (!serie_documento) {
+      res
         .status(HttpStatusCode.BAD_REQUEST)
         .json({ message: "Field 'serie_documento' is required" });
+      return;
+    }
 
-    if (!data_emissao || !data_entrada)
-      return res.status(HttpStatusCode.BAD_REQUEST).json({
+    if (!data_emissao || !data_entrada) {
+      res.status(HttpStatusCode.BAD_REQUEST).json({
         message: "Fields 'data_emissao' and 'data_entrada' are required",
       });
+      return;
+    }
 
     if (pessoa_id && numero_documento && serie_documento) {
       const isDuplicate = await purchasesValidador.isPurchaseDuplicated(
@@ -54,10 +63,12 @@ class PurchasesController {
         serie_documento
       );
 
-      if (isDuplicate)
-        return res
+      if (isDuplicate) {
+        res
           .status(HttpStatusCode.CONFLICT)
           .json({ message: "Duplicate purchase" });
+        return;
+      }
     }
 
     const purchase = await purchasesService.createPurchase(body);
@@ -65,18 +76,18 @@ class PurchasesController {
     if (purchase) {
       successResponse(res, purchase, HttpStatusCode.CREATED);
     }
-  };
+  }
 
-  showPurchase = async (req: Request, res: Response) => {
+  async show(req: Request, res: Response) {
     const id = req.params.id;
     const purchase = await purchasesService.showPurchase(+id);
 
     if (purchase) {
       successResponse(res, purchase, HttpStatusCode.OK);
     }
-  };
+  }
 
-  updatePurchase = async (req: Request, res: Response) => {
+  async update(req: Request, res: Response) {
     const id = req.params.id;
     const body = req.body;
 
@@ -85,7 +96,11 @@ class PurchasesController {
     if (result) {
       successResponse(res, result, HttpStatusCode.OK);
     }
-  };
+  }
+
+  remove(req: Request, res: Response): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
 }
 
 export default new PurchasesController();

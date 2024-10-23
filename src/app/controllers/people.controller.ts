@@ -3,9 +3,10 @@ import peopleService from "../services/people.service";
 import peopleValidator from "../validators/people.validator";
 import { successResponse } from "../helpers/http_responses";
 import { HttpStatusCode } from "../helpers/http_status_code";
+import { ControllerInterface } from "../interfaces/controller.interface";
 
-class PeopleController {
-  getPeople = async (req: Request, res: Response) => {
+class PeopleController implements ControllerInterface {
+  async index(req: Request, res: Response) {
     const { search } = req.query;
 
     const result = await peopleService.getPeople({ search });
@@ -15,19 +16,21 @@ class PeopleController {
         count: result.length,
       });
     }
-  };
+  }
 
-  createPerson = async (req: Request, res: Response) => {
+  async store(req: Request, res: Response) {
     const body = req.body;
     const { cpf_cnpj } = body;
 
     if (cpf_cnpj) {
       const isDuplicate = await peopleValidator.isDuplicatedPerson(cpf_cnpj);
 
-      if (isDuplicate)
-        return res
+      if (isDuplicate) {
+        res
           .status(HttpStatusCode.CONFLICT)
           .json({ message: "Duplicated person" });
+        return;
+      }
     }
 
     const person = await peopleService.createPerson(body);
@@ -35,18 +38,18 @@ class PeopleController {
     if (person) {
       successResponse(res, person, HttpStatusCode.CREATED);
     }
-  };
+  }
 
-  showPerson = async (req: Request, res: Response) => {
+  async show(req: Request, res: Response) {
     const id = req.params.id;
     const person = await peopleService.showPerson(+id);
 
     if (person) {
       successResponse(res, person, HttpStatusCode.OK);
     }
-  };
+  }
 
-  updatePerson = async (req: Request, res: Response) => {
+  async update(req: Request, res: Response) {
     const body = req.body;
     const id = req.params.id;
     const person = await peopleService.updatePerson(+id, body);
@@ -54,16 +57,16 @@ class PeopleController {
     if (person) {
       successResponse(res, person, HttpStatusCode.OK);
     }
-  };
+  }
 
-  deletePerson = async (req: Request, res: Response) => {
+  async remove(req: Request, res: Response) {
     const id = req.params.id;
     const person = await peopleService.deletePerson(+id);
 
     if (person) {
       successResponse(res, person, HttpStatusCode.ACCEPTED);
     }
-  };
+  }
 }
 
 export default new PeopleController();

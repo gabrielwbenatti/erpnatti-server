@@ -14,4 +14,5 @@ export enum HttpStatusCode {
 
   // Server error responses (500-599)
   INTERNAL_SERVER_ERROR = 500,
+  NOT_IMPLEMENTED = 501,
 }

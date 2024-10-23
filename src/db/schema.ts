@@ -12,126 +12,120 @@ import {
 } from "drizzle-orm/pg-core";
 
 const camposPadroes = {
-  dt_hr_inclusao: timestamp().defaultNow(),
-  dt_hr_alteracao: timestamp(),
+  included_at: timestamp().defaultNow(),
+  modified_at: timestamp(),
 };
 
-export const tp_pessoa = pgEnum("tp_pessoa", [
-  "CLIENTE",
-  "FORNECEDOR",
-  "FUNCIONARIO",
-  "TRANSPORTADORA",
-]);
-
-export const grupoProduto = pgTable("grupos_produtos", {
+export const productGroup = pgTable("products_groups", {
   id: serial().primaryKey(),
-  nome: varchar({ length: 127 }).notNull(),
+  name: varchar({ length: 127 }).notNull(),
   status: boolean().default(true),
 
   ...camposPadroes,
 });
 
-export const linhaProduto = pgTable("grupos_produtos", {
+export const productLine = pgTable("products_lines", {
   id: serial().primaryKey(),
-  nome: varchar({ length: 127 }).notNull(),
+  name: varchar({ length: 127 }).notNull(),
   status: boolean().default(true),
 
   ...camposPadroes,
 });
 
-export const produto = pgTable("produtos", {
+export const product = pgTable("products", {
   id: serial().primaryKey(),
-  nome: varchar({ length: 127 }).notNull(),
-  codigo_barra: varchar({ length: 127 }),
-  referencia: varchar({ length: 63 }),
-  movimenta_estoque: boolean().default(true),
+  name: varchar({ length: 127 }).notNull(),
+  barcode: varchar({ length: 127 }),
+  reference: varchar({ length: 63 }),
+  move_stock: boolean().default(true),
   status: boolean().default(true),
-  estoque_minimo: real().default(0),
-  estoque_maximo: real().default(0),
+  minimum_stock: real().default(0),
+  maximum_stock: real().default(0),
+  current_stock: real().default(0),
 
   ...camposPadroes,
 
-  grupo_produto_id: integer().references(() => grupoProduto.id, {
+  product_group_id: integer().references(() => productGroup.id, {
     onUpdate: "cascade",
   }),
-  linha_produto_id: integer().references(() => linhaProduto.id, {
+  product_line_id: integer().references(() => productLine.id, {
     onUpdate: "cascade",
   }),
 });
 
-export const pessoa = pgTable("pessoas", {
+export const person = pgTable("people", {
   id: serial().primaryKey(),
-  razao_social: varchar({ length: 127 }).notNull(),
-  nome_fantasia: varchar({ length: 127 }),
+  company_name: varchar({ length: 127 }).notNull(),
+  trading_name: varchar({ length: 127 }),
   cpf_cnpj: varchar({ length: 31 }),
-  tipo_pessoa: varchar({ length: 31 }).array().default([]),
+  person_type: varchar({ length: 31 }).array().default([]),
 
-  cep: varchar({ length: 15 }),
-  endereco: varchar({ length: 127 }),
-  cidade: varchar({ length: 127 }),
-  bairro: varchar({ length: 127 }),
-  numero: varchar({ length: 127 }),
-  complemento: varchar({ length: 127 }),
-  codigo_ibge: integer(),
-  ponto_referencia: varchar({ length: 127 }),
+  zip_code: varchar({ length: 15 }),
+  address: varchar({ length: 127 }),
+  city: varchar({ length: 127 }),
+  neighbourhood: varchar({ length: 127 }),
+  number: varchar({ length: 127 }),
+  complement: varchar({ length: 127 }),
+  ibge_code: integer(),
+  reference_point: varchar({ length: 127 }),
 
   ...camposPadroes,
 });
 
-export const compra = pgTable("compras", {
+export const purchase = pgTable("purchases", {
   id: serial().primaryKey(),
-  data_emissao: date({ mode: "date" }).notNull(),
-  data_entrada: date({ mode: "date" }).notNull(),
-  valor_produto: real().default(0),
-  valor_frete: real().default(0),
-  valor_outros: real().default(0),
-  valor_total: real().default(0),
-  numero_documento: varchar({ length: 31 }),
-  serie_documento: varchar({ length: 7 }),
+  emission_date: date({ mode: "date" }).notNull(),
+  entry_date: date({ mode: "date" }).notNull(),
+  product_amount: real().default(0),
+  delivery_amount: real().default(0),
+  others_amount: real().default(0),
+  total_amount: real().default(0),
+  document_number: varchar({ length: 31 }),
+  document_series: varchar({ length: 7 }),
 
   ...camposPadroes,
 
-  pessoa_id: integer()
+  person_id: integer()
     .notNull()
-    .references(() => pessoa.id, { onUpdate: "cascade" }),
+    .references(() => person.id, { onUpdate: "cascade" }),
 });
 
-export const compraItem = pgTable("compras_itens", {
+export const purchaseItem = pgTable("purchases_items", {
   id: integer().notNull().generatedAlwaysAsIdentity(),
   // descricao: varchar({ length: 127 }).notNull(),
-  quantidade: real().default(0),
-  valor_unitario: real().default(0),
-  valor_total: real().default(0),
-  observacao: varchar({ length: 127 }),
+  quantity: real().default(0),
+  unitary_amount: real().default(0),
+  total_amount: real().default(0),
+  observation: varchar({ length: 127 }),
 
   ...camposPadroes,
 
-  compra_id: integer()
+  purchase_id: integer()
     .notNull()
-    .references(() => compra.id, {
+    .references(() => purchase.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  produto_id: integer()
+  product_id: integer()
     .notNull()
-    .references(() => produto.id, { onUpdate: "cascade" }),
+    .references(() => product.id, { onUpdate: "cascade" }),
 });
 
-export const contaPagar = pgTable("contas_pagar", {
+export const payable = pgTable("payables", {
   id: serial().primaryKey(),
-  numero_titulo: varchar().notNull(),
-  valor: real().default(0),
-  data_vencimento: date({ mode: "date" }).notNull(),
-  data_emissao: date({ mode: "date" }),
-  numero_parcela: smallint().default(1),
+  title_number: varchar().notNull(),
+  amount: real().default(0),
+  due_date: date({ mode: "date" }).notNull(),
+  emission_date: date({ mode: "date" }),
+  parcel_number: smallint().default(1),
 
-  compra_id: integer().references(() => compra.id, {
+  purchase_id: integer().references(() => purchase.id, {
     onDelete: "cascade",
     onUpdate: "cascade",
   }),
-  pessoa_id: integer()
+  person_id: integer()
     .notNull()
-    .references(() => pessoa.id, { onUpdate: "cascade" }),
+    .references(() => person.id, { onUpdate: "cascade" }),
 });
 
 export const contaPagamento = pgTable("contas_pagamentos", {
@@ -141,7 +135,7 @@ export const contaPagamento = pgTable("contas_pagamentos", {
 
   conta_pagar_id: integer()
     .notNull()
-    .references(() => contaPagar.id, {
+    .references(() => payable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
