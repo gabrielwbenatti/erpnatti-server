@@ -9,16 +9,14 @@ export default function errorHandler(
   next: NextFunction
 ) {
   if (err instanceof HttpError) {
-    console.log("err instanceof HttpError");
     return res.status(err.statusCode).json({
       status: "error",
       message: err.message,
     });
   }
 
-  console.log("Error");
   return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
     status: "error",
-    message: `Internal Server Error`,
+    message: `Internal Server Error: ${err}`,
   });
 }

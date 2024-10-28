@@ -11,4 +11,6 @@ router
   .put(purchaseController.update)
   .delete(purchaseController.remove);
 
+router.post("/:id/finish", purchaseController.finishPurchase);
+
 export default router;

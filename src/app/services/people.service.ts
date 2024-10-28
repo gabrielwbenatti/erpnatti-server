@@ -28,7 +28,7 @@ class PeopleService {
         company_name: person.company_name,
         trading_name: person.trading_name,
         cpf_cnpj: person.cpf_cnpj,
-        person_type: person.person_type,
+        contact_type: person.contact_type,
       })
       .from(person)
       .where(and(...where))
@@ -47,7 +47,7 @@ class PeopleService {
         company_name: body.company_name,
         trading_name: body.trading_name,
         cpf_cnpj: numbersOnly(cpf_cnpj),
-        person_type: body.person_type || ["CLIENTE"],
+        contact_type: body.contact_type || ["CLIENTE"],
 
         zip_code: numbersOnly(zip_code),
         address: body.address,
@@ -79,7 +79,7 @@ class PeopleService {
         company_name: body.company_name,
         trading_name: body.trading_name,
         cpf_cnpj: numbersOnly(cpf_cnpj),
-        person_type: body.person_type || ["CLIENTE"],
+        contact_type: body.contact_type || ["CLIENTE"],
 
         zip_code: numbersOnly(zip_code),
         address: body.address,

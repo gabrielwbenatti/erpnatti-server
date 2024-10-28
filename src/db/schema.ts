@@ -11,7 +11,9 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-const camposPadroes = {
+// const order_status = pgEnum("order_status", ["DRAFT", "VALIDATED", "FINISHED"]);
+
+const defaultFields = {
   included_at: timestamp().defaultNow(),
   modified_at: timestamp(),
 };
@@ -21,7 +23,7 @@ export const productGroup = pgTable("products_groups", {
   name: varchar({ length: 127 }).notNull(),
   status: boolean().default(true),
 
-  ...camposPadroes,
+  ...defaultFields,
 });
 
 export const productLine = pgTable("products_lines", {
@@ -29,7 +31,7 @@ export const productLine = pgTable("products_lines", {
   name: varchar({ length: 127 }).notNull(),
   status: boolean().default(true),
 
-  ...camposPadroes,
+  ...defaultFields,
 });
 
 export const product = pgTable("products", {
@@ -43,7 +45,7 @@ export const product = pgTable("products", {
   maximum_stock: real().default(0),
   current_stock: real().default(0),
 
-  ...camposPadroes,
+  ...defaultFields,
 
   product_group_id: integer().references(() => productGroup.id, {
     onUpdate: "cascade",
@@ -53,12 +55,23 @@ export const product = pgTable("products", {
   }),
 });
 
+export const stockMovement = pgTable("stock_movements", {
+  id: serial().primaryKey(),
+  date: date({ mode: "date" }).default(new Date()),
+  quantity: real().default(0),
+  observation: varchar({ length: 255 }),
+  product_id: integer()
+    .notNull()
+    .references(() => product.id, { onDelete: "cascade", onUpdate: "cascade" }),
+});
+
 export const person = pgTable("people", {
   id: serial().primaryKey(),
   company_name: varchar({ length: 127 }).notNull(),
   trading_name: varchar({ length: 127 }),
   cpf_cnpj: varchar({ length: 31 }),
-  person_type: varchar({ length: 31 }).array().default([]),
+  contact_type: varchar({ length: 31 }).array().default([]),
+  status: boolean().default(true),
 
   zip_code: varchar({ length: 15 }),
   address: varchar({ length: 127 }),
@@ -68,8 +81,9 @@ export const person = pgTable("people", {
   complement: varchar({ length: 127 }),
   ibge_code: integer(),
   reference_point: varchar({ length: 127 }),
+  email: varchar({ length: 255 }),
 
-  ...camposPadroes,
+  ...defaultFields,
 });
 
 export const purchase = pgTable("purchases", {
@@ -82,8 +96,9 @@ export const purchase = pgTable("purchases", {
   total_amount: real().default(0),
   document_number: varchar({ length: 31 }),
   document_series: varchar({ length: 7 }),
+  // status: order_status().default("DRAFT"),
 
-  ...camposPadroes,
+  ...defaultFields,
 
   person_id: integer()
     .notNull()
@@ -98,7 +113,7 @@ export const purchaseItem = pgTable("purchases_items", {
   total_amount: real().default(0),
   observation: varchar({ length: 127 }),
 
-  ...camposPadroes,
+  ...defaultFields,
 
   purchase_id: integer()
     .notNull()
@@ -119,6 +134,8 @@ export const payable = pgTable("payables", {
   emission_date: date({ mode: "date" }),
   parcel_number: smallint().default(1),
 
+  ...defaultFields,
+
   purchase_id: integer().references(() => purchase.id, {
     onDelete: "cascade",
     onUpdate: "cascade",
@@ -133,9 +150,80 @@ export const payments = pgTable("payments", {
   date: date({ mode: "date" }).notNull(),
   value: real().default(0),
 
+  ...defaultFields,
+
   payable_id: integer()
     .notNull()
     .references(() => payable.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+});
+
+export const sale = pgTable("sales", {
+  id: serial().primaryKey(),
+  emission_date: date({ mode: "date" }).notNull(),
+  entry_date: date({ mode: "date" }).notNull(),
+  product_amount: real().default(0),
+  delivery_amount: real().default(0),
+  others_amount: real().default(0),
+  total_amount: real().default(0),
+  document_number: varchar({ length: 31 }),
+  document_series: varchar({ length: 7 }),
+
+  ...defaultFields,
+
+  person_id: integer()
+    .notNull()
+    .references(() => person.id, { onUpdate: "cascade" }),
+});
+
+export const saleItem = pgTable("sales_items", {
+  id: integer().notNull().generatedAlwaysAsIdentity(),
+  // descricao: varchar({ length: 127 }).notNull(),
+  quantity: real().default(0),
+  unitary_amount: real().default(0),
+  total_amount: real().default(0),
+  observation: varchar({ length: 127 }),
+
+  ...defaultFields,
+
+  sale_id: integer()
+    .notNull()
+    .references(() => sale.id, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  product_id: integer()
+    .notNull()
+    .references(() => product.id, { onUpdate: "cascade" }),
+});
+
+export const receivable = pgTable("receivables", {
+  id: serial().primaryKey(),
+  title_number: varchar().notNull(),
+  amount: real().default(0),
+  due_date: date({ mode: "date" }).notNull(),
+  emission_date: date({ mode: "date" }),
+  parcel_number: smallint().default(1),
+
+  ...defaultFields,
+
+  person_id: integer()
+    .notNull()
+    .references(() => person.id, { onUpdate: "cascade" }),
+});
+
+export const receipt = pgTable("receipts", {
+  id: serial().primaryKey(),
+  date: date({ mode: "date" }).notNull(),
+  value: real().default(0),
+
+  ...defaultFields,
+
+  receivable_id: integer()
+    .notNull()
+    .references(() => receivable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),

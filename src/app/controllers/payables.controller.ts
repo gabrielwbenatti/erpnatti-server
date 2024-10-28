@@ -52,6 +52,8 @@ class PayablesController implements ControllerInterface {
 
     if (result) successResponse(res, result, HttpStatusCode.OK);
   }
+
+  async finishPurchase(req: Request, res: Response) {}
 }
 
 export default new PayablesController();

@@ -77,8 +77,24 @@ class PurchasesController implements ControllerInterface {
     }
   }
 
-  remove(req: Request, res: Response): Promise<void> {
-    throw new Error("Method not implemented.");
+  async remove(req: Request, res: Response): Promise<void> {
+    const id = req.params.id;
+    const result = purchasesService.deletePurchase(+id);
+
+    if (result) {
+      successResponse(res, result, HttpStatusCode.OK);
+    }
+  }
+
+  async finishPurchase(req: Request, res: Response) {
+    const id = req.params.id;
+    const body = req.body;
+
+    const result = await purchasesService.finishPurchase(+id, body);
+
+    if (result) {
+      successResponse(res, result, HttpStatusCode.OK);
+    }
   }
 }
 

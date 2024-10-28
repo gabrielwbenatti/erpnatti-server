@@ -1,14 +1,20 @@
 import { and, eq, SQL } from "drizzle-orm";
 import { purchaseItem, purchase, person, product } from "../../db/schema";
 import Database from "../config/database";
+import stockMovementsService from "./StockMovementsService";
+import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 class PurchasesService {
+  private db: NodePgDatabase;
+  constructor() {
+    this.db = Database.getInstance();
+  }
+
   getPurchases = async (filters: Record<string, any> = {}) => {
     const {} = filters;
     const where: (SQL | undefined)[] = [];
 
-    const db = Database.getInstance();
-    const rows = await db
+    const rows = await this.db
       .select({
         id: purchase.id,
         person_id: purchase.person_id,
@@ -29,10 +35,9 @@ class PurchasesService {
   };
 
   createPurchase = async (body: any) => {
-    const db = Database.getInstance();
     const { entry_date, emission_date, items } = body;
 
-    const rows = await db
+    const rows = await this.db
       .insert(purchase)
       .values({
         emission_date: new Date(emission_date),
@@ -50,7 +55,7 @@ class PurchasesService {
     if (rows.length > 0 && items) {
       const purchase_id = rows[0].id;
 
-      await db.transaction(async (tx) => {
+      await this.db.transaction(async (tx) => {
         items.map(async (item: any) => {
           await tx.insert(purchaseItem).values({
             purchase_id: purchase_id,
@@ -69,9 +74,7 @@ class PurchasesService {
   };
 
   showPurchase = async (id: number) => {
-    const db = Database.getInstance();
-
-    const purchase_rows = await db
+    const purchase_rows = await this.db
       .select({
         id: purchase.id,
         emission_date: purchase.emission_date,
@@ -95,7 +98,7 @@ class PurchasesService {
       .innerJoin(person, eq(purchase.person_id, person.id))
       .where(eq(purchase.id, id));
 
-    const items_rows = await db
+    const items_rows = await this.db
       .select({
         id: purchaseItem.id,
         name: product.name,
@@ -115,10 +118,9 @@ class PurchasesService {
   };
 
   updatePurchase = async (id: number, body: any) => {
-    const db = Database.getInstance();
     const { emission_date, entry_date, items } = body;
 
-    const result = await db
+    const result = await this.db
       .update(purchase)
       .set({
         emission_date: new Date(emission_date),
@@ -138,7 +140,7 @@ class PurchasesService {
       items.forEach(async (item: any) => {
         const { purchase_id, id } = item;
 
-        await db
+        await this.db
           .update(purchaseItem)
           .set({
             purchase_id: purchase_id,
@@ -162,13 +164,33 @@ class PurchasesService {
   };
 
   deletePurchase = async (id: number) => {
-    const db = Database.getInstance();
-    const rows = await db
+    const rows = await this.db
       .delete(purchase)
       .where(eq(purchase.id, id))
       .returning();
 
     return rows[0];
+  };
+
+  finishPurchase = async (id: number, body: any) => {
+    const { entry_date } = body;
+    const { items } = await this.showPurchase(id);
+    const rows: any[] = [];
+
+    if (items) {
+      items.forEach(async (item: any) => {
+        const row = await stockMovementsService.store(
+          item.product_id,
+          item.quantity,
+          new Date(entry_date),
+          `Purchase Id ${id}`
+        );
+
+        rows.push(row);
+      });
+    }
+
+    return rows;
   };
 }
 
