@@ -1,16 +1,16 @@
 import { NextFunction, Request, Response } from "express";
-import peopleService from "../services/people.service";
+import peopleService from "../services/PeopleServices";
 import peopleValidator from "../validators/people.validator";
 import { successResponse } from "../helpers/http_responses";
 import { HttpStatusCode } from "../helpers/http_status_code";
-import { ControllerInterface } from "../interfaces/controller.interface";
+import { IController } from "../interfaces/IController";
 import {
   DuplicatedRecordError,
   MissingFieldError,
 } from "../helpers/http_error";
 import { numbersOnly } from "../helpers/string_helper";
 
-class PeopleController implements ControllerInterface {
+class PeopleController implements IController {
   async index(req: Request, res: Response) {
     const { search } = req.query;
 

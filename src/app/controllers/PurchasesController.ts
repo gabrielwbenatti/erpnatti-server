@@ -1,15 +1,15 @@
 import { NextFunction, Request, Response } from "express";
-import purchasesService from "../services/purchases.service";
+import purchasesService from "../services/PurchasesServices";
 import { successResponse } from "../helpers/http_responses";
 import purchasesValidador from "../validators/purchases.validador";
 import { HttpStatusCode } from "../helpers/http_status_code";
-import { ControllerInterface } from "../interfaces/controller.interface";
+import { IController } from "../interfaces/IController";
 import {
   DuplicatedRecordError,
   MissingFieldError,
 } from "../helpers/http_error";
 
-class PurchasesController implements ControllerInterface {
+class PurchasesController implements IController {
   async index(req: Request, res: Response) {
     const {} = req.query;
 
