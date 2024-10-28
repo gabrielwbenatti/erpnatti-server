@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { purchase } from "../../db/schema";
-import Database from "../config/database";
+import Database from "../config/Database";
 
 class PurchasesValidator {
   isPurchaseDuplicated = async (
@@ -8,9 +8,7 @@ class PurchasesValidator {
     numero_documento: string,
     serie_documento: string
   ) => {
-    const db = Database.getInstance();
-
-    const duplicatedPurchase = await db
+    const duplicatedPurchase = await this.db
       .select()
       .from(purchase)
       .where(

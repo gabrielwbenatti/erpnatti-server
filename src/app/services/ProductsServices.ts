@@ -1,8 +1,14 @@
 import { product } from "../../db/schema";
 import { eq, and, SQL, asc, or, ilike } from "drizzle-orm";
-import Database from "../config/database";
+import { NodePgDatabase } from "drizzle-orm/node-postgres";
+import Database from "../config/Database";
 
 class ProductsService {
+  private db: NodePgDatabase;
+  constructor() {
+    this.db = Database.getInstance();
+  }
+
   getProducts = async (filters: Record<string, any> = {}) => {
     const { search } = filters;
     const where: (SQL | undefined)[] = [];
@@ -16,8 +22,7 @@ class ProductsService {
       );
     }
 
-    const db = Database.getInstance();
-    const rows = await db
+    const rows = await this.db
       .select({
         id: product.id,
         name: product.name,
@@ -32,8 +37,7 @@ class ProductsService {
   };
 
   createProduct = async (body: any) => {
-    const db = Database.getInstance();
-    const rows = await db
+    const rows = await this.db
       .insert(product)
       .values({
         name: body.name,
@@ -53,15 +57,13 @@ class ProductsService {
   };
 
   showProduct = async (id: number) => {
-    const db = Database.getInstance();
-    const rows = await db.select().from(product).where(eq(product.id, id));
+    const rows = await this.db.select().from(product).where(eq(product.id, id));
 
     return rows[0];
   };
 
   updateProduct = async (id: number, body: any) => {
-    const db = Database.getInstance();
-    const rows = await db
+    const rows = await this.db
       .update(product)
       .set({
         name: body.name,
@@ -81,8 +83,10 @@ class ProductsService {
   };
 
   deleteProduct = async (id: number) => {
-    const db = Database.getInstance();
-    const rows = await db.delete(product).where(eq(product.id, id)).returning();
+    const rows = await this.db
+      .delete(product)
+      .where(eq(product.id, id))
+      .returning();
 
     return rows[0];
   };

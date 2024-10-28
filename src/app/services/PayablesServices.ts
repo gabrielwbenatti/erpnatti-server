@@ -1,14 +1,19 @@
 import { eq, and, SQL } from "drizzle-orm";
-import Database from "../config/database";
+import Database from "../config/Database";
 import { payable, payments, person } from "../../db/schema";
+import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 class PayablesService {
+  private db: NodePgDatabase;
+  constructor() {
+    this.db = Database.getInstance();
+  }
+
   getPayables = async (filters: Record<string, any> = {}) => {
     const {} = filters;
     const where: (SQL | undefined)[] = [];
 
-    const db = Database.getInstance();
-    const rows = await db
+    const rows = await this.db
       .select({
         id: payable.id,
         title_number: payable.title_number,
@@ -30,10 +35,9 @@ class PayablesService {
   createPayable = async (body: any[]) => {
     const rows: any[] = [];
 
-    const db = Database.getInstance();
     for (const item of body) {
       const { emission_date, due_date } = item;
-      const row = await db
+      const row = await this.db
         .insert(payable)
         .values({
           due_date: new Date(due_date),
@@ -53,14 +57,12 @@ class PayablesService {
   };
 
   showPayable = async (id: number) => {
-    const db = Database.getInstance();
-
-    const payables_rows = await db
+    const payables_rows = await this.db
       .select()
       .from(payable)
       .where(eq(payable.id, id));
 
-    const payments_rows = await db
+    const payments_rows = await this.db
       .select()
       .from(payments)
       .where(eq(payments.payable_id, id));
@@ -71,8 +73,7 @@ class PayablesService {
   updatePayable = async (id: number, body: any) => {
     const { emission_date, due_date } = body;
 
-    const db = Database.getInstance();
-    const rows = await db
+    const rows = await this.db
       .update(payable)
       .set({
         due_date: new Date(due_date),
@@ -90,9 +91,10 @@ class PayablesService {
   };
 
   removePayable = async (id: number) => {
-    const db = Database.getInstance();
-
-    const rows = await db.delete(payable).where(eq(payable.id, id)).returning();
+    const rows = await this.db
+      .delete(payable)
+      .where(eq(payable.id, id))
+      .returning();
 
     return rows[0];
   };

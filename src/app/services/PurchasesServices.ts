@@ -1,6 +1,6 @@
 import { and, eq, SQL } from "drizzle-orm";
 import { purchaseItem, purchase, person, product } from "../../db/schema";
-import Database from "../config/database";
+import Database from "../config/Database";
 import stockMovementsService from "./StockMovementsService";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 

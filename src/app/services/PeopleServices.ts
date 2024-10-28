@@ -1,9 +1,15 @@
 import { eq, and, ilike, or, SQL } from "drizzle-orm";
 import { person } from "../../db/schema";
 import { numbersOnly } from "../helpers/string_helper";
-import Database from "../config/database";
+import Database from "../config/Database";
+import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 class PeopleService {
+  private db: NodePgDatabase;
+  constructor() {
+    this.db = Database.getInstance();
+  }
+
   getPeople = async (filters: Record<string, any> = {}) => {
     const where: (SQL | undefined)[] = [];
     const { search } = filters;
@@ -21,8 +27,7 @@ class PeopleService {
       );
     }
 
-    const db = Database.getInstance();
-    const rows = await db
+    const rows = await this.db
       .select({
         id: person.id,
         company_name: person.company_name,
@@ -40,8 +45,7 @@ class PeopleService {
   createPerson = async (body: any) => {
     const { cpf_cnpj, zip_code } = body;
 
-    const db = Database.getInstance();
-    const rows = await db
+    const rows = await this.db
       .insert(person)
       .values({
         company_name: body.company_name,
@@ -63,8 +67,7 @@ class PeopleService {
   };
 
   showPerson = async (id: number) => {
-    const db = Database.getInstance();
-    const result = await db.select().from(person).where(eq(person.id, id));
+    const result = await this.db.select().from(person).where(eq(person.id, id));
 
     return result[0];
   };
@@ -72,8 +75,7 @@ class PeopleService {
   updatePerson = async (id: number, body: any) => {
     const { cpf_cnpj, zip_code } = body;
 
-    const db = Database.getInstance();
-    const rows = await db
+    const rows = await this.db
       .update(person)
       .set({
         company_name: body.company_name,
@@ -96,8 +98,10 @@ class PeopleService {
   };
 
   deletePerson = async (id: number) => {
-    const db = Database.getInstance();
-    const rows = await db.delete(person).where(eq(person.id, id)).returning();
+    const rows = await this.db
+      .delete(person)
+      .where(eq(person.id, id))
+      .returning();
 
     return rows[0];
   };

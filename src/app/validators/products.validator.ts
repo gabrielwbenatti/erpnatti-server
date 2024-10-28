@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { product } from "../../db/schema";
-import Database from "../config/database";
+import Database from "../config/Database";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 class ProductsValidator {

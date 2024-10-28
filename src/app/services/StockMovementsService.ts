@@ -1,5 +1,5 @@
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import Database from "../config/database";
+import Database from "../config/Database";
 import { product, stockMovement } from "../../db/schema";
 
 class StockMovementsService {

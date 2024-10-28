@@ -1,12 +1,10 @@
 import { eq } from "drizzle-orm";
 import { person } from "../../db/schema";
-import Database from "../config/database";
+import Database from "../config/Database";
 
 class PeopleValidator {
   isDuplicatedPerson = async (cpf_cnpj: string) => {
-    const db = Database.getInstance();
-
-    const duplicatedPerson = await db
+    const duplicatedPerson = await this.db
       .select()
       .from(person)
       .where(eq(person.cpf_cnpj, cpf_cnpj));
