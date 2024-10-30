@@ -1,10 +1,9 @@
 import { Router } from "express";
 
-import productRoute from "./products.route";
-import peopleRoute from "./people.route";
-import purchasesRoute from "./purchases.route";
-import payablesRoute from "./payable.route";
-// import salesRoute from "./sales.route";
+import productRoute from "./ProductsRoutes";
+import peopleRoute from "./PeopleRoutes";
+import purchasesRoute from "./PurchasesRoutes";
+import payablesRoute from "./PayablesRoutes";
 
 const router = Router();
 
@@ -18,7 +17,6 @@ const defaultRoutes: DefaultRoutes[] = [
   { path: "/people", route: peopleRoute },
   { path: "/purchases", route: purchasesRoute },
   { path: "/payables", route: payablesRoute },
-  // { path: "/sales", route: salesRoute },
 ];
 
 defaultRoutes.forEach((defaultRoute) => {
