@@ -17,15 +17,19 @@ class PurchasesService {
     const rows = await this.db
       .select({
         id: purchase.id,
-        person_id: purchase.person_id,
         emission_date: purchase.emission_date,
         entry_date: purchase.entry_date,
         product_amount: purchase.product_amount,
         document_number: purchase.document_number,
         document_series: purchase.document_series,
         total_amount: purchase.total_amount,
-        company_name: person.company_name,
-        cpf_cnpj: person.cpf_cnpj,
+
+        person_id: purchase.person_id,
+        fournisseur: {
+          company_name: person.company_name,
+          trading_name: person.trading_name,
+          cpf_cnpj: person.cpf_cnpj,
+        },
       })
       .from(purchase)
       .innerJoin(person, eq(purchase.person_id, person.id))
@@ -56,17 +60,18 @@ class PurchasesService {
       const purchase_id = rows[0].id;
 
       await this.db.transaction(async (tx) => {
-        items.map(async (item: any) => {
-          await tx.insert(purchaseItem).values({
-            purchase_id: purchase_id,
-            product_id: item.product_id,
-            // descricao: item.descricao,
-            quantity: item.quantity,
-            unitary_amount: item.unitary_amount,
-            total_amount: item.total_amount,
-            observation: item.observation,
-          });
-        });
+        await Promise.all(
+          items.map(async (item: any) => {
+            await tx.insert(purchaseItem).values({
+              purchase_id: purchase_id,
+              product_id: item.product_id,
+              quantity: item.quantity,
+              unitary_amount: item.unitary_amount,
+              total_amount: item.total_amount,
+              observation: item.observation,
+            });
+          })
+        );
       });
     }
 
@@ -87,8 +92,7 @@ class PurchasesService {
         document_series: purchase.document_series,
 
         person_id: purchase.person_id,
-
-        supplier: {
+        fournisseur: {
           company_name: person.company_name,
           trading_name: person.trading_name,
           cpf_cnpj: person.cpf_cnpj,
@@ -119,6 +123,7 @@ class PurchasesService {
 
   updatePurchase = async (id: number, body: any) => {
     const { emission_date, entry_date, items } = body;
+    const purchase_id = id;
 
     const result = await this.db
       .update(purchase)
@@ -137,26 +142,38 @@ class PurchasesService {
       .returning();
 
     if (result.length > 0 && items) {
-      items.forEach(async (item: any) => {
-        const { purchase_id, id } = item;
-
-        await this.db
-          .update(purchaseItem)
-          .set({
-            purchase_id: purchase_id,
-            product_id: item.product_id,
-            // descricao: item.descricao,
-            quantity: item.quantity,
-            unitary_amount: item.unitary_amount,
-            total_amount: item.total_amount,
-            observation: item.observation,
+      await this.db.transaction(async (tx) => {
+        await Promise.all(
+          items.map(async (item: any) => {
+            if (!item.id) {
+              await this.db.insert(purchaseItem).values({
+                purchase_id: purchase_id,
+                product_id: item.product_id,
+                quantity: item.quantity,
+                unitary_amount: item.unitary_amount,
+                total_amount: item.total_amount,
+                observation: item.observation,
+              });
+            } else {
+              await this.db
+                .update(purchaseItem)
+                .set({
+                  purchase_id: purchase_id,
+                  product_id: item.product_id,
+                  quantity: item.quantity,
+                  unitary_amount: item.unitary_amount,
+                  total_amount: item.total_amount,
+                  observation: item.observation,
+                })
+                .where(
+                  and(
+                    eq(purchaseItem.purchase_id, purchase_id),
+                    eq(purchaseItem.id, item.id)
+                  )
+                );
+            }
           })
-          .where(
-            and(
-              eq(purchaseItem.purchase_id, purchase_id),
-              eq(purchaseItem.id, id)
-            )
-          );
+        );
       });
     }
 
@@ -178,10 +195,10 @@ class PurchasesService {
     const rows: any[] = [];
 
     if (items) {
-      items.forEach(async (item: any) => {
+      items.forEach(async (item) => {
         const row = await stockMovementsService.store(
           item.product_id,
-          item.quantity,
+          item.quantity!,
           new Date(entry_date),
           `Purchase Id ${id}`
         );

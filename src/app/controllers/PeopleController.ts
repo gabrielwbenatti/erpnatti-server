@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import peopleService from "../services/PeopleServices";
-import peopleValidator from "../validators/people.validator";
+import peopleValidator from "../validators/PeopleValidator";
 import { successResponse } from "../helpers/http_responses";
 import { HttpStatusCode } from "../helpers/http_status_code";
 import { IController } from "../interfaces/IController";

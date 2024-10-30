@@ -5,7 +5,6 @@ import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 class ProductsValidator {
   private db: NodePgDatabase;
-
   constructor() {
     this.db = Database.getInstance();
   }

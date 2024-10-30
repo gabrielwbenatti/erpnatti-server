@@ -107,6 +107,7 @@ export const purchase = pgTable("purchases", {
 
 export const purchaseItem = pgTable("purchases_items", {
   id: integer().notNull().generatedAlwaysAsIdentity(),
+  // item: smallint().notNull(),
   // descricao: varchar({ length: 127 }).notNull(),
   quantity: real().default(0),
   unitary_amount: real().default(0),

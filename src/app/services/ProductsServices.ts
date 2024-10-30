@@ -1,7 +1,8 @@
 import { product } from "../../db/schema";
-import { eq, and, SQL, asc, or, ilike } from "drizzle-orm";
+import { eq, and, SQL, asc, or, ilike, sql } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import Database from "../config/Database";
+import StockMovementsService from "./StockMovementsService";
 
 class ProductsService {
   private db: NodePgDatabase;
@@ -28,6 +29,7 @@ class ProductsService {
         name: product.name,
         barcode: product.barcode,
         reference: product.reference,
+        current_stock: product.current_stock,
       })
       .from(product)
       .where(and(...where))
@@ -52,6 +54,19 @@ class ProductsService {
         product_line_id: body.product_line_id,
       })
       .returning();
+
+    // Registra a movimentação inicial de estoque
+    if (rows.length > 0 && rows[0].id) {
+      const { id, current_stock } = rows[0];
+      if (current_stock) {
+        await StockMovementsService.store(
+          id,
+          current_stock,
+          new Date(),
+          "Initial Stock"
+        );
+      }
+    }
 
     return rows[0];
   };
@@ -90,6 +105,18 @@ class ProductsService {
 
     return rows[0];
   };
+
+  async updateStock(id: number, quantity: number) {
+    const rows = await this.db
+      .update(product)
+      .set({
+        current_stock: sql`${product.current_stock} + ${quantity}`,
+      })
+      .where(and(eq(product.id, id), eq(product.move_stock, true)))
+      .returning();
+
+    return rows[0];
+  }
 }
 
 export default new ProductsService();

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import purchasesService from "../services/PurchasesServices";
 import { successResponse } from "../helpers/http_responses";
-import purchasesValidador from "../validators/purchases.validador";
+import purchasesValidador from "../validators/PurchasesValidator";
 import { HttpStatusCode } from "../helpers/http_status_code";
 import { IController } from "../interfaces/IController";
 import {

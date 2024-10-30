@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import productsService from "../services/ProductsServices";
 import { successResponse } from "../helpers/http_responses";
-import productsValidator from "../validators/products.validator";
+import productsValidator from "../validators/ProductsValidator";
 import { HttpStatusCode } from "../helpers/http_status_code";
 import { IController } from "../interfaces/IController";
 import {
@@ -72,6 +72,7 @@ class ProductsController implements IController {
   async remove(req: Request, res: Response) {
     const id = req.params.id;
     const product = await productsService.deleteProduct(+id);
+
     if (product) {
       successResponse(res, product, HttpStatusCode.OK);
     }

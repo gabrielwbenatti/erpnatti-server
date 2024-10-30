@@ -1,8 +1,14 @@
 import { and, eq } from "drizzle-orm";
 import { purchase } from "../../db/schema";
 import Database from "../config/Database";
+import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 class PurchasesValidator {
+  private db: NodePgDatabase;
+  constructor() {
+    this.db = Database.getInstance();
+  }
+
   isPurchaseDuplicated = async (
     pessoa_id: string,
     numero_documento: string,
