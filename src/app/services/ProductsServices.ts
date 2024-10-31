@@ -11,7 +11,7 @@ class ProductsService {
   }
 
   getProducts = async (filters: Record<string, any> = {}) => {
-    const { search } = filters;
+    const { search, move_stock } = filters;
     const where: (SQL | undefined)[] = [];
 
     if (search) {
@@ -21,6 +21,9 @@ class ProductsService {
           ilike(product.reference, `%${search}%`)
         )
       );
+    }
+    if (move_stock) {
+      where.push(and(product.move_stock, move_stock));
     }
 
     const rows = await this.db

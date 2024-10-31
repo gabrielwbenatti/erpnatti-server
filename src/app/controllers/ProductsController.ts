@@ -11,9 +11,13 @@ import {
 
 class ProductsController implements IController {
   async index(req: Request, res: Response) {
-    const { search, referencia } = req.query;
+    const { search, reference, move_stock } = req.query;
 
-    const result = await productsService.getProducts({ search, referencia });
+    const result = await productsService.getProducts({
+      search,
+      reference,
+      move_stock,
+    });
 
     if (result) {
       successResponse(res, result, HttpStatusCode.OK, {
