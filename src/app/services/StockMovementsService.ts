@@ -2,6 +2,7 @@ import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import Database from "../config/Database";
 import { stockMovement } from "../../db/schema";
 import productsServices from "./ProductsServices";
+
 class StockMovementsService {
   private db: NodePgDatabase;
   constructor() {
@@ -14,7 +15,7 @@ class StockMovementsService {
     date: Date,
     observation: string
   ) {
-    const rows = await this.db
+    const [row] = await this.db
       .insert(stockMovement)
       .values({
         product_id: product_id,
@@ -24,11 +25,11 @@ class StockMovementsService {
       })
       .returning();
 
-    if (rows.length > 0) {
+    if (row.id) {
       await productsServices.updateStock(product_id, quantity);
     }
 
-    return rows[0];
+    return row;
   }
 }
 

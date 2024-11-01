@@ -1,5 +1,11 @@
 import { and, eq, SQL } from "drizzle-orm";
-import { purchaseItem, purchase, person, product } from "../../db/schema";
+import {
+  purchaseItem,
+  purchase,
+  person,
+  product,
+  payable,
+} from "../../db/schema";
 import Database from "../config/Database";
 import stockMovementsService from "./StockMovementsService";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
@@ -41,7 +47,7 @@ class PurchasesService {
   createPurchase = async (body: any) => {
     const { entry_date, emission_date, items } = body;
 
-    const rows = await this.db
+    const [row] = await this.db
       .insert(purchase)
       .values({
         emission_date: new Date(emission_date),
@@ -56,8 +62,8 @@ class PurchasesService {
       })
       .returning();
 
-    if (rows.length > 0 && items) {
-      const purchase_id = rows[0].id;
+    if (row.id && items) {
+      const purchase_id = row.id;
 
       await this.db.transaction(async (tx) => {
         await Promise.all(
@@ -75,7 +81,7 @@ class PurchasesService {
       });
     }
 
-    return rows[0];
+    return row;
   };
 
   showPurchase = async (id: number) => {
@@ -118,7 +124,12 @@ class PurchasesService {
       .innerJoin(product, eq(purchaseItem.product_id, product.id))
       .where(eq(purchaseItem.purchase_id, id));
 
-    return { ...purchase_rows[0], items: items_rows };
+    const payables_rows = await this.db
+      .select()
+      .from(payable)
+      .where(eq(payable.purchase_id, id));
+
+    return { ...purchase_rows[0], items: items_rows, payables: payables_rows };
   };
 
   updatePurchase = async (id: number, body: any) => {
@@ -181,12 +192,12 @@ class PurchasesService {
   };
 
   deletePurchase = async (id: number) => {
-    const rows = await this.db
+    const [row] = await this.db
       .delete(purchase)
       .where(eq(purchase.id, id))
       .returning();
 
-    return rows[0];
+    return row;
   };
 
   finishPurchase = async (id: number, body: any) => {

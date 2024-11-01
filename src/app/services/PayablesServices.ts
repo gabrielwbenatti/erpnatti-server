@@ -37,7 +37,7 @@ class PayablesService {
 
     for (const item of body) {
       const { emission_date, due_date } = item;
-      const row = await this.db
+      const [row] = await this.db
         .insert(payable)
         .values({
           due_date: new Date(due_date),
@@ -50,14 +50,14 @@ class PayablesService {
         })
         .returning();
 
-      rows.push(row[0]);
+      rows.push(row);
     }
 
     return rows;
   };
 
   showPayable = async (id: number) => {
-    const payables_rows = await this.db
+    const [payable_row] = await this.db
       .select()
       .from(payable)
       .where(eq(payable.id, id));
@@ -67,13 +67,13 @@ class PayablesService {
       .from(payments)
       .where(eq(payments.payable_id, id));
 
-    return { ...payables_rows[0], payments: payments_rows };
+    return { ...payable_row, payments: payments_rows };
   };
 
   updatePayable = async (id: number, body: any) => {
     const { emission_date, due_date } = body;
 
-    const rows = await this.db
+    const [row] = await this.db
       .update(payable)
       .set({
         due_date: new Date(due_date),
@@ -87,16 +87,16 @@ class PayablesService {
       .where(eq(payable.id, id))
       .returning();
 
-    return rows[0];
+    return row;
   };
 
   removePayable = async (id: number) => {
-    const rows = await this.db
+    const [row] = await this.db
       .delete(payable)
       .where(eq(payable.id, id))
       .returning();
 
-    return rows[0];
+    return row;
   };
 }
 

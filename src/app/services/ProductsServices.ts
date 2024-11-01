@@ -42,7 +42,7 @@ class ProductsService {
   };
 
   createProduct = async (body: any) => {
-    const rows = await this.db
+    const [row] = await this.db
       .insert(product)
       .values({
         name: body.name,
@@ -59,8 +59,8 @@ class ProductsService {
       .returning();
 
     // Registra a movimentação inicial de estoque
-    if (rows.length > 0 && rows[0].id) {
-      const { id, current_stock } = rows[0];
+    if (row.id) {
+      const { id, current_stock } = row;
       if (current_stock) {
         await StockMovementsService.store(
           id,
@@ -71,17 +71,20 @@ class ProductsService {
       }
     }
 
-    return rows[0];
+    return row;
   };
 
   showProduct = async (id: number) => {
-    const rows = await this.db.select().from(product).where(eq(product.id, id));
+    const [row] = await this.db
+      .select()
+      .from(product)
+      .where(eq(product.id, id));
 
-    return rows[0];
+    return row;
   };
 
   updateProduct = async (id: number, body: any) => {
-    const rows = await this.db
+    const [row] = await this.db
       .update(product)
       .set({
         name: body.name,
@@ -97,20 +100,20 @@ class ProductsService {
       .where(eq(product.id, id))
       .returning();
 
-    return rows[0];
+    return row;
   };
 
   deleteProduct = async (id: number) => {
-    const rows = await this.db
+    const [row] = await this.db
       .delete(product)
       .where(eq(product.id, id))
       .returning();
 
-    return rows[0];
+    return row;
   };
 
   async updateStock(id: number, quantity: number) {
-    const rows = await this.db
+    const [row] = await this.db
       .update(product)
       .set({
         current_stock: sql`${product.current_stock} + ${quantity}`,
@@ -118,7 +121,7 @@ class ProductsService {
       .where(and(eq(product.id, id), eq(product.move_stock, true)))
       .returning();
 
-    return rows[0];
+    return row;
   }
 }
 

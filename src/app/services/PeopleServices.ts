@@ -45,7 +45,7 @@ class PeopleService {
   createPerson = async (body: any) => {
     const { cpf_cnpj, zip_code } = body;
 
-    const rows = await this.db
+    const [row] = await this.db
       .insert(person)
       .values({
         company_name: body.company_name,
@@ -63,19 +63,19 @@ class PeopleService {
       })
       .returning();
 
-    return rows[0];
+    return row;
   };
 
   showPerson = async (id: number) => {
-    const result = await this.db.select().from(person).where(eq(person.id, id));
+    const [row] = await this.db.select().from(person).where(eq(person.id, id));
 
-    return result[0];
+    return row;
   };
 
   updatePerson = async (id: number, body: any) => {
     const { cpf_cnpj, zip_code } = body;
 
-    const rows = await this.db
+    const [row] = await this.db
       .update(person)
       .set({
         company_name: body.company_name,
@@ -94,16 +94,16 @@ class PeopleService {
       .where(eq(person.id, id))
       .returning();
 
-    return rows[0];
+    return row;
   };
 
   deletePerson = async (id: number) => {
-    const rows = await this.db
+    const [row] = await this.db
       .delete(person)
       .where(eq(person.id, id))
       .returning();
 
-    return rows[0];
+    return row;
   };
 }
 
