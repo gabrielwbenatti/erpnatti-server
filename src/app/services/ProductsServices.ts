@@ -52,7 +52,6 @@ class ProductsService {
         status: body.status,
         minimum_stock: body.minimum_stock,
         maximum_stock: body.maximum_stock,
-        current_stock: body.current_stock,
         product_group_id: body.product_group_id,
         product_line_id: body.product_line_id,
       })
@@ -60,11 +59,11 @@ class ProductsService {
 
     // Registra a movimentação inicial de estoque
     if (row.id) {
-      const { id, current_stock } = row;
-      if (current_stock) {
+      const { id } = row;
+      if (body.current_stock) {
         await StockMovementsService.store(
           id,
-          current_stock,
+          body.current_stock,
           new Date(),
           "Initial Stock"
         );
