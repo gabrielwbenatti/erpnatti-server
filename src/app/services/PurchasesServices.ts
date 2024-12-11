@@ -31,7 +31,7 @@ class PurchasesService {
         total_amount: purchase.total_amount,
 
         person_id: purchase.person_id,
-        fournisseur: {
+        supplier: {
           company_name: person.company_name,
           trading_name: person.trading_name,
           cpf_cnpj: person.cpf_cnpj,
@@ -46,6 +46,7 @@ class PurchasesService {
 
   createPurchase = async (body: any) => {
     const { entry_date, emission_date, items } = body;
+    // const { entry_date, emission_date, items, payables } = body;
 
     const [row] = await this.db
       .insert(purchase)
@@ -62,24 +63,26 @@ class PurchasesService {
       })
       .returning();
 
-    if (row.id && items) {
-      const purchase_id = row.id;
+    const purchase_id = row.id;
 
+    if (purchase_id && items) {
       await this.db.transaction(async (tx) => {
-        await Promise.all(
-          items.map(async (item: any) => {
-            await tx.insert(purchaseItem).values({
-              purchase_id: purchase_id,
-              product_id: item.product_id,
-              quantity: item.quantity,
-              unitary_amount: item.unitary_amount,
-              total_amount: item.total_amount,
-              observation: item.observation,
-            });
-          })
-        );
+        const values = items.map((item: any) => ({
+          purchase_id: purchase_id,
+          product_id: item.product_id,
+          quantity: item.quantity,
+          unitary_amount: item.unitary_amount,
+          total_amount: item.total_amount,
+          observation: item.observation,
+        }));
+
+        await tx.insert(purchaseItem).values(values);
       });
     }
+
+    // TODO: store payables when storing a purchase
+    // if (purchase_id && payables) {
+    // }
 
     return row;
   };

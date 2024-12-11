@@ -1,5 +1,4 @@
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import Database from "../config/Database";
 import { stockMovement } from "../../db/schema";
 import productsServices from "./ProductsServices";
 import Database from "../config/database";
@@ -9,6 +8,16 @@ class StockMovementsService {
   private db: NodePgDatabase;
   constructor() {
     this.db = Database.getInstance();
+  }
+
+  async showMovements(product_id: number) {
+    const rows = await this.db
+      .select()
+      .from(stockMovement)
+      .where(eq(stockMovement.product_id, product_id))
+      .orderBy(stockMovement.date);
+
+    return rows;
   }
 
   async store(

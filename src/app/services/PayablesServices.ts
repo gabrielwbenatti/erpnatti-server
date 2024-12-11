@@ -10,7 +10,7 @@ class PayablesService {
   }
 
   getPayables = async (filters: Record<string, any> = {}) => {
-    const {} = filters;
+    const { } = filters;
     const where: (SQL | undefined)[] = [];
 
     const rows = await this.db
@@ -21,9 +21,12 @@ class PayablesService {
         due_date: payable.due_date,
         emission_date: payable.emission_date,
         parcel_number: payable.parcel_number,
+
         person_id: payable.person_id,
-        company_name: person.company_name,
-        trading_name: person.trading_name,
+        supplier: {
+          company_name: person.company_name,
+          trading_name: person.trading_name,
+        },
       })
       .from(payable)
       .innerJoin(person, eq(payable.person_id, person.id))
