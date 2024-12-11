@@ -4,6 +4,7 @@ import productRoute from "./ProductsRoutes";
 import peopleRoute from "./PeopleRoutes";
 import purchasesRoute from "./PurchasesRoutes";
 import payablesRoute from "./PayablesRoutes";
+import stockMovementsRoute from "./StockMovementsRoutes";
 
 const router = Router();
 
@@ -17,6 +18,7 @@ const defaultRoutes: DefaultRoutes[] = [
   { path: "/people", route: peopleRoute },
   { path: "/purchases", route: purchasesRoute },
   { path: "/payables", route: payablesRoute },
+  { path: "/stock_movements", route: stockMovementsRoute },
 ];
 
 defaultRoutes.forEach((defaultRoute) => {

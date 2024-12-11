@@ -11,4 +11,8 @@ router
   .put(productController.update)
   .delete(productController.remove);
 
+// TODO: incorporar rotas de Stock Movements
+// .get('/:id/stock-movements', showMovements)
+// .post('/:id/stock-movements', createMovement)
+
 export default router;
