@@ -1,5 +1,5 @@
 import { eq, and, SQL } from "drizzle-orm";
-import Database from "../config/Database";
+import Database from "../config/database";
 import { payable, payments, person } from "../../db/schema";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 

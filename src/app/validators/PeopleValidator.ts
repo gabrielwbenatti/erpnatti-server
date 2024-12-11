@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { person } from "../../db/schema";
-import Database from "../config/Database";
+import Database from "../config/database";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 class PeopleValidator {

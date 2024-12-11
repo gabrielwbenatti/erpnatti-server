@@ -1,5 +1,5 @@
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import Database from "../config/Database";
+import Database from "../config/database";
 
 class SalesService {
   private db: NodePgDatabase;

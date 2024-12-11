@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { purchase } from "../../db/schema";
-import Database from "../config/Database";
+import Database from "../config/database";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 class PurchasesValidator {

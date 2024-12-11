@@ -1,7 +1,7 @@
 import { eq, and, ilike, or, SQL } from "drizzle-orm";
 import { person } from "../../db/schema";
 import { numbersOnly } from "../helpers/string_helper";
-import Database from "../config/Database";
+import Database from "../config/database";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
 class PeopleService {

@@ -2,6 +2,8 @@ import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import Database from "../config/Database";
 import { stockMovement } from "../../db/schema";
 import productsServices from "./ProductsServices";
+import Database from "../config/database";
+import { eq } from "drizzle-orm";
 
 class StockMovementsService {
   private db: NodePgDatabase;

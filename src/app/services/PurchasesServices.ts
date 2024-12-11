@@ -6,7 +6,7 @@ import {
   product,
   payable,
 } from "../../db/schema";
-import Database from "../config/Database";
+import Database from "../config/database";
 import stockMovementsService from "./StockMovementsService";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 
