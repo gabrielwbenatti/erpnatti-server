@@ -1,0 +1,72 @@
+meta {
+  name: update
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{url}}{{path_purchase}}/2
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  User-Agent: insomnia/9.2.0
+}
+
+body:json {
+  {
+  	"data_emissao": "2024-10-08",
+  	"data_entrada": "2024-10-10",
+  	"valor_produto": 498.62,
+  	"valor_frete": 0,
+  	"valor_outros": 0,
+  	"valor_total": 498.62,
+  	"numero_documento": "00199943",
+  	"serie_documento": "001",
+  	"pessoa_id": 1,
+  	"compras_itens": [
+  		{
+  			"id": 1,
+  			"produto_id": 1,
+  			"compra_id": 2,
+  			"nome": "COLONIA SPIDERMAN 150ml",
+  			"quantidade": 1,
+  			"valor_unitario": 1,
+  			"valor_total": 1,
+  			"observacao": "1"
+  		},
+  		{
+  			"id": 2,
+  			"produto_id": 4,
+  			"compra_id": 2,
+  			"nome": "ESCOVA DE CABELO SPIDERMAN",
+  			"quantidade": 1,
+  			"valor_unitario": 1,
+  			"valor_total": 1,
+  			"observacao": "1"
+  		},
+  		{
+  			"id": 3,
+  			"produto_id": 3,
+  			"compra_id": 2,
+  			"nome": "KIT 2 ORGANIZADORES MULT STITCH",
+  			"quantidade": 1,
+  			"valor_unitario": 1,
+  			"valor_total": 1,
+  			"observacao": "1"
+  		},
+  		{
+  			"id": 4,
+  			"produto_id": 2,
+  			"compra_id": 2,
+  			"nome": "FAR WAY ORIGINAL DES COL 50ml",
+  			"quantidade": 1,
+  			"valor_unitario": 1,
+  			"valor_total": 1,
+  			"observacao": "1"
+  		}
+  	]
+  }
+}

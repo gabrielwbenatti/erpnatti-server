@@ -1,0 +1,32 @@
+meta {
+  name: update
+  type: http
+  seq: 9
+}
+
+put {
+  url: {{url}}{{path_products}}/3
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  User-Agent: insomnia/2023.5.8
+}
+
+body:json {
+  {
+  	"nome": "KIT 2 ORGANIZADORES MULT STITCH",
+  	"codigo_barra": null,
+  	"referencia": "170777",
+  	"movimenta_estoque": true,
+  	"status": true,
+  	"estoque_minimo": 0,
+  	"estoque_maximo": 0,
+  	"dt_hr_inclusao": "2024-10-15T12:42:58.763Z",
+  	"dt_hr_alteracao": "2024-10-15T15:42:58.717Z",
+  	"grupo_produto_id": null,
+  	"linha_produto_id": null
+  }
+}

@@ -1,0 +1,38 @@
+meta {
+  name: update
+  type: http
+  seq: 9
+}
+
+put {
+  url: {{url}}{{path_people}}/5
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  User-Agent: insomnia/2023.5.8
+}
+
+body:json {
+  {
+  		"id": 5,
+  		"company_name": "GAJA COMERCIAL LTDA",
+  		"trading_name": null,
+  		"cpf_cnpj": "48575886000128",
+  		"person_type": [
+  			"FORNECEDOR"
+  		],
+  		"zip_code": "",
+  		"address": null,
+  		"city": null,
+  		"neighbourhood": null,
+  		"number": null,
+  		"complement": null,
+  		"ibge_code": null,
+  		"reference_point": null,
+  		"included_at": "2024-10-23T17:05:37.154Z",
+  		"modified_at": null
+  	}
+}

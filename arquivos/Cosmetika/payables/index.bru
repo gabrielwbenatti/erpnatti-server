@@ -1,0 +1,22 @@
+meta {
+  name: index
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{url}}{{path_payables}}
+  body: json
+  auth: none
+}
+
+params:query {
+  ~tipo_pessoa: FORNECEDOR
+  ~tipo_pessoa: CLIENTE
+  ~search: 500
+}
+
+headers {
+  Content-Type: application/json
+  User-Agent: insomnia/2023.5.8
+}
