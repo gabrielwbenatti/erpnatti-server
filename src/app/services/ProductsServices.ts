@@ -1,4 +1,4 @@
-import { product } from "../../db/schema";
+import { product, productGroup, productLine } from "../../db/schema";
 import { eq, and, SQL, asc, or, ilike, sql } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import StockMovementsService from "./StockMovementsService";
@@ -33,8 +33,12 @@ class ProductsService {
         barcode: product.barcode,
         reference: product.reference,
         current_stock: product.current_stock,
+        group: { id: productGroup.id, name: productGroup.name },
+        line: { id: productLine.id, name: productLine.name },
       })
       .from(product)
+      .leftJoin(productGroup, eq(productGroup.id, product.product_group_id))
+      .leftJoin(productLine, eq(productLine.id, product.product_line_id))
       .where(and(...where))
       .orderBy(asc(product.name));
 
