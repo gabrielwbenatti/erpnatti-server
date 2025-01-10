@@ -203,23 +203,26 @@ class PurchasesService {
     return row;
   };
 
-  finishPurchase = async (id: number, body: any) => {
-    const { entry_date } = body;
-    const { items } = await this.showPurchase(id);
-    const rows: any[] = [];
+  finishPurchase = async (id: number) => {
+    // Obtém os dados da compra
+    const { entry_date, items } = await this.showPurchase(id);
 
-    if (items) {
-      items.forEach(async (item) => {
-        const row = await stockMovementsService.store(
-          item.product_id,
-          item.quantity!,
-          new Date(entry_date),
-          `Purchase Id ${id}`
-        );
-
-        rows.push(row);
-      });
+    if (!items || items.length === 0) {
+      return [];
     }
+
+    // Lista de promessas (Promises) a serem executadas
+    const stockMovementsPromises = items.map((item) =>
+      stockMovementsService.store(
+        item.product_id,
+        item.quantity!,
+        new Date(entry_date),
+        `Purchase Id ${id}`
+      )
+    );
+
+    // Esperar todas as promessas serem resolvidas
+    const rows = await Promise.all(stockMovementsPromises);
 
     return rows;
   };
