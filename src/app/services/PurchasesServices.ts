@@ -9,6 +9,7 @@ import {
 import Database from "../config/database";
 import stockMovementsService from "./StockMovementsService";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
+import { HttpError } from "../helpers/http_error";
 
 class PurchasesService {
   private db: NodePgDatabase;
@@ -45,29 +46,28 @@ class PurchasesService {
   };
 
   createPurchase = async (body: any) => {
-    const { entry_date, emission_date, items } = body;
-    // const { entry_date, emission_date, items, payables } = body;
+    const { entry_date, emission_date, items, payables } = body;
 
-    const [row] = await this.db
-      .insert(purchase)
-      .values({
-        emission_date: new Date(emission_date),
-        entry_date: new Date(entry_date),
-        product_amount: body.product_amount,
-        delivery_amount: body.delivery_amount,
-        others_amount: body.others_amount,
-        total_amount: body.total_amount,
-        document_number: body.document_number,
-        document_series: body.document_series,
-        person_id: body.person_id,
-      })
-      .returning();
+    await this.db.transaction(async (trx) => {
+      const [purchase_row] = await trx
+        .insert(purchase)
+        .values({
+          emission_date: new Date(emission_date),
+          entry_date: new Date(entry_date),
+          product_amount: body.product_amount,
+          delivery_amount: body.delivery_amount,
+          others_amount: body.others_amount,
+          total_amount: body.total_amount,
+          document_number: body.document_number,
+          document_series: body.document_series,
+          person_id: body.person_id,
+        })
+        .returning();
 
-    const purchase_id = row.id;
+      const purchase_id = purchase_row.id;
 
-    if (purchase_id && items) {
-      await this.db.transaction(async (tx) => {
-        const values = items.map((item: any) => ({
+      if (purchase_id && items) {
+        const itemsData = items.map((item: any) => ({
           purchase_id: purchase_id,
           product_id: item.product_id,
           quantity: item.quantity,
@@ -76,15 +76,15 @@ class PurchasesService {
           observation: item.observation,
         }));
 
-        await tx.insert(purchaseItem).values(values);
-      });
-    }
+        await trx.insert(purchaseItem).values(itemsData);
+      }
 
-    // TODO: store payables when storing a purchase
-    // if (purchase_id && payables) {
-    // }
+      if (purchase_id && payables) {
+        const payablesData = payables.map((item: any) => ({}));
+      }
+    });
 
-    return row;
+    return null;
   };
 
   showPurchase = async (id: number) => {
