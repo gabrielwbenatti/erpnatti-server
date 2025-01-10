@@ -88,9 +88,8 @@ class PurchasesController implements IController {
 
   async finishPurchase(req: Request, res: Response) {
     const id = req.params.id;
-    const body = req.body;
 
-    const result = await purchasesService.finishPurchase(+id, body);
+    const result = await purchasesService.finishPurchase(+id);
 
     if (result) {
       successResponse(res, result, HttpStatusCode.OK);

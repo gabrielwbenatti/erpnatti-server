@@ -5,6 +5,8 @@ import peopleRoute from "./PeopleRoutes";
 import purchasesRoute from "./PurchasesRoutes";
 import payablesRoute from "./PayablesRoutes";
 import stockMovementsRoute from "./StockMovementsRoutes";
+import productGroupsRoute from "./ProductGroupsRoute";
+import productLinesRoute from "./ProductLinesGroup";
 
 const router = Router();
 
@@ -18,7 +20,9 @@ const defaultRoutes: DefaultRoutes[] = [
   { path: "/people", route: peopleRoute },
   { path: "/purchases", route: purchasesRoute },
   { path: "/payables", route: payablesRoute },
-  { path: "/stock_movements", route: stockMovementsRoute },
+  { path: "/stock-movements", route: stockMovementsRoute },
+  { path: "/product-groups", route: productGroupsRoute },
+  { path: "/product-lines", route: productLinesRoute },
 ];
 
 defaultRoutes.forEach((defaultRoute) => {
