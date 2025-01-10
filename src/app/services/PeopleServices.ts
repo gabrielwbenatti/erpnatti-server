@@ -50,10 +50,10 @@ class PeopleService {
       .values({
         company_name: body.company_name,
         trading_name: body.trading_name,
-        cpf_cnpj: numbersOnly(cpf_cnpj),
+        cpf_cnpj: cpf_cnpj ? numbersOnly(cpf_cnpj) : null,
         contact_type: body.contact_type || ["CLIENTE"],
 
-        zip_code: numbersOnly(zip_code),
+        zip_code: zip_code ? numbersOnly(zip_code) : null,
         address: body.address,
         neighbourhood: body.neighbourhood,
         city: body.city,
@@ -80,10 +80,10 @@ class PeopleService {
       .set({
         company_name: body.company_name,
         trading_name: body.trading_name,
-        cpf_cnpj: numbersOnly(cpf_cnpj),
+        cpf_cnpj: cpf_cnpj ? numbersOnly(cpf_cnpj) : null,
         contact_type: body.contact_type || ["CLIENTE"],
 
-        zip_code: numbersOnly(zip_code),
+        zip_code: zip_code ? numbersOnly(zip_code) : null,
         address: body.address,
         neighbourhood: body.neighbourhood,
         city: body.city,
