@@ -1,0 +1,23 @@
+meta {
+  name: store
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{url}}{{path_product_groups}}
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  User-Agent: insomnia/2023.5.8
+}
+
+body:json {
+  {
+    "name": "Hidratantes p/ Mãos",
+    "status": true
+  }
+}
