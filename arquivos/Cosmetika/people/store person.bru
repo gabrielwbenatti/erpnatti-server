@@ -1,0 +1,34 @@
+meta {
+  name: store person
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{url}}{{path_people}}
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  User-Agent: insomnia/2023.5.8
+}
+
+body:json {
+  {
+    "company_name": "NATURA COSMÉTICOS S/A",
+    "trading_name": null,
+    "cpf_cnpj": "71673990005136",
+    "contact_type": [
+      "FORNECEDOR"
+    ],
+    "zip_code": "",
+    "address": "RUA LAURO PINTO TOLEDO",
+    "neighbourhood": "PINHAL",
+    "city": "CABREÚVA/SP",
+    "ibge_code": null,
+    "number": "410",
+    "complement": "SALA 1"
+  }
+}

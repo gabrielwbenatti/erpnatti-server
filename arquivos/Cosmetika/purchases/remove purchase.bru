@@ -1,0 +1,15 @@
+meta {
+  name: remove purchase
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{url}}{{path_purchase}}/4
+  body: none
+  auth: none
+}
+
+headers {
+  User-Agent: insomnia/9.2.0
+}

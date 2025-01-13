@@ -1,0 +1,23 @@
+meta {
+  name: store line
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{url}}{{path_product_lines}}
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  User-Agent: insomnia/2023.5.8
+}
+
+body:json {
+  {
+    "name": "Siàge",
+    "status": true
+  }
+}

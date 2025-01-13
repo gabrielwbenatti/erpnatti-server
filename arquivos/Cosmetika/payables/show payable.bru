@@ -1,0 +1,16 @@
+meta {
+  name: show payable
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{url}}{{path_payables}}/8
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  User-Agent: insomnia/2023.5.8
+}
