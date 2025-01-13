@@ -48,7 +48,7 @@ class PurchasesService {
   createPurchase = async (body: any) => {
     const { entry_date, emission_date, items, payables } = body;
 
-    await this.db.transaction(async (trx) => {
+    const row = await this.db.transaction(async (trx) => {
       const [purchase_row] = await trx
         .insert(purchase)
         .values({
@@ -80,11 +80,23 @@ class PurchasesService {
       }
 
       if (purchase_id && payables) {
-        const payablesData = payables.map((item: any) => ({}));
+        const payablesData = payables.map((item: any) => ({
+          due_date: new Date(item.due_date),
+          emission_date: new Date(emission_date),
+          person_id: item.person_id,
+          title_number: item.title_number,
+          amount: item.amount,
+          parcel_number: item.parcel_number,
+          purchase_id: purchase_id,
+        }));
+
+        await trx.insert(payable).values(payablesData);
       }
+
+      return purchase_row;
     });
 
-    return null;
+    return row;
   };
 
   showPurchase = async (id: number) => {
@@ -213,7 +225,7 @@ class PurchasesService {
 
     // Lista de promessas (Promises) a serem executadas
     const stockMovementsPromises = items.map((item) =>
-      stockMovementsService.store(
+      stockMovementsService.createMovement(
         item.product_id,
         item.quantity!,
         new Date(entry_date),

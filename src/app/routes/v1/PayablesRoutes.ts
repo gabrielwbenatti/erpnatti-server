@@ -8,6 +8,7 @@ router.route("/").get(payablesController.index).post(payablesController.store);
 router
   .route("/:id")
   .get(payablesController.show)
+  .put(payablesController.update)
   .delete(payablesController.remove);
 
 export default router;
