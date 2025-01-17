@@ -1,0 +1,30 @@
+meta {
+  name: update payable
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{url}}{{path_payables}}/8
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  User-Agent: insomnia/2023.5.8
+}
+
+body:json {
+  {
+    "title_number": "9899716 - 2/2",
+    "amount": 14.68,
+    "due_date": "2025-02-03T00:00:00.000Z",
+    "emission_date": "2024-12-04T00:00:00.000Z",
+    "parcel_number": 2,
+    "included_at": "2025-01-13T15:03:23.817Z",
+    "modified_at": null,
+    "purchase_id": 5,
+    "person_id": 2
+  }
+}

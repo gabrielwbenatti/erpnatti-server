@@ -1,0 +1,16 @@
+meta {
+  name: destroy payable
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{url}}{{path_payables}}/6
+  body: none
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  User-Agent: insomnia/2023.5.8
+}

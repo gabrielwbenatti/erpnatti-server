@@ -20,7 +20,7 @@ class StockMovementsService {
     return rows;
   }
 
-  async store(
+  async createMovement(
     product_id: number,
     quantity: number,
     date: Date,

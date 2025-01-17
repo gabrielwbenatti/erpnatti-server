@@ -65,7 +65,7 @@ class ProductsService {
     if (row.id) {
       const { id } = row;
       if (body.current_stock) {
-        await StockMovementsService.store(
+        await StockMovementsService.createMovement(
           id,
           body.current_stock,
           new Date(),
