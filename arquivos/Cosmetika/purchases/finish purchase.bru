@@ -1,0 +1,22 @@
+meta {
+  name: finish purchase
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{url}}{{path_purchase}}/1/finish
+  body: none
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  User-Agent: insomnia/9.2.0
+}
+
+body:json {
+  {
+    "entry_date": "2024-12-05"
+  }
+}

@@ -2,3 +2,7 @@
 **/__history/
 /modules 
 /Win32 
+/node_modules
+/Win64
+.env
+/drizzle

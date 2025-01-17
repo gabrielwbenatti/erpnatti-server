@@ -1,0 +1,19 @@
+meta {
+  name: index purchases
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{url}}{{path_purchase}}
+  body: none
+  auth: none
+}
+
+params:query {
+  ~pessoa_id: 2
+}
+
+headers {
+  User-Agent: insomnia/9.2.0
+}

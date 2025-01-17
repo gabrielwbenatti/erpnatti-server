@@ -1,0 +1,27 @@
+meta {
+  name: store sale
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{url}}{{path_sales}}
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  User-Agent: insomnia/2023.5.8
+}
+
+body:json {
+  {
+  	"pessoa_id": 1,
+  	"valor_produto": 100,
+  	"valor_frete": 0,
+  	"valor_outros": 0,
+  	"valor_total": 100,
+  	"data_emissao": "2024-09-10T00:00:00.000Z"
+  }
+}

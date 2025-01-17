@@ -1,0 +1,62 @@
+meta {
+  name: store purchase
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{url}}{{path_purchase}}
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  User-Agent: insomnia/9.2.0
+}
+
+body:json {
+  {
+    "emission_date": "2024-12-04",
+    "entry_date": "2024-12-04",
+    "product_amount": 28.82,
+    "delivery_amount": 0,
+    "others_amount": 4.54,
+    "total_amount": 29.36,
+    "document_number": "9899716",
+    "document_series": "1",
+    "person_id": 2,
+    "items": [
+      {
+        "product_id": 11,
+        "quantity": 1,
+        "unitary_amount": 1.95,
+        "total_amount": 1.95
+      },
+      {
+        "product_id": 10,
+        "quantity": 1,
+        "unitary_amount": 22.87,
+        "total_amount": 22.87
+      }
+    ],
+    "payables": [
+      {
+        "due_date": "2025-01-03",
+        "emission_date": "2024-12-04",
+        "person_id": 2,
+        "title_number": "9899716 - 1/2",
+        "amount": 14.68,
+        "parcel_number": 1
+      },
+      {
+        "due_date": "2025-02-03",
+        "emission_date": "2024-12-04",
+        "person_id": 2,
+        "title_number": "9899716 - 1/2",
+        "amount": 14.68,
+        "parcel_number": 2
+      }
+    ]
+  }
+}
