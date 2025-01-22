@@ -1,12 +1,12 @@
 meta {
-  name: destroy person
+  name: show product
   type: http
-  seq: 10
+  seq: 8
 }
 
-delete {
-  url: {{url}}{{path_products}}/1
-  body: none
+get {
+  url: {{url}}{{path_products}}/10
+  body: json
   auth: none
 }
 
