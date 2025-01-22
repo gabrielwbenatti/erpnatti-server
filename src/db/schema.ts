@@ -44,6 +44,8 @@ export const product = pgTable("products", {
   minimum_stock: real().default(0),
   maximum_stock: real().default(0),
   current_stock: real().default(0),
+  sale_price: real().default(0),
+  promotional_price: real().default(0),
 
   ...defaultFields,
 
@@ -63,6 +65,8 @@ export const stockMovement = pgTable("stock_movements", {
   product_id: integer()
     .notNull()
     .references(() => product.id, { onDelete: "cascade", onUpdate: "cascade" }),
+
+  ...defaultFields,
 });
 
 export const person = pgTable("people", {
