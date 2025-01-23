@@ -59,7 +59,7 @@ export const product = pgTable("products", {
 
 export const stockMovement = pgTable("stock_movements", {
   id: serial().primaryKey(),
-  date: date({ mode: "date" }).default(new Date()),
+  date: date({ mode: "date" }).defaultNow(),
   quantity: real().default(0),
   observation: varchar({ length: 255 }),
   product_id: integer()
